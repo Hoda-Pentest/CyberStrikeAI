@@ -5,21 +5,21 @@ short_description: "下一代Web爬虫和蜘蛛工具"
 description: |
   Katana是一个快速、智能的Web爬虫工具，用于发现Web应用中的端点和资源。
 
-  **主要功能：**
+  **Key Features:**
   - 智能Web爬虫
   - JavaScript渲染支持
   - 表单提取
-  - 端点发现
+  - Endpoint discovery
 
-  **使用场景：**
+  **Use Cases:**
   - Web应用侦察
-  - 端点发现
+  - Endpoint discovery
   - 内容爬取
-  - 安全测试
+  - Security testing
 parameters:
   - name: "url"
     type: "string"
-    description: "目标URL"
+    description: "Target URL"
     required: true
     flag: "-u"
     format: "flag"
@@ -47,17 +47,17 @@ parameters:
   - name: "additional_args"
     type: "string"
     description: |
-      额外的Katana参数。用于传递未在参数列表中定义的Katana选项。
+      Additional Katana parameters. Used to pass Katana options not defined in the parameter list.
 
-      **示例值：**
+      **Example Values:**
       - "-headless": 使用无头浏览器
       - "-output-template '{{url}}'": 自定义输出格式
       - "-output output.txt": 输出到文件
       - "-c 20": 并发数
 
-      **注意事项：**
-      - 多个参数用空格分隔
-      - 确保参数格式正确，避免命令注入
-      - 此参数会直接追加到命令末尾
+      **Notes:**
+      - Multiple parameters are separated by spaces
+      - Ensure the parameter format is correct to avoid command injection
+      - This parameter is appended directly to the end of the command
     required: false
     format: "positional"

@@ -18,6 +18,10 @@ import (
 	"go.uber.org/zap"
 )
 
+// defaultRoleName is the persisted name of the built-in default role (matches the stored role name and its roles/ file).
+// It is intentionally kept as the original Unicode value so existing data keeps working.
+const defaultRoleName = "\u9ed8\u8ba4"
+
 // RoleHandler 角色处理器
 type RoleHandler struct {
 	config     *config.Config
@@ -270,8 +274,8 @@ func (h *RoleHandler) DeleteRole(c *gin.Context) {
 		return
 	}
 
-	// 不允许删除"默认"角色
-	if roleName == "默认" {
+	// The default role cannot be deleted
+	if roleName == defaultRoleName {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "不能删除默认角色"})
 		return
 	}

@@ -5,21 +5,21 @@ short_description: "高级ROP/JOP gadget搜索工具"
 description: |
   Ropper是一个高级ROP/JOP gadget搜索工具，用于漏洞利用开发。
 
-  **主要功能：**
+  **Key Features:**
   - ROP/JOP gadget搜索
   - Gadget质量评估
-  - 多种架构支持
-  - 利用链生成
+  - Multiple architecture support
+  - Exploit chain generation
 
-  **使用场景：**
-  - 漏洞利用开发
-  - ROP链构建
-  - 二进制分析
-  - 安全研究
+  **Use Cases:**
+  - Exploit development
+  - ROP chain construction
+  - Binary analysis
+  - Security research
 parameters:
   - name: "binary"
     type: "string"
-    description: "要分析的二进制文件路径"
+    description: "Path to the binary file to analyze"
     required: true
     flag: "--file"
     format: "flag"
@@ -52,14 +52,14 @@ parameters:
   - name: "additional_args"
     type: "string"
     description: |
-      额外的ropper参数。用于传递未在参数列表中定义的ropper选项。
+      Additional ropper parameters. Used to pass ropper options not defined in the parameter list.
 
-      **示例值：**
-      - 根据工具特性添加常用参数示例
+      **Example Values:**
+      - Add common parameter examples based on the tool's characteristics
 
-      **注意事项：**
-      - 多个参数用空格分隔
-      - 确保参数格式正确，避免命令注入
-      - 此参数会直接追加到命令末尾
+      **Notes:**
+      - Multiple parameters are separated by spaces
+      - Ensure the parameter format is correct to avoid command injection
+      - This parameter is appended directly to the end of the command
     required: false
     format: "positional"

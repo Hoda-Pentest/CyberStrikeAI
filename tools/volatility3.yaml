@@ -5,17 +5,17 @@ short_description: "Volatility3内存取证分析工具"
 description: |
   Volatility3是Volatility框架的下一代版本，用于内存取证分析。
 
-  **主要功能：**
+  **Key Features:**
   - 内存转储分析
   - 高级插件系统
   - 改进的性能
   - 更好的文档
 
-  **使用场景：**
+  **Use Cases:**
   - 内存取证
-  - 恶意软件分析
+  - Malware analysis
   - 事件响应
-  - 数字取证
+  - Digital forensics
 parameters:
   - name: "memory_file"
     type: "string"
@@ -31,21 +31,21 @@ parameters:
     format: "positional"
   - name: "output_file"
     type: "string"
-    description: "输出文件路径"
+    description: "Output file path"
     required: false
     flag: "-o"
     format: "flag"
   - name: "additional_args"
     type: "string"
     description: |
-      额外的volatility3参数。用于传递未在参数列表中定义的volatility3选项。
+      Additional volatility3 parameters. Used to pass volatility3 options not defined in the parameter list.
 
-      **示例值：**
-      - 根据工具特性添加常用参数示例
+      **Example Values:**
+      - Add common parameter examples based on the tool's characteristics
 
-      **注意事项：**
-      - 多个参数用空格分隔
-      - 确保参数格式正确，避免命令注入
-      - 此参数会直接追加到命令末尾
+      **Notes:**
+      - Multiple parameters are separated by spaces
+      - Ensure the parameter format is correct to avoid command injection
+      - This parameter is appended directly to the end of the command
     required: false
     format: "positional"

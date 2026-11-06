@@ -1475,7 +1475,7 @@ parameters:
     type: "string"
     description: |
       响应体正则过滤（仅影响 stdout，不影响 --download 与指标）。
-      默认 line 模式按行匹配；示例：'(error|exception|SQL|password|token|uid)'。
+      默认 line 模式按行匹配；Example:'(error|exception|SQL|password|token|uid)'。
       与 response_max_lines/response_max_bytes 配合可显著减少 token 消耗。
     required: false
     flag: "--response-filter"

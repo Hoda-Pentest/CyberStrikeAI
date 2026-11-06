@@ -44,12 +44,12 @@ short_description: "Impacket 网络协议工具集，用于网络协议攻击和
 description: |
   Impacket 是一个 Python 工具集，用于处理网络协议，常用于渗透测试和横向移动。
 
-  **主要功能：**
+  **Key Features:**
   - SMB 协议攻击
   - Kerberos 协议攻击
   - RPC 协议攻击
-  - 远程命令执行
-  - 凭证转储
+  - Remote command execution
+  - Credential dumping
   - 票据传递攻击
 
   **常用工具：**
@@ -59,16 +59,16 @@ description: |
   - secretsdump: 凭证转储
   - getTGT: Kerberos 票据获取
 
-  **使用场景：**
-  - 横向移动
-  - 凭证转储
-  - 远程命令执行
-  - 后渗透测试
+  **Use Cases:**
+  - Lateral movement
+  - Credential dumping
+  - Remote command execution
+  - Post-exploitation testing
 
-  **注意事项：**
+  **Notes:**
   - 需要 Python 环境
   - 需要相应的凭据
-  - 仅用于授权的安全测试
+  - For authorized security testing only
   - 工具路径通常在 /usr/share/doc/python3-impacket/examples/ 或通过 pip 安装
 parameters:
   - name: "script"
@@ -87,15 +87,15 @@ parameters:
   - name: "additional_args"
     type: "string"
     description: |
-      额外的impacket参数。用于传递未在参数列表中定义的impacket选项。
+      Additional impacket parameters. Used to pass impacket options not defined in the parameter list.
 
-      **示例值：**
-      - 根据工具特性添加常用参数示例
+      **Example Values:**
+      - Add common parameter examples based on the tool's characteristics
 
-      **注意事项：**
-      - 多个参数用空格分隔
-      - 确保参数格式正确，避免命令注入
-      - 此参数会直接追加到命令末尾
+      **Notes:**
+      - Multiple parameters are separated by spaces
+      - Ensure the parameter format is correct to avoid command injection
+      - This parameter is appended directly to the end of the command
     required: false
     default: ""
     position: 2

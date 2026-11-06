@@ -12,7 +12,7 @@ function concurrencyHarness(value) {
   showBatchQueueDetail() {},refreshBatchQueues() {},console};
  vm.createContext(ctx);
  const start = taskSource.indexOf('async function saveInlineConcurrency(');
- vm.runInContext(taskSource.slice(start,taskSource.indexOf('// --- 单条执行 ---',start)),ctx);
+ vm.runInContext(taskSource.slice(start,taskSource.indexOf('// --- Single run ---',start)),ctx);
  return {ctx,calls:() => calls,message:() => message,focused:() => focused};
 }
 test('invalid concurrency leaves the editor open and makes no API calls', async () => {

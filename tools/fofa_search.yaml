@@ -12,30 +12,30 @@ args:
     # ==================== FOFA配置 ====================
     # 请在此处配置您的 FOFA API Key
     # 您也可以在环境变量中设置：FOFA_API_KEY
-    # enable 默认为 false，需开启才能调用该MCP
+    # enable defaults to false; must be turned on to call this MCP
     FOFA_API_KEY = ""  # 请填写您的FOFA API密钥
     # ==================================================
 
     # FOFA API基础URL
     base_url = "https://fofa.info/api/v1/search/all"
 
-    # 解析参数（从JSON字符串或命令行参数）
+    # Parse parameters (from a JSON string or command-line arguments)
     def parse_args():
-        # 尝试从第一个参数读取JSON配置
+        # Try to read JSON configuration from the first argument
         if len(sys.argv) > 1:
             try:
-                # 确保 sys.argv[1] 是字符串
+                # Ensure sys.argv[1] is a string
                 arg1 = str(sys.argv[1])
-                # 尝试解析为JSON
+                # Try to parse as JSON
                 config = json.loads(arg1)
-                # 确保返回的是字典类型
+                # Ensure the returned value is a dict
                 if isinstance(config, dict):
                     return config
             except (json.JSONDecodeError, TypeError, ValueError):
-                # 如果不是JSON，使用传统的位置参数方式
+                # If it's not JSON, fall back to the legacy positional-argument style
                 pass
 
-        # 传统位置参数方式（向后兼容）
+        # Legacy positional-argument style (for backward compatibility)
         # 注意：api_key 不作为调用参数传入，而是从配置或环境变量读取
         # 参数位置：query=2, size=3, page=4, fields=5, full=6
         # 但在 sys.argv 中，由于 python3 -c "code" 的格式，实际位置需要调整
@@ -66,11 +66,11 @@ args:
     try:
         config = parse_args()
 
-        # 确保 config 是字典类型
+        # Ensure config is a dict
         if not isinstance(config, dict):
             error_result = {
                 "status": "error",
-                "message": f"参数解析错误: 期望字典类型，但得到 {type(config).__name__}",
+                "message": f"Parameter parsing error: expected a dict, got {type(config).__name__}",
                 "type": "TypeError"
             }
             print(json.dumps(error_result, ensure_ascii=False, indent=2))
@@ -93,7 +93,7 @@ args:
         if not query:
             error_result = {
                 "status": "error",
-                "message": "缺少必需参数: query（搜索查询语句）",
+                "message": "Missing required parameter: query (search query string)",
                 "required_params": ["query"],
                 "examples": [
                     'app="Apache"',
@@ -114,7 +114,7 @@ args:
             'qbase64': base64.b64encode(query.encode('utf-8')).decode('utf-8')
         }
 
-        # 可选参数
+        # Optional parameters
         if 'size' in config and config['size'] is not None:
             try:
                 size = int(config['size'])
@@ -161,7 +161,7 @@ args:
                 print(json.dumps(error_result, ensure_ascii=False, indent=2))
                 sys.exit(1)
 
-            # 格式化输出结果
+            # Format the output result
             output = {
                 "status": "success",
                 "query": query,
@@ -178,7 +178,7 @@ args:
         except requests.exceptions.RequestException as e:
             error_result = {
                 "status": "error",
-                "message": f"请求失败: {str(e)}",
+                "message": f"Request failed: {str(e)}",
                 "suggestion": "请检查网络连接或FOFA API服务状态"
             }
             print(json.dumps(error_result, ensure_ascii=False, indent=2))
@@ -187,7 +187,7 @@ args:
     except Exception as e:
         error_result = {
             "status": "error",
-            "message": f"执行出错: {str(e)}",
+            "message": f"Execution error: {str(e)}",
             "type": type(e).__name__
         }
         print(json.dumps(error_result, ensure_ascii=False, indent=2))
@@ -197,20 +197,20 @@ short_description: "FOFA网络空间搜索引擎，支持灵活的查询参数�
 description: |
   FOFA是一个网络空间测绘搜索引擎，可以通过多种查询条件搜索互联网资产。
 
-  **主要功能：**
-  - 支持多种查询语法（app、title、domain、ip、port、country、city等）
-  - 灵活的字段返回配置
+  **Key Features:**
+  - Supports multiple query syntaxes (app, title, domain, ip, port, country, city, etc.)
+  - Flexible return-field configuration
   - 分页查询支持
   - 完整数据模式（full参数）
 
-  **使用场景：**
-  - 资产发现和枚举
-  - 漏洞影响范围评估
-  - 安全态势感知
-  - 威胁情报收集
-  - Bug bounty信息收集
+  **Use Cases:**
+  - Asset discovery and enumeration
+  - Vulnerability impact assessment
+  - Security posture awareness
+  - Threat intelligence gathering
+  - Bug bounty reconnaissance
 
-  **查询语法说明：**
+  **Query Syntax:**
 
   **基础查询：**
   - 直接输入查询语句，将从标题、HTML内容、HTTP头信息、URL字段中搜索
@@ -243,7 +243,7 @@ description: |
 
   **独立IP语法（不可与其他语法共用）：** `port_size`、`port_size_gt`、`port_size_lt`、`ip_ports`、`ip_country`、`ip_region`、`ip_city`、`ip_after`、`ip_before`
 
-  **常用查询示例：**
+  **常用查询Example:**
   - `app="Apache"` - 搜索Apache应用
   - `title="登录"` - 搜索标题包含"登录"的页面
   - `domain="example.com"` - 搜索特定域名
@@ -259,9 +259,9 @@ description: |
   **详细语法文档：** 更多语法说明和组件列表请参考FOFA官方文档
 
 
-  **注意事项：**
-  - API调用有频率限制，请合理使用
-  - 查询结果数量受账户权限限制
+  **Notes:**
+  - The API has rate limits, please use it reasonably
+  - The number of query results is limited by account permissions
   - full参数需要高级权限
 parameters:
   - name: "query"
@@ -270,9 +270,9 @@ parameters:
       FOFA查询语句（必需）
 
       搜索查询语句，支持FOFA查询语法。
-      示例：
+      Example:
       - app="Apache"
-      - title="登录"
+      - title="login"
       - domain="example.com"
       - ip="1.1.1.1"
       - port="80"
@@ -287,7 +287,7 @@ parameters:
       返回结果数量（可选）
 
       每页返回的结果数量，默认100。
-      取值范围：1-10000，受账户权限限制。
+      Range: 1-10000, limited by account permissions.
     required: false
     position: 3
     format: "positional"
@@ -295,10 +295,10 @@ parameters:
   - name: "page"
     type: "int"
     description: |
-      页码（可选）
+      Page number (optional)
 
-      要返回的页码，从1开始，默认1。
-      用于分页查询大量结果。
+      The page number to return, starting from 1, default 1.
+      Used to paginate large result sets.
     required: false
     position: 4
     format: "positional"
@@ -306,9 +306,9 @@ parameters:
   - name: "fields"
     type: "string"
     description: |
-      返回字段列表（可选）
+      List of fields to return (optional)
 
-      需要返回的字段，多个字段用逗号分隔。
+      The fields to return, multiple fields separated by commas.
       默认字段：ip,port,domain
       可用字段：host,title,ip,domain,port,protocol,country,region,city,server,icp,header,banner,body,asn,org
     required: false

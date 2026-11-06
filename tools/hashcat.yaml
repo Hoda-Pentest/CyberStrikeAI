@@ -5,21 +5,21 @@ short_description: "高级密码破解工具，支持GPU加速"
 description: |
   Hashcat是一个高级密码恢复工具，支持多种哈希算法和攻击模式。
 
-  **主要功能：**
+  **Key Features:**
   - 支持多种哈希算法
   - GPU加速
   - 多种攻击模式（字典、组合、掩码等）
-  - 规则引擎
+  - Rule engine
 
-  **使用场景：**
-  - 密码恢复
-  - 哈希破解
-  - 安全测试
-  - 取证分析
+  **Use Cases:**
+  - Password recovery
+  - Hash cracking
+  - Security testing
+  - Forensic analysis
 parameters:
   - name: "hash_file"
     type: "string"
-    description: "包含哈希的文件"
+    description: "File containing the hash"
     required: true
     position: 0
     format: "positional"
@@ -38,7 +38,7 @@ parameters:
     format: "flag"
   - name: "wordlist"
     type: "string"
-    description: "字典文件"
+    description: "Dictionary file"
     required: false
     default: "/usr/share/wordlists/rockyou.txt"
     position: 1

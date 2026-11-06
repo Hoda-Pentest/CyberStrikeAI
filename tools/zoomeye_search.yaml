@@ -12,30 +12,30 @@ args:
     # ==================== ZoomEye配置 ====================
     # 请在此处配置您的ZoomEye账号信息
     # 您也可以在环境变量中设置：ZOOMEYE_API_KEY
-    # enable 默认为 false，需开启才能调用该MCP
+    # enable defaults to false; must be turned on to call this MCP
     ZOOMEYE_API_KEY = ""  # 请填写您的ZoomEye API密钥
     # ==================================================
 
     # ZoomEye API基础URL
     base_url = "https://api.zoomeye.ai/v2/search"
 
-    # 解析参数（从JSON字符串或命令行参数）
+    # Parse parameters (from a JSON string or command-line arguments)
     def parse_args():
-        # 尝试从第一个参数读取JSON配置
+        # Try to read JSON configuration from the first argument
         if len(sys.argv) > 1:
             try:
-                # 确保 sys.argv[1] 是字符串
+                # Ensure sys.argv[1] is a string
                 arg1 = str(sys.argv[1])
-                # 尝试解析为JSON
+                # Try to parse as JSON
                 config = json.loads(arg1)
-                # 确保返回的是字典类型
+                # Ensure the returned value is a dict
                 if isinstance(config, dict):
                     return config
             except (json.JSONDecodeError, TypeError, ValueError):
-                # 如果不是JSON，使用传统的位置参数方式
+                # If it's not JSON, fall back to the legacy positional-argument style
                 pass
 
-        # 传统位置参数方式（向后兼容）
+        # Legacy positional-argument style (for backward compatibility)
         # 参数位置：query=1, page=2, pagesize=3, fields=4, sub_type=5
         config = {}
         if len(sys.argv) > 1:
@@ -59,11 +59,11 @@ args:
     try:
         config = parse_args()
 
-        # 确保 config 是字典类型
+        # Ensure config is a dict
         if not isinstance(config, dict):
             error_result = {
                 "status": "error",
-                "message": f"参数解析错误: 期望字典类型，但得到 {type(config).__name__}",
+                "message": f"Parameter parsing error: expected a dict, got {type(config).__name__}",
                 "type": "TypeError"
             }
             print(json.dumps(error_result, ensure_ascii=False, indent=2))
@@ -86,7 +86,7 @@ args:
         if not query:
             error_result = {
                 "status": "error",
-                "message": "缺少必需参数: query（搜索查询语句）",
+                "message": "Missing required parameter: query (search query string)",
                 "required_params": ["query"],
                 "examples": [
                     'app:"Apache"',
@@ -107,7 +107,7 @@ args:
             'qbase64': base64.b64encode(query.encode('utf-8')).decode('utf-8')
         }
 
-        # 可选参数
+        # Optional parameters
         if 'page' in config and config['page'] is not None:
             try:
                 page = int(config['page'])
@@ -171,7 +171,7 @@ args:
                 print(json.dumps(error_result, ensure_ascii=False, indent=2))
                 sys.exit(1)
 
-            # 格式化输出结果
+            # Format the output result
             # ZoomEye API 返回的数据在 data 字段中
             data_list = result_data.get('data', [])
             if isinstance(data_list, dict):
@@ -200,7 +200,7 @@ args:
         except requests.exceptions.RequestException as e:
             error_result = {
                 "status": "error",
-                "message": f"请求失败: {str(e)}",
+                "message": f"Request failed: {str(e)}",
                 "suggestion": "请检查网络连接或ZoomEye API服务状态"
             }
             print(json.dumps(error_result, ensure_ascii=False, indent=2))
@@ -209,7 +209,7 @@ args:
     except Exception as e:
         error_result = {
             "status": "error",
-            "message": f"执行出错: {str(e)}",
+            "message": f"Execution error: {str(e)}",
             "type": type(e).__name__
         }
         print(json.dumps(error_result, ensure_ascii=False, indent=2))
@@ -219,22 +219,22 @@ short_description: "ZoomEye网络空间搜索引擎，支持灵活的查询参�
 description: |
   ZoomEye（钟馗之眼）是一个网络空间测绘搜索引擎，可以通过多种查询条件搜索互联网资产。
 
-  **主要功能：**
-  - 支持多种查询语法（app、title、domain、ip、port、country、city等）
-  - 灵活的字段返回配置
+  **Key Features:**
+  - Supports multiple query syntaxes (app, title, domain, ip, port, country, city, etc.)
+  - Flexible return-field configuration
   - 分页查询支持（最多10000条/页）
   - 支持IPv4、IPv6和Web资产搜索
   - 支持统计项（facets）查询
   - 丰富的资产信息返回
 
-  **使用场景：**
-  - 资产发现和枚举
-  - 漏洞影响范围评估
-  - 安全态势感知
-  - 威胁情报收集
-  - Bug bounty信息收集
+  **Use Cases:**
+  - Asset discovery and enumeration
+  - Vulnerability impact assessment
+  - Security posture awareness
+  - Threat intelligence gathering
+  - Bug bounty reconnaissance
 
-  **查询语法说明：**
+  **Query Syntax:**
 
   **搜索规则：**
   - 搜索范围包括设备（IPv4、IPv6）和网站（域名）
@@ -254,7 +254,7 @@ description: |
 
   **地理位置：** `country="CN"`、`subdivisions="beijing"`、`city="changsha"`
 
-  **IP/域名：** `ip="8.8.8.8"`、`cidr="52.2.254.36/24"`、`domain="baidu.com"`、`hostname="google.com"`、`port=80`、`asn=42893`、`org="Stanford University"`、`isp="China Mobile"`
+  **IP/Domain：** `ip="8.8.8.8"`、`cidr="52.2.254.36/24"`、`domain="baidu.com"`、`hostname="google.com"`、`port=80`、`asn=42893`、`org="Stanford University"`、`isp="China Mobile"`
 
   **指纹识别：** `app="Cisco ASA SSL VPN"`、`service="ssh"`、`device="router"`、`os="RouterOS"`、`title="Cisco"`、`product="Cisco"`、`protocol="TCP"`、`industry="government"`、`is_honeypot="True"`
 
@@ -266,7 +266,7 @@ description: |
 
   **其他：** `dig="baidu.com 220.181.38.148"`、`iconhash="f3418a443e7d841097c714d69ec4bcb8"`、`filehash="0b5ce08db7fb8fffe4e14d05588d49d9"`、`is_ipv4=true`、`is_ipv6=true`、`is_domain=true`
 
-  **查询示例：**
+  **查询Example:**
   - `port=80 && service="http"` - 搜索80端口运行HTTP服务的网络设备
   - `city=nagoya && port=443 && service=ssl` - 搜索名古屋443端口运行SSL的设备
   - `country=us && os=windows` - 搜索美国运行Windows系统的设备
@@ -277,9 +277,9 @@ description: |
   - `service=ftp && hostname=example` - 搜索主机名为example的FTP服务
   - `http.body="Knownsec"` - 搜索body中包含"Knownsec"的资产
 
-  **注意事项：**
-  - API调用有频率限制，请合理使用
-  - 查询结果数量受账户权限限制
+  **Notes:**
+  - The API has rate limits, please use it reasonably
+  - The number of query results is limited by account permissions
   - 需要有效的ZoomEye API密钥
 parameters:
   - name: "query"
@@ -288,9 +288,9 @@ parameters:
       ZoomEye查询语句（必需）
 
       搜索查询语句，支持ZoomEye查询语法。使用引号包裹字符串，使用逻辑运算符连接条件。
-      示例：
+      Example:
       - app="Apache"
-      - title="登录"
+      - title="login"
       - domain="example.com"
       - ip="1.1.1.1"
       - port=80
@@ -304,10 +304,10 @@ parameters:
   - name: "page"
     type: "int"
     description: |
-      页码（可选）
+      Page number (optional)
 
-      要返回的页码，从1开始，默认1。
-      用于分页查询大量结果。
+      The page number to return, starting from 1, default 1.
+      Used to paginate large result sets.
     required: false
     position: 2
     format: "positional"
@@ -318,7 +318,7 @@ parameters:
       每页结果数量（可选）
 
       每页返回的结果数量，默认10。
-      取值范围：1-10000，受账户权限限制。
+      Range: 1-10000, limited by account permissions.
     required: false
     position: 3
     format: "positional"
@@ -326,9 +326,9 @@ parameters:
   - name: "fields"
     type: "string"
     description: |
-      返回字段列表（可选）
+      List of fields to return (optional)
 
-      需要返回的字段，多个字段用逗号分隔。
+      The fields to return, multiple fields separated by commas.
       默认字段：ip,port,domain,update_time
       可用字段：ip,port,domain,url,hostname,os,service,title,version,device,rdns,product,header,body,banner,update_time,country,province,city,isp,organization,asn,protocol,ssl,ssl.jarm,ssl.ja3s等
     required: false

@@ -34,38 +34,38 @@ import (
 )
 
 const (
-	robotCmdHelp          = "帮助"
-	robotCmdList          = "列表"
-	robotCmdListAlt       = "对话列表"
-	robotCmdSwitch        = "切换"
-	robotCmdContinue      = "继续"
-	robotCmdNew           = "新对话"
-	robotCmdClear         = "清空"
-	robotCmdStatus        = "状态"
-	robotCmdStop          = "停止"
-	robotCmdRoles         = "角色"
-	robotCmdRolesList     = "角色列表"
-	robotCmdSwitchRole    = "切换角色"
-	robotCmdModes         = "模式"
-	robotCmdModesList     = "模式列表"
-	robotCmdSwitchMode    = "切换模式"
-	robotCmdDelete        = "删除"
-	robotCmdVersion       = "版本"
-	robotCmdProjects      = "项目"
-	robotCmdProjectsList  = "项目列表"
-	robotCmdBindProject   = "绑定项目"
-	robotCmdNewProject    = "新建项目"
-	robotCmdUnbindProject = "解除项目"
-	robotCmdBindUser      = "绑定"
-	robotCmdUnbindUser    = "解绑"
-	robotCmdIdentity      = "身份"
-	robotCmdTask          = "任务"
-	robotCmdRename        = "重命名"
-	robotCmdPermissions   = "权限"
-	robotCmdDoctor        = "诊断"
-	robotCmdConfirm       = "确认"
-	robotCmdCancel        = "取消"
-	robotCmdVulnAlerts    = "漏洞提醒"
+	robotCmdHelp          = "\u5e2e\u52a9"             // Chinese command alias: help
+	robotCmdList          = "\u5217\u8868"             // Chinese command alias: list
+	robotCmdListAlt       = "\u5bf9\u8bdd\u5217\u8868" // Chinese command alias: conversation list
+	robotCmdSwitch        = "\u5207\u6362"             // Chinese command alias: switch
+	robotCmdContinue      = "\u7ee7\u7eed"             // Chinese command alias: continue
+	robotCmdNew           = "\u65b0\u5bf9\u8bdd"       // Chinese command alias: new conversation
+	robotCmdClear         = "\u6e05\u7a7a"             // Chinese command alias: clear
+	robotCmdStatus        = "\u72b6\u6001"             // Chinese command alias: status
+	robotCmdStop          = "\u505c\u6b62"             // Chinese command alias: stop
+	robotCmdRoles         = "\u89d2\u8272"             // Chinese command alias: role
+	robotCmdRolesList     = "\u89d2\u8272\u5217\u8868" // Chinese command alias: role list
+	robotCmdSwitchRole    = "\u5207\u6362\u89d2\u8272" // Chinese command alias: switch role
+	robotCmdModes         = "\u6a21\u5f0f"             // Chinese command alias: mode
+	robotCmdModesList     = "\u6a21\u5f0f\u5217\u8868" // Chinese command alias: mode list
+	robotCmdSwitchMode    = "\u5207\u6362\u6a21\u5f0f" // Chinese command alias: switch mode
+	robotCmdDelete        = "\u5220\u9664"             // Chinese command alias: delete
+	robotCmdVersion       = "\u7248\u672c"             // Chinese command alias: version
+	robotCmdProjects      = "\u9879\u76ee"             // Chinese command alias: project
+	robotCmdProjectsList  = "\u9879\u76ee\u5217\u8868" // Chinese command alias: project list
+	robotCmdBindProject   = "\u7ed1\u5b9a\u9879\u76ee" // Chinese command alias: bind project
+	robotCmdNewProject    = "\u65b0\u5efa\u9879\u76ee" // Chinese command alias: new project
+	robotCmdUnbindProject = "\u89e3\u9664\u9879\u76ee" // Chinese command alias: unbind project
+	robotCmdBindUser      = "\u7ed1\u5b9a"             // Chinese command alias: bind
+	robotCmdUnbindUser    = "\u89e3\u7ed1"             // Chinese command alias: unbind
+	robotCmdIdentity      = "\u8eab\u4efd"             // Chinese command alias: identity
+	robotCmdTask          = "\u4efb\u52a1"             // Chinese command alias: task
+	robotCmdRename        = "\u91cd\u547d\u540d"       // Chinese command alias: rename
+	robotCmdPermissions   = "\u6743\u9650"             // Chinese command alias: permissions
+	robotCmdDoctor        = "\u8bca\u65ad"             // Chinese command alias: diagnostics
+	robotCmdConfirm       = "\u786e\u8ba4"             // Chinese command alias: confirm
+	robotCmdCancel        = "\u53d6\u6d88"             // Chinese command alias: cancel
+	robotCmdVulnAlerts    = "\u6f0f\u6d1e\u63d0\u9192" // Chinese command alias: vulnerability alerts
 	robotBindingCodeTTL   = 5 * time.Minute
 )
 
@@ -83,7 +83,7 @@ type RobotHandler struct {
 	logger               *zap.Logger
 	mu                   sync.RWMutex
 	sessions             map[string]string             // key: "platform_userID", value: conversationID
-	sessionRoles         map[string]string             // key: "platform_userID", value: roleName（默认"默认"）
+	sessionRoles         map[string]string             // key: "platform_userID", value: roleName (defaults to the default role)
 	sessionModes         map[string]string             // key: "platform_userID", value: agent mode
 	cancelMu             sync.Mutex                    // 保护 runningCancels
 	runningCancels       map[string]context.CancelFunc // key: "platform_userID", 用于停止命令中断任务
@@ -302,7 +302,7 @@ func (h *RobotHandler) setConversation(platform, userID, convID string) {
 	h.persistSessionBinding(sk, convID, role, agentMode)
 }
 
-// getRole 获取当前用户使用的角色，未设置时返回"默认"
+// getRole returns the role used by the current user; returns the default role when none is set
 func (h *RobotHandler) getRole(platform, userID string) string {
 	sk := h.sessionKey(platform, userID)
 	h.mu.RLock()
@@ -317,7 +317,7 @@ func (h *RobotHandler) getRole(platform, userID string) string {
 		h.mu.Unlock()
 		return persistedRole
 	}
-	return "默认"
+	return defaultRoleName
 }
 
 // setRole 设置当前用户使用的角色
@@ -903,10 +903,10 @@ func (h *RobotHandler) cmdRoles() string {
 		return "暂无可用角色。"
 	}
 	sort.Slice(names, func(i, j int) bool {
-		if names[i] == "默认" {
+		if names[i] == defaultRoleName {
 			return true
 		}
-		if names[j] == "默认" {
+		if names[j] == defaultRoleName {
 			return false
 		}
 		return names[i] < names[j]
@@ -957,7 +957,7 @@ func robotAgentModeLabel(mode string) string {
 
 func parseRobotAgentMode(input string) (string, bool) {
 	switch strings.ToLower(strings.TrimSpace(input)) {
-	case "eino_single", "eino-single", "single", "单代理", "eino单代理", "eino 单代理":
+	case "eino_single", "eino-single", "single", "\u5355\u4ee3\u7406", "eino\u5355\u4ee3\u7406", "eino \u5355\u4ee3\u7406":
 		return "eino_single", true
 	case "deep":
 		return "deep", true
@@ -1088,7 +1088,7 @@ func (h *RobotHandler) cmdIdentity(platform, userID string) string {
 
 func robotCommandPermission(text string) (string, bool) {
 	switch {
-	case text == robotCmdHelp || text == "help" || text == "？" || text == "?", text == robotCmdVersion || text == "version", text == robotCmdIdentity || text == "whoami":
+	case text == robotCmdHelp || text == "help" || text == "\uff1f" /* fullwidth ? */ || text == "?", text == robotCmdVersion || text == "version", text == robotCmdIdentity || text == "whoami":
 		return "", true
 	case text == robotCmdList || text == robotCmdListAlt || text == "list",
 		strings.HasPrefix(text, robotCmdSwitch+" "), strings.HasPrefix(text, robotCmdContinue+" "),
@@ -1268,7 +1268,7 @@ func (h *RobotHandler) handleRobotCommand(platform, userID, text string) (string
 		return h.cmdVulnerabilityAlerts(platform, userID, strings.TrimSpace(text[len(robotCmdVulnAlerts)+1:])), true
 	case strings.HasPrefix(text, "vuln alerts "):
 		return h.cmdVulnerabilityAlerts(platform, userID, strings.TrimSpace(text[len("vuln alerts "):])), true
-	case text == robotCmdHelp || text == "help" || text == "？" || text == "?":
+	case text == robotCmdHelp || text == "help" || text == "\uff1f" /* fullwidth ? */ || text == "?":
 		return h.cmdHelp(platform, userID), true
 	case text == robotCmdIdentity || text == "whoami":
 		return h.cmdIdentity(platform, userID), true

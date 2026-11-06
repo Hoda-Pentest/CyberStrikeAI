@@ -12,7 +12,7 @@ func transformHeaderSecrets(headers, stored map[string]interface{}, restoring bo
 	for name, value := range headers {
 		key := strings.ToLower(strings.TrimSpace(name))
 		if restoring && seen[key] {
-			return fmt.Errorf("重复的请求头名称")
+			return fmt.Errorf("duplicate request header name")
 		}
 		seen[key] = true
 		text, ok := value.(string)
@@ -39,7 +39,7 @@ func transformHeaderSecrets(headers, stored map[string]interface{}, restoring bo
 			}
 		}
 		if count != 1 || found == "" || found == maskedSecret {
-			return fmt.Errorf("没有唯一的已保存请求头凭据，请填写新的值")
+			return fmt.Errorf("no unique saved request header credential; please provide a new value")
 		}
 		headers[name] = found
 	}

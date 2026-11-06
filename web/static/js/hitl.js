@@ -147,14 +147,14 @@ function renderHitlPagination(containerId, state, goPageFnName, pageSizeChangeFn
     const start = total === 0 ? 0 : (currentPage - 1) * pageSize + 1;
     const end = total === 0 ? 0 : Math.min(currentPage * pageSize, total);
     const infoText = hitlPaginationT('paginationInfo', { start: start, end: end, total: total },
-        '显示 ' + start + '-' + end + ' / 共 ' + total + ' 条记录');
-    const perPageLabel = hitlPaginationT('perPageLabel', null, '每页显示');
-    const firstPageLabel = hitlPaginationT('firstPage', null, '首页');
-    const prevPageLabel = hitlPaginationT('prevPage', null, '上一页');
+        'Showing ' + start + '-' + end + ' of ' + total + ' records');
+    const perPageLabel = hitlPaginationT('perPageLabel', null, 'Per page');
+    const firstPageLabel = hitlPaginationT('firstPage', null, 'First');
+    const prevPageLabel = hitlPaginationT('prevPage', null, 'Previous');
     const pageInfoText = hitlPaginationT('pageInfo', { page: currentPage, total: totalPages },
-        '第 ' + currentPage + ' / ' + totalPages + ' 页');
-    const nextPageLabel = hitlPaginationT('nextPage', null, '下一页');
-    const lastPageLabel = hitlPaginationT('lastPage', null, '末页');
+        'Page ' + currentPage + ' of ' + totalPages);
+    const nextPageLabel = hitlPaginationT('nextPage', null, 'Next');
+    const lastPageLabel = hitlPaginationT('lastPage', null, 'Last');
     const disabledFirst = currentPage === 1 || total === 0;
     const disabledLast = currentPage >= totalPages || total === 0;
     let html = '<div class="monitor-pagination">';
@@ -350,7 +350,7 @@ async function initHitlDefaultReviewerFromServer() {
     }
 }
 
-/** 无会话时：将免审批工具合并进服务端 config.yaml，返回更新后的全局白名单数组 */
+/** With no conversation: merges auto-approved tools into the server-side config.yaml and returns the updated global whitelist array */
 async function mergeHitlGlobalToolWhitelist(sensitiveTools) {
     const list = Array.isArray(sensitiveTools) ? sensitiveTools : [];
     const resp = await hitlApiFetch('/api/hitl/tool-whitelist', {
@@ -626,7 +626,7 @@ async function syncHitlConfigFromServer(conversationId) {
                 enabled: true,
                 timeoutSeconds: merged.timeoutSeconds
             }).catch(function (err) {
-                console.warn('HITL 会话配置同步到服务器失败（将仅保留本地 UI）:', err);
+                console.warn('HITL conversation config failed to sync to the server (keeping local UI only):', err);
             });
         }
     }
@@ -636,7 +636,7 @@ async function syncHitlConfigFromServer(conversationId) {
             await saveHitlConversationConfig(conversationId, merged);
             markLegacyHitlTimeoutMigrated(conversationId);
         } catch (err) {
-            console.warn('HITL 旧会话等待时限迁移失败，将在下次加载时重试:', err);
+            console.warn('HITL legacy conversation wait-timeout migration failed, will retry on next load:', err);
         }
     } else if (normalizeHitlTimeoutSeconds(merged.timeoutSeconds, 0) > 0) {
         markLegacyHitlTimeoutMigrated(conversationId);
@@ -709,7 +709,7 @@ function bindHitlAutoResizeTextareas(root) {
 }
 
 /**
- * 审批提交后原 SSE 已断开：轮询任务列表，运行中则拉取过程详情；任务结束后再整页加载会话以对齐终态。
+ * After an approval is submitted the original SSE stream is closed: poll the task list and, if the task is still running, fetch process details; once the task ends, reload the whole conversation to align with the final state.
  */
 async function followAgentRunAfterHitlDecision(conversationId) {
     if (!conversationId || typeof apiFetch !== 'function') return;
@@ -1285,7 +1285,7 @@ function hitlAuditEngineFromItem(item) {
     }
     if (!backend) {
         const comment = String(data.comment || '');
-        if (/TypeSafe|破坏分|choice=|Jev/i.test(comment)) backend = 'typesafe';
+        if (/TypeSafe|destruction score|choice=|Jev/i.test(comment)) backend = 'typesafe';
         else if (hitlReviewerNormalize(data.decidedBy || data.decided_by) === 'audit_agent') backend = 'openai';
     }
     if (backend === 'typesafe' && !model) model = 'jev-latest';
@@ -1318,7 +1318,7 @@ function renderHitlPageAuditEngine() {
         return;
     }
     el.hidden = false;
-    el.textContent = hitlT('auditEngineLabel', 'Approval engine') + '：' + engine;
+    el.textContent = hitlT('auditEngineLabel', 'Approval engine') + ': ' + engine;
 }
 
 function hitlFormatTime(v) {
@@ -2019,14 +2019,14 @@ document.addEventListener('languagechange', function () {
     }
 });
 
-// 由 applyHitlSidebarConfig 调用，将侧栏配置同步到后端
+// Called by applyHitlSidebarConfig; syncs the sidebar config to the backend
 window.syncHitlConfigToServerByCurrentConversation = syncHitlConfigToServerByCurrentConversation;
 window.saveHitlConversationConfig = saveHitlConversationConfig;
 window.mergeHitlGlobalToolWhitelist = mergeHitlGlobalToolWhitelist;
 window.fetchHitlDefaultConfig = fetchHitlDefaultConfig;
 window.putHitlDefaultConfig = putHitlDefaultConfig;
 
-// 由 chat.js 在 loadConversation 内 await 调用；挂到 window 供其它入口显式触发
+// Awaited by chat.js inside loadConversation; exposed on window so other entry points can trigger it explicitly
 window.syncHitlConfigFromServer = syncHitlConfigFromServer;
 window.fetchHitlDefaultReviewer = fetchHitlDefaultReviewer;
 window.putHitlDefaultReviewer = putHitlDefaultReviewer;

@@ -1,19 +1,19 @@
 /**
- * 主对话区智能粘底滚动：流式输出时自动跟随，用户上滑阅读时不抢焦点。
- * 主 POST 流（sendMessage）与刷新后 task-events 补流共用同一策略。
+ * Smart stick-to-bottom scrolling for the main chat area: auto-follow during streaming output, and do not steal focus when the user scrolls up to read.
+ * The main POST stream (sendMessage) and the task-events catch-up stream after a refresh share the same strategy.
  */
 (function () {
     'use strict';
 
-    /** 距底部在此范围内才继续自动跟随（宜小，避免“差一点也被拽回去”） */
+    /** Only continue auto-following within this distance from the bottom (should be small, to avoid "getting yanked back even when barely off bottom"). */
     const CHAT_SCROLL_FOLLOW_THRESHOLD_PX = 48;
-    /** 只有真正到达底部才恢复跟随；2px 用于兼容高分屏的亚像素滚动。 */
+    /** Only resume following once truly at the bottom; 2px accommodates sub-pixel scrolling on high-DPI screens. */
     const CHAT_SCROLL_FOLLOW_RESUME_THRESHOLD_PX = 2;
-    /** 到达此范围视为位于最后一轮 */
+    /** Being within this range counts as being at the last round. */
     const CHAT_SCROLL_NAV_BOTTOM_THRESHOLD_PX = 120;
-    /** 用户上滑后的短暂锁，防止 SSE 与 scroll 事件竞态抢滚动 */
+    /** Short lock after the user scrolls up, to prevent SSE and scroll events from racing over scroll control. */
     const DETACH_LOCK_MS = 900;
-    /** 刷新恢复会跨越历史消息、过程详情、字体与流订阅等多轮异步布局。 */
+    /** Restoring after a refresh spans multiple async layout passes across history messages, process details, fonts, and stream subscriptions. */
     const CONVERSATION_RESTORE_SETTLE_MIN_MS = 3000;
     const CONVERSATION_RESTORE_SETTLE_MAX_MS = 6000;
     const CONVERSATION_RESTORE_STABLE_FRAMES = 12;
@@ -23,14 +23,14 @@
     let scrollFollowRaf = 0;
     let scrollSettleGeneration = 0;
     let conversationRestoreGeneration = 0;
-    /** 用户脱离跟随后，下方是否有未读的新输出（不按 SSE 次数计） */
+    /** Whether there is unread new output below after the user stops following (not counted by SSE event count). */
     let hasPendingNewBelow = false;
     let listenersBound = false;
     let lastScrollTop = 0;
     let lastScrollHeight = 0;
     let programmaticScroll = false;
     let detachLockUntil = 0;
-    /** 最近一次由用户发起的滚动意图；布局变化或脚本滚动不得据此恢复粘底。 */
+    /** The most recent scroll intent initiated by the user; layout changes or script-driven scrolling must not use this to restore stick-to-bottom. */
     let userScrollIntentUntil = 0;
     let turnRailRefreshRaf = 0;
     let turnRailSignature = '';
@@ -78,7 +78,7 @@
         return normalizePreviewText(clone.textContent);
     }
 
-    /** 每条用户消息开始一轮，直到下一条用户消息前的助手消息都归入该轮。 */
+    /** Each user message starts a round; assistant messages up to (but not including) the next user message belong to that round. */
     function collectConversationTurns() {
         const messagesEl = getChatMessagesEl();
         if (!messagesEl) return [];
@@ -102,9 +102,9 @@
         const number = index + 1;
         const prefix = typeof window.t === 'function'
             ? window.t('chat.turnNumber', { number: number })
-            : '第 ' + number + ' 轮';
-        const safePrefix = prefix && prefix !== 'chat.turnNumber' ? prefix : ('第 ' + number + ' 轮');
-        return question ? safePrefix + '：' + question : safePrefix;
+            : 'Turn ' + number + ' ';
+        const safePrefix = prefix && prefix !== 'chat.turnNumber' ? prefix : ('Turn ' + number + ' ');
+        return question ? safePrefix + ': ' + question : safePrefix;
     }
 
     function turnPreviewData(turn, index) {
@@ -121,8 +121,8 @@
         if (!assistant && assistants.length) assistant = assistants[assistants.length - 1];
         let summary = trimPreviewText(messagePreviewText(assistant), 220);
         if (!summary) {
-            summary = typeof window.t === 'function' ? window.t('chat.turnPending') : '正在处理…';
-            if (!summary || summary === 'chat.turnPending') summary = '正在处理…';
+            summary = typeof window.t === 'function' ? window.t('chat.turnPending') : 'Processing…';
+            if (!summary || summary === 'chat.turnPending') summary = 'Processing…';
         }
         return { question: question, summary: summary };
     }
@@ -311,12 +311,12 @@
             ? stream.conversationId.trim()
             : '';
 
-        // 新建对话在后端返回 conversationId 前，两边都为空，仍属于当前界面。
+        // Before the backend returns a conversationId for a new conversation, both sides are empty but it still belongs to the current view.
         if (!streamConversationId) return !visibleConversationId;
         return streamConversationId === visibleConversationId;
     }
 
-    /** 只有当前可见对话的主 POST 流 / task-events 补流才视为「正在输出」 */
+    /** Only the main POST stream / task-events catch-up stream of the currently visible conversation counts as "currently streaming". */
     function isStreamActive() {
         try {
             const live = window.__csAgentLiveStream;
@@ -360,15 +360,15 @@
         return isNearBottom(CHAT_SCROLL_NAV_BOTTOM_THRESHOLD_PX);
     }
 
-    /** 已在底部时恢复 following（解决：手动滚到底但 scrollMode 仍为 detached） */
+    /** Resume following once already at the bottom (fixes: manually scrolled to bottom but scrollMode is still detached). */
     function resumeFollowingIfAtBottom(thresholdPx, userInitiated) {
         if (!userInitiated && Date.now() < detachLockUntil) return false;
         const threshold = Number.isFinite(Number(thresholdPx))
             ? Math.max(0, Number(thresholdPx))
             : CHAT_SCROLL_FOLLOW_RESUME_THRESHOLD_PX;
         if (!isNearBottom(threshold)) return false;
-        // detached 是用户明确上滑后的阅读状态。布局变化、流式增高和模式切换
-        // 即使让视口暂时接近底部，也不能自行恢复；只有用户明确向下滚到底才恢复。
+        // detached is the reading state the user enters by explicitly scrolling up. Layout changes, streaming height growth, and mode switches
+        // must not auto-restore it even if they temporarily bring the viewport close to the bottom; only resume when the user explicitly scrolls down to the bottom.
         if (scrollMode === 'detached') {
             if (!userInitiated) return false;
             setScrollFollowing();
@@ -455,8 +455,8 @@
 
     function isolateReturnLatestPointerEvent(event) {
         if (!event) return;
-        // 该按钮会在点击后立即隐藏。阻止指针事件继续冒泡，避免长历史对话中
-        // 按钮隐藏与底部审批卡片重排发生在同一帧时产生点击穿透。
+        // This button hides itself immediately after being clicked. Stop the pointer event from bubbling further, to avoid, in long chat histories,
+        // a click-through when the button hiding and the approval card reflow at the bottom happen in the same frame.
         event.stopPropagation();
     }
 
@@ -490,9 +490,9 @@
     }
 
     /**
-     * 长详情恢复/终态对账会跨多个 requestAnimationFrame 分批增高 DOM。
-     * 单次滚底可能早于最后一批节点；在仍处于 following 时连续若干帧校准，
-     * 用户一旦主动上滑进入 detached，后续帧立即停止，避免抢回阅读位置。
+     * Restoring long details / reconciling final state can grow the DOM in batches across multiple requestAnimationFrame calls.
+     * A single scroll-to-bottom call may happen before the last batch of nodes; while still following, calibrate over several consecutive frames.
+     * Once the user actively scrolls up into detached, subsequent frames stop immediately, so the reading position is not snatched back.
      */
     function settleChatToBottomIfFollowing(frameCount) {
         const frames = Number.isFinite(Number(frameCount))
@@ -517,9 +517,9 @@
     }
 
     /**
-     * 刷新恢复长会话时，消息、详情和审批卡会跨多帧继续增高。
-     * 进入恢复流程时明确回到 following；用户随后若主动上滑，既有输入监听会立即
-     * 切换为 detached，并使后续校准帧停止，不会抢回阅读位置。
+     * When restoring a long conversation after a refresh, messages, details, and approval cards keep growing in height across multiple frames.
+     * Explicitly return to following when entering the restore flow; if the user then actively scrolls up, the existing input listener immediately
+     * switches to detached and stops subsequent calibration frames, so the reading position is not snatched back.
      */
     function settleConversationRestoreToBottom(frameCount) {
         setScrollFollowing();
@@ -537,7 +537,7 @@
 
         function settleRestoreFrame() {
             if (generation !== conversationRestoreGeneration) return;
-            // wheel / touch / keyboard / scrollbar drag 会进入 detached；立即尊重用户阅读位置。
+            // wheel / touch / keyboard / scrollbar drag enters detached; respect the user's reading position immediately.
             if (scrollMode !== 'following' || Date.now() < detachLockUntil) return;
             const el = getChatMessagesEl();
             if (!el) return;
@@ -562,7 +562,7 @@
         requestAnimationFrame(settleRestoreFrame);
     }
 
-    /** @param {boolean} wasPinned DOM 更新前是否应跟随（由 captureScrollPinState 传入） */
+    /** @param {boolean} wasPinned whether it should follow before the DOM update (passed in by captureScrollPinState) */
     function scrollChatMessagesToBottomIfPinned(wasPinned) {
         scheduleChatScrollToBottomIfFollowing(wasPinned);
     }
@@ -623,7 +623,7 @@
         updateTurnRailState();
     }
 
-    /** 刷新后会话 task-events 补流开始时，与 sendMessage 主流程对齐 */
+    /** When the task-events catch-up stream starts after a refresh, align with the sendMessage main flow */
     function onTaskEventStreamBegin(conversationId, assistantDomId, progressId) {
         try {
             window.__csTaskEventStream = {
@@ -654,7 +654,7 @@
         scheduleChatScrollToBottomIfFollowing(captureScrollPinState());
     }
 
-    /** 流式/用户未跟随时禁止 scrollIntoView 抢滚动 */
+    /** Disallow scrollIntoView from stealing scroll control while streaming / when the user is not following */
     function scrollElementIntoViewIfFollowing(el, options) {
         if (!el || !captureScrollPinState()) return;
         el.scrollIntoView(options || { behavior: 'smooth', block: 'nearest' });
@@ -669,8 +669,8 @@
         const hasUserScrollIntent = Date.now() <= userScrollIntentUntil;
 
         if (programmaticScroll) {
-            // 正在执行恢复/流式粘底时，用户仍可能反向滚轮或拖动滚动条。
-            // 脚本滚底只会让 scrollTop 增大；此处出现减小必定是用户在中断跟随。
+            // While a restore/streaming stick-to-bottom is in progress, the user may still scroll the wheel the other way or drag the scrollbar.
+            // A script-driven scroll-to-bottom only ever increases scrollTop; a decrease here must be the user interrupting following.
             if (st < lastScrollTop - 1 && (scrollMode === 'detached' || hasUserScrollIntent)) {
                 setScrollDetached();
             }
@@ -684,8 +684,8 @@
         const scrolledDown = st > lastScrollTop + 1;
         const contentShrank = sh < lastScrollHeight - 1;
 
-        // 刷新/终态重绘会先清空或折叠旧 DOM，浏览器会被动把 scrollTop 压小。
-        // 这不是用户上滑，不应错误退出 following。
+        // A refresh / final-state redraw first clears or collapses the old DOM, which passively makes the browser shrink scrollTop.
+        // This is not the user scrolling up, and must not incorrectly exit following.
         if (contentShrank) {
             lastScrollTop = st;
             lastScrollHeight = sh;
@@ -693,8 +693,8 @@
             return;
         }
 
-        // 刷新恢复会重建消息和详情，滚动锚定可能在没有用户输入时让 scrollTop
-        // 暂时减小。只有明确的滚轮、触控、键盘或滚动条意图才解除粘底。
+        // Restoring after a refresh rebuilds messages and details; scroll anchoring may shrink scrollTop
+        // temporarily even without user input. Only an explicit wheel, touch, keyboard, or scrollbar intent should release stick-to-bottom.
         if (scrolledUp && (scrollMode === 'detached' || hasUserScrollIntent)) {
             setScrollDetached();
         } else if (
@@ -702,8 +702,8 @@
             hasUserScrollIntent &&
             resumeFollowingIfAtBottom(CHAT_SCROLL_FOLLOW_RESUME_THRESHOLD_PX, true)
         ) {
-            // 仅在用户明确向下滚动并到达真实底部时恢复跟随，不主动改写 scrollTop。
-            // 后续新增内容再按 following 状态自然粘底，避免接近底部时突然跳动。
+            // Only resume following when the user explicitly scrolls down and reaches the real bottom; do not actively rewrite scrollTop.
+            // Subsequently added content then naturally sticks to the bottom according to the following state, avoiding a sudden jump near the bottom.
         }
 
         lastScrollTop = st;
@@ -728,7 +728,7 @@
             }
         }, { passive: true });
 
-        // 拖动原生纵向滚动条不会产生 wheel；先记录指针意图，再由 scroll 事件确认方向。
+        // Dragging the native vertical scrollbar does not produce a wheel event; record the pointer intent first, then confirm direction from the scroll event.
         el.addEventListener('pointerdown', function (e) {
             const rect = el.getBoundingClientRect();
             if (e.clientX >= rect.right - 18) {
@@ -788,8 +788,8 @@
         if (typeof MutationObserver === 'function') {
             turnRailObserver = new MutationObserver(function () {
                 scheduleTurnRailRefresh();
-                // 最终回复会替换消息气泡内部 HTML，任务详情也会在子树内持续增高。
-                // 只在仍处于 following 时按帧合并粘底；用户上滑后的 detached 状态不受影响。
+                // The final reply replaces the HTML inside the message bubble, and task details also keep growing within that subtree.
+                // Only merge stick-to-bottom calls per frame while still following; the detached state after the user scrolls up is unaffected.
                 if (scrollMode === 'following' && Date.now() >= detachLockUntil) {
                     scheduleChatScrollToBottomIfFollowing(true);
                 }
@@ -799,8 +799,8 @@
 
         if (typeof ResizeObserver === 'function') {
             chatMessagesResizeObserver = new ResizeObserver(function () {
-                // 顶部运行任务条、输入框或视口变化会改变消息区 clientHeight，
-                // 但不会触发消息子树 MutationObserver。跟随模式下需重新精确粘底。
+                // The top running-task bar, input box, or viewport changes can change the message area's clientHeight,
+                // but will not trigger the message subtree's MutationObserver. While following, stick-to-bottom needs to be reapplied precisely.
                 if (scrollMode === 'following' && Date.now() >= detachLockUntil) {
                     scheduleChatScrollToBottomIfFollowing(true);
                 } else {

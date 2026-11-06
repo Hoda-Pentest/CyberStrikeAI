@@ -7,18 +7,18 @@ short_description: "WordPress安全扫描器，用于检测WordPress漏洞"
 description: |
   WPScan是专门用于WordPress安全扫描的工具，可以检测主题、插件和核心漏洞。
 
-  **主要功能：**
+  **Key Features:**
   - WordPress核心漏洞检测
   - 主题和插件漏洞扫描
   - 用户枚举
   - 密码暴力破解
   - 安全配置检查
 
-  **使用场景：**
+  **Use Cases:**
   - WordPress安全评估
-  - 漏洞扫描
-  - 渗透测试
-  - 安全审计
+  - Vulnerability scanning
+  - Penetration testing
+  - Security audit
 parameters:
   - name: "url"
     type: "string"

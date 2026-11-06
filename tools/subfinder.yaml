@@ -5,21 +5,21 @@ short_description: "被动子域名发现工具，使用多个数据源"
 description: |
   Subfinder是一个被动子域名发现工具，通过查询多个数据源来发现子域名。
 
-  **主要功能：**
+  **Key Features:**
   - 被动子域名发现
   - 多个数据源集成
-  - 快速扫描
+  - Quick scan
   - 支持API密钥配置
 
-  **使用场景：**
-  - 子域名枚举
+  **Use Cases:**
+  - Subdomain enumeration
   - 资产发现
-  - Bug bounty侦察
-  - 渗透测试信息收集
+  - Bug bounty reconnaissance
+  - Penetration testing reconnaissance
 parameters:
   - name: "domain"
     type: "string"
-    description: "目标域名"
+    description: "Target domain"
     required: true
     flag: "-d"
     format: "flag"

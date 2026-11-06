@@ -5,15 +5,15 @@ short_description: "运行时安全监控工具"
 description: |
   Falco是一个运行时安全监控工具，用于检测容器和主机中的异常行为。
 
-  **主要功能：**
+  **Key Features:**
   - 运行时监控
-  - 异常检测
-  - 规则引擎
+  - Anomaly detection
+  - Rule engine
   - 实时告警
 
-  **使用场景：**
+  **Use Cases:**
   - 运行时安全监控
-  - 异常检测
+  - Anomaly detection
   - 安全事件响应
   - 合规性监控
 parameters:
@@ -47,14 +47,14 @@ parameters:
   - name: "additional_args"
     type: "string"
     description: |
-      额外的falco参数。用于传递未在参数列表中定义的falco选项。
+      Additional falco parameters. Used to pass falco options not defined in the parameter list.
 
-      **示例值：**
-      - 根据工具特性添加常用参数示例
+      **Example Values:**
+      - Add common parameter examples based on the tool's characteristics
 
-      **注意事项：**
-      - 多个参数用空格分隔
-      - 确保参数格式正确，避免命令注入
-      - 此参数会直接追加到命令末尾
+      **Notes:**
+      - Multiple parameters are separated by spaces
+      - Ensure the parameter format is correct to avoid command injection
+      - This parameter is appended directly to the end of the command
     required: false
     format: "positional"

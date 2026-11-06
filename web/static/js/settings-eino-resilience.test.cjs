@@ -29,7 +29,7 @@ test('Eino 模型 retry/failover 设置页读写链路完整', () => {
         assert.match(settings, new RegExp(`${key}`));
     });
 
-    assert.match(settings, /failoverChannelsRaw\.split\(\s*\/\[\\n,，\]\//);
+    assert.match(settings, /failoverChannelsRaw\.split\(\s*\/\[\\n,, \]\//);
     assert.match(settings, /Array\.from\(new Set\(/);
 });
 

@@ -51,41 +51,41 @@ short_description: "RPC枚举工具"
 description: |
   Rpcclient是一个RPC客户端工具，用于枚举Windows/Samba系统信息。
 
-  **主要功能：**
+  **Key Features:**
   - RPC枚举
-  - 用户和组枚举
+  - User and group enumeration
   - 域信息查询
-  - 系统信息收集
+  - System information gathering
 
-  **使用场景：**
-  - Windows系统渗透测试
+  **Use Cases:**
+  - Windows system penetration testing
   - Samba枚举
-  - 域环境侦察
-  - 安全测试
+  - Domain environment reconnaissance
+  - Security testing
 parameters:
   - name: "target"
     type: "string"
-    description: "目标IP地址"
+    description: "Target IP address"
     required: true
     position: 0
     format: "positional"
   - name: "username"
     type: "string"
-    description: "用户名"
+    description: "Username"
     required: false
     default: ""
     position: 1
     format: "positional"
   - name: "password"
     type: "string"
-    description: "密码"
+    description: "Password"
     required: false
     default: ""
     position: 2
     format: "positional"
   - name: "domain"
     type: "string"
-    description: "域名"
+    description: "Domain"
     required: false
     default: ""
     position: 3
@@ -100,15 +100,15 @@ parameters:
   - name: "additional_args"
     type: "string"
     description: |
-      额外的rpcclient参数。用于传递未在参数列表中定义的rpcclient选项。
+      Additional rpcclient parameters. Used to pass rpcclient options not defined in the parameter list.
 
-      **示例值：**
-      - 根据工具特性添加常用参数示例
+      **Example Values:**
+      - Add common parameter examples based on the tool's characteristics
 
-      **注意事项：**
-      - 多个参数用空格分隔
-      - 确保参数格式正确，避免命令注入
-      - 此参数会直接追加到命令末尾
+      **Notes:**
+      - Multiple parameters are separated by spaces
+      - Ensure the parameter format is correct to avoid command injection
+      - This parameter is appended directly to the end of the command
     required: false
     default: ""
     position: 5

@@ -5,17 +5,17 @@ short_description: "NetBIOS名称扫描工具"
 description: |
   Nbtscan是一个NetBIOS名称扫描工具，用于发现网络中的Windows系统。
 
-  **主要功能：**
+  **Key Features:**
   - NetBIOS名称扫描
   - Windows系统发现
-  - 网络映射
-  - 快速扫描
+  - Network mapping
+  - Quick scan
 
-  **使用场景：**
+  **Use Cases:**
   - Windows网络发现
   - NetBIOS枚举
-  - 网络映射
-  - 渗透测试
+  - Network mapping
+  - Penetration testing
 parameters:
   - name: "target"
     type: "string"
@@ -40,14 +40,14 @@ parameters:
   - name: "additional_args"
     type: "string"
     description: |
-      额外的nbtscan参数。用于传递未在参数列表中定义的nbtscan选项。
+      Additional nbtscan parameters. Used to pass nbtscan options not defined in the parameter list.
 
-      **示例值：**
-      - 根据工具特性添加常用参数示例
+      **Example Values:**
+      - Add common parameter examples based on the tool's characteristics
 
-      **注意事项：**
-      - 多个参数用空格分隔
-      - 确保参数格式正确，避免命令注入
-      - 此参数会直接追加到命令末尾
+      **Notes:**
+      - Multiple parameters are separated by spaces
+      - Ensure the parameter format is correct to avoid command injection
+      - This parameter is appended directly to the end of the command
     required: false
     format: "positional"

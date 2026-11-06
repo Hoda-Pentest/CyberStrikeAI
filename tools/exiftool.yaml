@@ -5,21 +5,21 @@ short_description: "元数据提取工具"
 description: |
   ExifTool用于读取、写入和编辑各种文件格式的元数据。
 
-  **主要功能：**
+  **Key Features:**
   - 元数据提取
   - 多种文件格式支持
   - 元数据编辑
   - 批量处理
 
-  **使用场景：**
-  - 取证分析
+  **Use Cases:**
+  - Forensic analysis
   - 元数据检查
   - 隐私保护
   - 文件分析
 parameters:
   - name: "file_path"
     type: "string"
-    description: "要分析的文件路径"
+    description: "Path to the file to analyze"
     required: true
     position: 0
     format: "positional"
@@ -53,14 +53,14 @@ parameters:
   - name: "additional_args"
     type: "string"
     description: |
-      额外的exiftool参数。用于传递未在参数列表中定义的exiftool选项。
+      Additional exiftool parameters. Used to pass exiftool options not defined in the parameter list.
 
-      **示例值：**
-      - 根据工具特性添加常用参数示例
+      **Example Values:**
+      - Add common parameter examples based on the tool's characteristics
 
-      **注意事项：**
-      - 多个参数用空格分隔
-      - 确保参数格式正确，避免命令注入
-      - 此参数会直接追加到命令末尾
+      **Notes:**
+      - Multiple parameters are separated by spaces
+      - Ensure the parameter format is correct to avoid command injection
+      - This parameter is appended directly to the end of the command
     required: false
     format: "positional"

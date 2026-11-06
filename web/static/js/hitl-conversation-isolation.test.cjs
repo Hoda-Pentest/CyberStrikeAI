@@ -13,7 +13,7 @@ function functionSource(source, name, nextName) {
     return source.slice(start, end);
 }
 
-test('已有会话缺少本地配置时不会继承其他会话的最近审批设置', () => {
+test('an existing conversation without local config does not inherit the latest approval settings of other conversations', () => {
     const source = functionSource(chat, 'getHitlConfigForConversation', 'setHitlReviewerUI');
     const existingConversationBranch = source.slice(source.indexOf('const key = getHitlStorageKeyByConversation(cid)'));
 
@@ -22,7 +22,7 @@ test('已有会话缺少本地配置时不会继承其他会话的最近审批�
     assert.match(existingConversationBranch, /catch \(e\) \{\s*return fallback;/);
 });
 
-test('服务端默认审批人只更新默认值，不覆盖最近会话选择', () => {
+test('the server default reviewer only updates the default value and does not override the latest conversation choice', () => {
     const source = functionSource(hitl, 'applyHitlDefaultReviewerFromServer', 'fetchHitlDefaultReviewer');
 
     assert.match(source, /return applyHitlDefaultConfigFromServer\(\{ defaultReviewer: reviewer \}\)/);
@@ -33,7 +33,7 @@ test('服务端默认审批人只更新默认值，不覆盖最近会话选择',
     assert.doesNotMatch(configSource, /saveHitlLastGlobalConfig|saveHitlConversationConfig/);
 });
 
-test('恢复会话审批配置时保留该会话自己的审批人', () => {
+test('restoring a conversation approval config keeps that conversation own reviewer', () => {
     const source = functionSource(hitl, 'syncHitlConfigFromServer', 'syncHitlConfigToServerByCurrentConversation');
 
     assert.match(source, /const localReviewer = hitlReviewerNormalize\(local && local\.reviewer\)/);
@@ -42,7 +42,7 @@ test('恢复会话审批配置时保留该会话自己的审批人', () => {
     assert.doesNotMatch(source, /getHitlLastGlobalConfig/);
 });
 
-test('异步同步只能刷新仍处于当前会话的审批界面', () => {
+test('async sync may only refresh the approval UI that still belongs to the current conversation', () => {
     const source = functionSource(hitl, 'syncHitlConfigFromServer', 'syncHitlConfigToServerByCurrentConversation');
 
     assert.match(source, /getCurrentConversationIdForHitl\(\) === conversationId[\s\S]*?window\.applyHitlConfigToUI\(normalizedCfg\)/);

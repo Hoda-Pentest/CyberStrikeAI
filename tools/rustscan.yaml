@@ -21,7 +21,7 @@ parameters:
     type: "string"
     description: |
       对应 `-a`：逗号分隔的 CIDR、IP 或主机名；也可为含换行/列表的文件路径。
-      示例：`192.168.1.1`、`10.0.0.1,10.0.0.2`、`192.168.0.0/24`
+      Example:`192.168.1.1`、`10.0.0.1,10.0.0.2`、`192.168.0.0/24`
     required: true
     flag: "-a"
     format: "flag"
@@ -30,7 +30,7 @@ parameters:
     type: "string"
     description: |
       要扫描的端口，**仅**逗号分隔列表，对应 `-p`。
-      示例：`22,80,443`、`80,443,8080`。
+      Example:`22,80,443`、`80,443,8080`。
       若要范围如 `1-1000`，请用参数 **range**（`-r`），不要写在本参数。
     required: false
     flag: "-p"
@@ -40,7 +40,7 @@ parameters:
     type: "string"
     description: |
       端口范围，格式 start-end，对应 `-r`。
-      示例：`1-1000`、`1-65535`（全端口很慢）。
+      Example:`1-1000`、`1-65535`（全端口很慢）。
       离散端口如 `22,80,443` 请用 **ports**（`-p`），不要写在本参数。
     required: false
     flag: "-r"
@@ -112,7 +112,7 @@ parameters:
   # -e, --exclude-ports
   - name: "exclude_ports"
     type: "string"
-    description: "排除端口，逗号分隔。示例：`80,443`"
+    description: "排除端口，逗号分隔。Example:`80,443`"
     required: false
     flag: "-e"
     format: "flag"
@@ -134,6 +134,6 @@ parameters:
     type: "string"
     description: |
       未列在上面的选项可写在这里，空格分隔。
-      示例：`--no-banner`、`--udp`、`-n`（忽略配置文件）、`-c /path/config.toml`、`--resolver 8.8.8.8`
+      Example:`--no-banner`、`--udp`、`-n`（忽略配置文件）、`-c /path/config.toml`、`--resolver 8.8.8.8`
     required: false
     format: "positional"

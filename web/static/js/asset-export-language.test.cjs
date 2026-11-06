@@ -43,8 +43,8 @@ for (const locale of ['zh-CN', 'en-US', 'ru-RU']) {
         Object.assign(c, { URL, Blob, document: { getElementById: () => null }, alert: message => { throw new Error(message); } });
         vm.runInContext(fs.readFileSync(path.join(__dirname, '../vendor/xlsx.full.min.js'), 'utf8'), c);
         c.window.XLSX = c.XLSX;
-        c.assetPageState = { projects: [{ id: 'p1', name: '项目一' }], selected: new Map() };
-        const asset = { host: 'https://example.com:443', domain: 'example.com', port: 443, protocol: 'https', project_name: '项目一', title: 'title,"quoted"\nnext', status: 'inactive', environment: 'production', criticality: 'high', country: 'CN', province: 'Beijing', tags: ['one', 'two'] };
+        c.assetPageState = { projects: [{ id: 'p1', name: 'Project One' }], selected: new Map() };
+        const asset = { host: 'https://example.com:443', domain: 'example.com', port: 443, protocol: 'https', project_name: 'Project One', title: 'title,"quoted"\nnext', status: 'inactive', environment: 'production', criticality: 'high', country: 'CN', province: 'Beijing', tags: ['one', 'two'] };
         c.assetPageState.selected.set('a1', asset);
         vm.runInContext(source.slice(source.indexOf('function assetTargetLabel('), source.indexOf('function assetRiskPresentation(')), c);
         vm.runInContext(source.slice(source.indexOf('function assetExportRows('), source.indexOf('function downloadAssetBlob(')), c);

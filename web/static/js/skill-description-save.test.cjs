@@ -4,7 +4,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const source = fs.readFileSync('web/static/js/skills.js', 'utf8');
 const start = source.indexOf('async function selectSkillPackageFile(');
-const end = source.indexOf('// 编辑skill', start);
+const end = source.indexOf('// Edit skill', start);
 function harness(dirty) {
     const inputs = {'skill-description': {disabled:false}, 'skill-content': {value:''}};
     let calls = 0;

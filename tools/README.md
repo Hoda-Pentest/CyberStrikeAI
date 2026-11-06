@@ -45,7 +45,7 @@
 
 这样可以大幅减少token消耗，特别是当工具数量很多时（如100个工具）。
 
-## 参数定义
+## Parameter definitions
 
 每个参数可以包含以下字段：
 
@@ -63,16 +63,16 @@
 ### 参数格式说明
 
 - **`flag`**: 标志参数，格式为 `--flag value` 或 `-f value`
-  - 示例：`flag: "-u"` → `-u http://example.com`
+  - Example:`flag: "-u"` → `-u http://example.com`
   
 - **`positional`**: 位置参数，按顺序添加到命令中
-  - 示例：`position: 0` → 作为第一个位置参数
+  - Example:`position: 0` → 作为第一个位置参数
   
 - **`combined`**: 组合格式，格式为 `--flag=value`
-  - 示例：`flag: "--level"`, `format: "combined"` → `--level=3`
+  - Example:`flag: "--level"`, `format: "combined"` → `--level=3`
   
 - **`template`**: 模板格式，使用自定义模板字符串
-  - 示例：`template: "{flag} {value}"` → 自定义格式
+  - Example:`template: "{flag} {value}"` → 自定义格式
 
 ### 特殊参数
 
@@ -80,27 +80,27 @@
 
 `additional_args` 是一个特殊的参数，用于传递未在参数列表中定义的额外命令行选项。这个参数会被解析并按空格分割成多个参数。
 
-**使用场景：**
+**Use Cases:**
 - 传递工具的高级选项
 - 传递未在配置中定义的参数
 - 传递复杂的参数组合
 
-**示例：**
+**Example:**
 ```yaml
 - name: "additional_args"
   type: "string"
-  description: "额外的工具参数，多个参数用空格分隔"
+  description: "Additional tool parameters, multiple parameters separated by spaces"
   required: false
   format: "positional"
 ```
 
-**使用示例：**
+**Usage Examples:**
 - `additional_args: "--script vuln -O"` → 会被解析为 `["--script", "vuln", "-O"]`
 - `additional_args: "-T4 --max-retries 3"` → 会被解析为 `["-T4", "--max-retries", "3"]`
 
-**注意事项：**
+**Notes:**
 - 参数会被按空格分割，但保留引号内的内容
-- 确保参数格式正确，避免命令注入风险
+- Ensure the parameter format is correct to avoid command injection风险
 - 此参数会追加到命令末尾
 
 #### `scan_type` 参数（特定工具）
@@ -116,11 +116,11 @@
   format: "positional"
 ```
 
-**使用示例：**
+**Usage Examples:**
 - `scan_type: "-sV -sC"` → 版本检测和脚本扫描
 - `scan_type: "-A"` → 全面扫描
 
-**注意事项：**
+**Notes:**
 - 如果指定了 `scan_type`，会替换工具配置中的默认扫描类型参数
 - 多个选项用空格分隔
 
@@ -139,20 +139,20 @@
 - 使用列表展示多个示例或选项
 - 使用代码块展示复杂格式
 
-**示例：**
+**Example:**
 ```yaml
 description: |
   目标IP地址或域名。可以是单个IP、IP范围、CIDR格式或域名。
   
-  **示例值：**
+  **Example Values:**
   - 单个IP: "192.168.1.1"
   - IP范围: "192.168.1.1-100"
   - CIDR: "192.168.1.0/24"
-  - 域名: "example.com"
+  - Domain: "example.com"
   
-  **注意事项：**
+  **Notes:**
   - 确保目标地址格式正确
-  - 必需参数，不能为空
+  - Required parameter, cannot be empty
 ```
 
 ## 参数类型说明
@@ -164,11 +164,11 @@ description: |
 - `false`: 不添加任何参数
 - 支持多种输入格式：`true`/`false`、`1`/`0`、`"true"`/`"false"`
 
-**示例：**
+**Example:**
 ```yaml
 - name: "verbose"
   type: "bool"
-  description: "详细输出模式"
+  description: "Verbose output mode"
   required: false
   default: false
   flag: "-v"
@@ -183,7 +183,7 @@ description: |
 
 用于数值参数，如端口号、级别等。
 
-**示例：**
+**Example:**
 ```yaml
 - name: "level"
   type: "int"
@@ -198,7 +198,7 @@ description: |
 
 数组会自动转换为逗号分隔的字符串。
 
-**示例：**
+**Example:**
 ```yaml
 - name: "ports"
   type: "array"
@@ -219,7 +219,7 @@ description: |
 - `dirb.yaml`: Web目录扫描工具
 - `exec.yaml`: 系统命令执行工具
 
-### 完整示例：nmap 工具配置
+### 完整Example:nmap 工具配置
 
 ```yaml
 name: "nmap"
@@ -232,12 +232,12 @@ short_description: "网络扫描工具，用于发现网络主机、开放端口
 description: |
   网络映射和端口扫描工具，用于发现网络中的主机、服务和开放端口。
   
-  **主要功能：**
+  **Key Features:**
   - 主机发现：检测网络中的活动主机
   - 端口扫描：识别目标主机上开放的端口
   - 服务识别：检测运行在端口上的服务类型和版本
   - 操作系统检测：识别目标主机的操作系统类型
-  - 漏洞检测：使用NSE脚本检测常见漏洞
+  - Vulnerability detection：使用NSE脚本检测常见漏洞
 
 parameters:
   - name: "target"
@@ -284,15 +284,15 @@ short_description: "一句话说明工具用途"
 description: |
   工具详细描述，支持多行文本和Markdown格式。
   
-  **主要功能：**
+  **Key Features:**
   - 功能1
   - 功能2
   
-  **使用场景：**
+  **Use Cases:**
   - 场景1
   - 场景2
   
-  **注意事项：**
+  **Notes:**
   - 使用时的注意事项
   - 权限要求
   - 性能影响
@@ -303,11 +303,11 @@ parameters:
     description: |
       目标参数详细描述。
       
-      **示例值：**
+      **Example Values:**
       - "value1"
       - "value2"
       
-      **注意事项：**
+      **Notes:**
       - 格式要求
       - 使用限制
     required: true
@@ -323,7 +323,7 @@ parameters:
   
   - name: "verbose"
     type: "bool"
-    description: "详细输出模式"
+    description: "Verbose output mode"
     required: false
     default: false
     flag: "-v"
@@ -331,7 +331,7 @@ parameters:
   
   - name: "additional_args"
     type: "string"
-    description: "额外的工具参数，多个参数用空格分隔"
+    description: "Additional tool parameters, multiple parameters separated by spaces"
     required: false
     format: "positional"
 ```

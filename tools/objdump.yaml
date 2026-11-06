@@ -5,21 +5,21 @@ short_description: "二进制文件反汇编工具"
 description: |
   Objdump是GNU binutils的一部分，用于反汇编二进制文件。
 
-  **主要功能：**
-  - 反汇编
+  **Key Features:**
+  - Disassembly
   - 符号表显示
   - 节信息显示
-  - 多种架构支持
+  - Multiple architecture support
 
-  **使用场景：**
-  - 二进制分析
-  - 逆向工程
+  **Use Cases:**
+  - Binary analysis
+  - Reverse engineering
   - 程序理解
   - 调试辅助
 parameters:
   - name: "binary"
     type: "string"
-    description: "要分析的二进制文件路径"
+    description: "Path to the binary file to analyze"
     required: true
     position: 0
     format: "positional"
@@ -33,14 +33,14 @@ parameters:
   - name: "additional_args"
     type: "string"
     description: |
-      额外的objdump参数。用于传递未在参数列表中定义的objdump选项。
+      Additional objdump parameters. Used to pass objdump options not defined in the parameter list.
 
-      **示例值：**
-      - 根据工具特性添加常用参数示例
+      **Example Values:**
+      - Add common parameter examples based on the tool's characteristics
 
-      **注意事项：**
-      - 多个参数用空格分隔
-      - 确保参数格式正确，避免命令注入
-      - 此参数会直接追加到命令末尾
+      **Notes:**
+      - Multiple parameters are separated by spaces
+      - Ensure the parameter format is correct to avoid command injection
+      - This parameter is appended directly to the end of the command
     required: false
     format: "positional"

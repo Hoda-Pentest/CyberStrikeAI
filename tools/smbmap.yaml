@@ -5,39 +5,39 @@ short_description: "SMB共享枚举和访问工具"
 description: |
   SMBMap是一个用于枚举SMB共享并提供文件访问功能的工具。
 
-  **主要功能：**
-  - SMB共享枚举
+  **Key Features:**
+  - SMB share enumeration
   - 文件列表和下载
   - 权限检查
   - 支持多种认证方式
 
-  **使用场景：**
+  **Use Cases:**
   - SMB安全测试
   - 文件共享审计
-  - 渗透测试
-  - 网络侦察
+  - Penetration testing
+  - Network reconnaissance
 parameters:
   - name: "target"
     type: "string"
-    description: "目标IP地址"
+    description: "Target IP address"
     required: true
     flag: "-H"
     format: "flag"
   - name: "username"
     type: "string"
-    description: "用户名"
+    description: "Username"
     required: false
     flag: "-u"
     format: "flag"
   - name: "password"
     type: "string"
-    description: "密码"
+    description: "Password"
     required: false
     flag: "-p"
     format: "flag"
   - name: "domain"
     type: "string"
-    description: "域名"
+    description: "Domain"
     required: false
     flag: "-d"
     format: "flag"

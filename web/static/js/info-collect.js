@@ -1,4 +1,4 @@
-// 信息收集页面（FOFA）
+// Information collection page (FOFA)
 function _t(key, opts) {
     return typeof window.t === 'function' ? window.t(key, opts) : key;
 }
@@ -9,131 +9,131 @@ const FOFA_HIDDEN_FIELDS_STORAGE_KEY = 'info-collect-fofa-hidden-fields';
 const INFO_COLLECT_PROVIDERS = {
     fofa: {
         label: 'FOFA',
-        placeholder: '例如：app="Apache" && country="CN"',
-        nlPlaceholder: '例如：找美国 Missouri 的 Apache 站点，标题包含 Home',
-        hint: '查询语法参考 FOFA 文档，支持 && / || / () 等。',
-        parseHint: '解析后会弹窗展示 FOFA 语法（可编辑），确认无误后再填入查询框并执行查询。',
+        placeholder: 'e.g. app="Apache" && country="CN"',
+        nlPlaceholder: 'e.g. Find Apache sites in Missouri, USA, with Home in the title',
+        hint: 'Query syntax follows the FOFA docs; supports && / || / () etc.',
+        parseHint: 'After parsing, a dialog shows the FOFA syntax (editable); once confirmed, it is filled into the query box and the query runs.',
         maxSize: 10000,
-        sizeHint: 'FOFA 返回数量上限与账号权限相关，前端最多允许 10000。',
+        sizeHint: 'The FOFA result count limit depends on the account permissions; the frontend allows at most 10000.',
         fullOption: {
-            label: '完整模式',
-            hint: '向 FOFA 传 full=true，返回更完整/更实时的数据，可能消耗更多额度。'
+            label: 'Full mode',
+            hint: 'Passes full=true to FOFA for more complete / more real-time data; may consume more quota.'
         },
         fields: 'host,ip,port,domain,title,protocol,country,region,city,server',
         presets: [
-            ['Apache + 中国', 'app="Apache" && country="CN"'],
-            ['登录页 + 中国', 'title="登录" && country="CN"'],
-            ['指定域名', 'domain="example.com"'],
-            ['指定 IP', 'ip="1.1.1.1"']
+            ['Apache + China', 'app="Apache" && country="CN"'],
+            ['Login page + China', 'title="login" && country="CN"'],
+            ['Specific domain', 'domain="example.com"'],
+            ['Specific IP', 'ip="1.1.1.1"']
         ],
         fieldPresets: [
-            ['最小字段', 'host,ip,port,domain'],
-            ['Web 常用', 'host,title,ip,port,domain,protocol,server,icp,country,region,city'],
-            ['情报增强', 'host,ip,port,domain,title,protocol,country,region,city,server,asn,org,icp,header,banner']
+            ['Minimal fields', 'host,ip,port,domain'],
+            ['Common web fields', 'host,title,ip,port,domain,protocol,server,icp,country,region,city'],
+            ['Intel enrichment', 'host,ip,port,domain,title,protocol,country,region,city,server,asn,org,icp,header,banner']
         ],
         syntaxGuide: {
-            summary: 'FOFA 使用 field="value" 精确匹配，支持 &&、||、! 和括号组合；字符串建议用双引号包裹。',
+            summary: 'FOFA uses field="value" exact matching; supports &&, ||, ! and parenthesized combinations; wrapping strings in double quotes is recommended.',
             docsUrl: 'https://en.fofa.info/api',
             sections: [
-                ['常用字段', ['app="Apache"', 'title="后台管理"', 'body="Powered by"', 'domain="example.com"', 'host="https://example.com"', 'ip="1.1.1.1"', 'port="443"', 'country="CN"', 'city="Hangzhou"', 'server="nginx"']],
-                ['组合写法', ['app="nginx" && country="CN"', 'title="login" || title="登录"', '(app="Apache" || app="nginx") && port="443"', 'domain="example.com" && !title="404"']],
-                ['场景示例', ['cert="example.com" && port="443"', 'header="JSESSIONID" && country="CN"', 'icon_hash="-247388890"', 'fid="sZyXkR9e" && domain="example.com"']]
+                ['Common fields', ['app="Apache"', 'title="admin panel"', 'body="Powered by"', 'domain="example.com"', 'host="https://example.com"', 'ip="1.1.1.1"', 'port="443"', 'country="CN"', 'city="Hangzhou"', 'server="nginx"']],
+                ['Combinations', ['app="nginx" && country="CN"', 'title="login" || title="sign in"', '(app="Apache" || app="nginx") && port="443"', 'domain="example.com" && !title="404"']],
+                ['Scenario examples', ['cert="example.com" && port="443"', 'header="JSESSIONID" && country="CN"', 'icon_hash="-247388890"', 'fid="sZyXkR9e" && domain="example.com"']]
             ]
         }
     },
     zoomeye: {
         label: 'ZoomEye',
-        placeholder: '例如：app="Apache" && country="CN"',
-        nlPlaceholder: '例如：找中国的 SSH 服务，排除蜜罐',
-        hint: 'ZoomEye 支持 app/title/domain/ip/port/country/city 等语法。',
-        parseHint: '解析后会弹窗展示 ZoomEye 语法（可编辑），确认无误后再填入查询框并执行查询。',
+        placeholder: 'e.g. app="Apache" && country="CN"',
+        nlPlaceholder: 'e.g. Find SSH services in China, excluding honeypots',
+        hint: 'ZoomEye supports app/title/domain/ip/port/country/city etc. syntax.',
+        parseHint: 'After parsing, a dialog shows the ZoomEye syntax (editable); once confirmed, it is filled into the query box and the query runs.',
         maxSize: 10000,
-        sizeHint: 'ZoomEye pagesize 最高支持到 10000，实际额度以账号为准。',
+        sizeHint: 'ZoomEye pagesize supports up to 10000; the actual quota depends on the account.',
         fullOption: null,
         fields: 'ip,port,domain,hostname,title,service,app,country,city',
         presets: [
-            ['Apache + 中国', 'app="Apache" && country="CN"'],
-            ['SSH 服务', 'service="ssh"'],
-            ['指定域名', 'domain="example.com"'],
-            ['指定 IP', 'ip="1.1.1.1"']
+            ['Apache + China', 'app="Apache" && country="CN"'],
+            ['SSH service', 'service="ssh"'],
+            ['Specific domain', 'domain="example.com"'],
+            ['Specific IP', 'ip="1.1.1.1"']
         ],
         fieldPresets: [
-            ['最小字段', 'ip,port,domain,hostname'],
-            ['Web 常用', 'ip,port,domain,hostname,title,service,app,country,city'],
-            ['情报增强', 'ip,port,domain,hostname,title,service,app,country,city,org,isp,ssl']
+            ['Minimal fields', 'ip,port,domain,hostname'],
+            ['Common web fields', 'ip,port,domain,hostname,title,service,app,country,city'],
+            ['Intel enrichment', 'ip,port,domain,hostname,title,service,app,country,city,org,isp,ssl']
         ],
         syntaxGuide: {
-            summary: 'ZoomEye 支持字段检索、引号短语、AND/OR/NOT 与括号组合；字段名以官方控制台实际支持为准。',
+            summary: 'ZoomEye supports field search, quoted phrases, and AND/OR/NOT with parenthesized combinations; field names follow what the official console actually supports.',
             docsUrl: 'https://www.zoomeye.ai/help',
             sections: [
-                ['常用字段', ['app="Apache"', 'service="ssh"', 'title="登录"', 'domain="example.com"', 'hostname="example.com"', 'ip="1.1.1.1"', 'port=443', 'country="CN"', 'city="Beijing"', 'org="Tencent"']],
-                ['组合写法', ['app="nginx" AND country="CN"', 'service="http" AND (title="login" OR title="登录")', 'domain="example.com" AND NOT app="cloudflare"', 'port=443 AND country="US"']],
-                ['场景示例', ['ssl.cert.fingerprint="SHA256值"', 'iconhash="-247388890"', 'service="rdp" AND country="CN"', 'app="Elasticsearch" AND port=9200']]
+                ['Common fields', ['app="Apache"', 'service="ssh"', 'title="login"', 'domain="example.com"', 'hostname="example.com"', 'ip="1.1.1.1"', 'port=443', 'country="CN"', 'city="Beijing"', 'org="Tencent"']],
+                ['Combinations', ['app="nginx" AND country="CN"', 'service="http" AND (title="login" OR title="sign in")', 'domain="example.com" AND NOT app="cloudflare"', 'port=443 AND country="US"']],
+                ['Scenario examples', ['ssl.cert.fingerprint="SHA256 value"', 'iconhash="-247388890"', 'service="rdp" AND country="CN"', 'app="Elasticsearch" AND port=9200']]
             ]
         }
     },
     quake: {
         label: 'Quake',
-        placeholder: '例如：service.name:"http" AND country_cn:"中国"',
-        nlPlaceholder: '例如：找中国的 HTTP 服务，标题包含登录',
-        hint: 'Quake 使用 DSL 语法，常见字段如 service.name、domain、ip、port、country_cn。',
-        parseHint: '解析后会弹窗展示 Quake DSL（可编辑），确认无误后再填入查询框并执行查询。',
+        placeholder: 'e.g. service.name:"http" AND country:"China"',
+        nlPlaceholder: 'e.g. Find HTTP services in China, with login in the title',
+        hint: 'Quake uses DSL syntax; common fields include service.name, domain, ip, port, country.',
+        parseHint: 'After parsing, a dialog shows the Quake DSL (editable); once confirmed, it is filled into the query box and the query runs.',
         maxSize: 10000,
-        sizeHint: 'Quake size 会消耗积分，建议按需控制返回数量。',
+        sizeHint: 'Quake size consumes credits; control the number of returned rows as needed.',
         fullOption: {
-            label: '最新数据',
-            hint: '向 Quake 传 latest=true，优先查询最新数据。'
+            label: 'Latest data',
+            hint: 'Passes latest=true to Quake to query the latest data first.'
         },
         fields: 'ip,port,domain,service.name,service.http.title,location.country_cn,location.province_cn,location.city_cn',
         presets: [
-            ['HTTP + 中国', 'service.name:"http" AND country_cn:"中国"'],
-            ['443 端口', 'port:443'],
-            ['指定域名', 'domain:"example.com"'],
-            ['指定 IP', 'ip:"1.1.1.1"']
+            ['HTTP + China', 'service.name:"http" AND country:"China"'],
+            ['Port 443', 'port:443'],
+            ['Specific domain', 'domain:"example.com"'],
+            ['Specific IP', 'ip:"1.1.1.1"']
         ],
         fieldPresets: [
-            ['最小字段', 'ip,port,domain'],
-            ['Web 常用', 'ip,port,domain,service.name,service.http.title,location.country_cn,location.city_cn'],
-            ['情报增强', 'ip,port,domain,service.name,service.http.title,service.http.server,location.country_cn,location.province_cn,location.city_cn,asn']
+            ['Minimal fields', 'ip,port,domain'],
+            ['Common web fields', 'ip,port,domain,service.name,service.http.title,location.country_cn,location.city_cn'],
+            ['Intel enrichment', 'ip,port,domain,service.name,service.http.title,service.http.server,location.country_cn,location.province_cn,location.city_cn,asn']
         ],
         syntaxGuide: {
-            summary: 'Quake 使用 Lucene/DSL 风格查询，常见形式是 field:"value"，逻辑运算符通常使用 AND、OR、NOT。',
+            summary: 'Quake uses Lucene/DSL-style queries; the common form is field:"value", and logical operators are usually AND, OR, NOT.',
             docsUrl: 'https://quake.360.net/quake/#/help',
             sections: [
-                ['常用字段', ['service.name:"http"', 'service.http.title:"登录"', 'service.http.server:"nginx"', 'domain:"example.com"', 'ip:"1.1.1.1"', 'port:443', 'country_cn:"中国"', 'province_cn:"浙江"', 'city_cn:"杭州"']],
-                ['组合写法', ['service.name:"http" AND country_cn:"中国"', '(service.name:"http" OR service.name:"https") AND port:443', 'domain:"example.com" AND NOT service.http.title:"404"', 'service.http.title:"login" AND port:443']],
-                ['场景示例', ['service.http.favicon.hash:"-247388890"', 'service.http.response.header:"JSESSIONID"', 'service.name:"ssh" AND country_cn:"中国"', 'service.http.title:"Dashboard" AND NOT ip:"127.0.0.1"']]
+                ['Common fields', ['service.name:"http"', 'service.http.title:"login"', 'service.http.server:"nginx"', 'domain:"example.com"', 'ip:"1.1.1.1"', 'port:443', 'country:"China"', 'province:"Zhejiang"', 'city:"Hangzhou"']],
+                ['Combinations', ['service.name:"http" AND country:"China"', '(service.name:"http" OR service.name:"https") AND port:443', 'domain:"example.com" AND NOT service.http.title:"404"', 'service.http.title:"login" AND port:443']],
+                ['Scenario examples', ['service.http.favicon.hash:"-247388890"', 'service.http.response.header:"JSESSIONID"', 'service.name:"ssh" AND country:"China"', 'service.http.title:"Dashboard" AND NOT ip:"127.0.0.1"']]
             ]
         }
     },
     shodan: {
         label: 'Shodan',
-        placeholder: '例如：product:nginx country:CN',
-        nlPlaceholder: '例如：找中国的 nginx 资产，端口 443',
-        hint: 'Shodan 使用 filter:value 语法，常见字段如 product、port、country、org。',
-        parseHint: '解析后会弹窗展示 Shodan filter 语法（可编辑），确认无误后再填入查询框并执行查询。',
+        placeholder: 'e.g. product:nginx country:CN',
+        nlPlaceholder: 'e.g. Find nginx assets in China, port 443',
+        hint: 'Shodan uses filter:value syntax; common fields include product, port, country, org.',
+        parseHint: 'After parsing, a dialog shows the Shodan filter syntax (editable); once confirmed, it is filled into the query box and the query runs.',
         maxSize: 1000,
-        sizeHint: 'Shodan 官方每页 100 条；后端会自动翻页聚合，单次最多 1000 条以控制额度消耗。',
+        sizeHint: 'Shodan officially returns 100 rows per page; the backend automatically pages and aggregates, with at most 1000 rows per request to limit quota consumption.',
         fullOption: null,
         fields: 'ip_str,port,hostnames,domains,org,isp,location.country_name,location.city,product,transport',
         presets: [
-            ['Nginx + 中国', 'product:nginx country:CN'],
-            ['SSH 服务', 'port:22'],
-            ['证书域名', 'ssl.cert.subject.cn:example.com'],
+            ['Nginx + China', 'product:nginx country:CN'],
+            ['SSH service', 'port:22'],
+            ['Certificate domain', 'ssl.cert.subject.cn:example.com'],
             ['Amazon 443', 'org:"Amazon" port:443']
         ],
         fieldPresets: [
-            ['最小字段', 'ip_str,port,hostnames,domains'],
-            ['Web 常用', 'ip_str,port,hostnames,domains,product,org,location.country_name,location.city'],
-            ['情报增强', 'ip_str,port,hostnames,domains,org,isp,asn,location.country_name,location.city,product,transport,ssl.cert.subject.cn']
+            ['Minimal fields', 'ip_str,port,hostnames,domains'],
+            ['Common web fields', 'ip_str,port,hostnames,domains,product,org,location.country_name,location.city'],
+            ['Intel enrichment', 'ip_str,port,hostnames,domains,org,isp,asn,location.country_name,location.city,product,transport,ssl.cert.subject.cn']
         ],
         syntaxGuide: {
-            summary: 'Shodan 默认搜索 banner data；精确条件使用 filter:value，值含空格时用双引号，多个过滤器并列表示收窄结果。',
+            summary: 'Shodan searches banner data by default; for exact conditions use filter:value, wrap values containing spaces in double quotes, and multiple filters side by side narrow the results.',
             docsUrl: 'https://help.shodan.io/the-basics/search-query-fundamentals',
             sections: [
-                ['常用过滤器', ['product:nginx', 'port:443', 'country:CN', 'city:Shanghai', 'org:"Amazon"', 'asn:AS15169', 'hostname:example.com', 'ssl.cert.subject.cn:example.com', 'http.title:"Dashboard"']],
-                ['组合写法', ['product:nginx country:CN', 'apache port:443 country:DE', 'org:"Amazon" port:443', 'ssl.cert.subject.cn:example.com port:443']],
-                ['场景示例', ['http.title:"login" country:CN', 'ssl:true port:443 hostname:example.com', 'vuln:CVE-2021-41773', 'has_screenshot:true product:nginx']]
+                ['Common filters', ['product:nginx', 'port:443', 'country:CN', 'city:Shanghai', 'org:"Amazon"', 'asn:AS15169', 'hostname:example.com', 'ssl.cert.subject.cn:example.com', 'http.title:"Dashboard"']],
+                ['Combinations', ['product:nginx country:CN', 'apache port:443 country:DE', 'org:"Amazon" port:443', 'ssl.cert.subject.cn:example.com port:443']],
+                ['Scenario examples', ['http.title:"login" country:CN', 'ssl:true port:443 hostname:example.com', 'vuln:CVE-2021-41773', 'has_screenshot:true product:nginx']]
             ]
         }
     }
@@ -151,12 +151,12 @@ const infoCollectState = {
     queryHeightResizeBound: false
 };
 
-// AI 解析（自然语言 -> FOFA）交互状态
+// AI parse (natural language -> FOFA) interaction state
 let fofaParseAbortController = null;
 let fofaParseSlowTimer = null;
 let fofaParseToastHandle = null;
 
-// HTML转义（如果未定义）
+// HTML escape (if not defined)
 if (typeof escapeHtml === 'undefined') {
     function escapeHtml(text) {
         if (text == null) return '';
@@ -251,10 +251,10 @@ function initInfoCollectPage() {
     const els = getFofaFormElements();
     if (!els.query || !els.size || !els.fields || !els.tbody) return;
 
-    // 恢复隐藏字段
+    // Restore hidden fields
     infoCollectState.hiddenFields = new Set(loadHiddenFieldsFromStorage());
 
-    // 恢复上次输入
+    // Restore last input
     const saved = loadFofaFormFromStorage();
     let shouldResetProviderFields = false;
     if (saved) {
@@ -276,7 +276,7 @@ function initInfoCollectPage() {
     bindInfoCollectPresetEvents();
     refreshInfoCollectProviderUI(shouldResetProviderFields);
 
-    // 绑定 Enter 快捷查询（在 query 里用 Ctrl/Cmd+Enter）
+    // Bind Enter shortcut for querying (Ctrl/Cmd+Enter inside the query box)
     els.query.addEventListener('keydown', (e) => {
         if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
             e.preventDefault();
@@ -284,7 +284,7 @@ function initInfoCollectPage() {
         }
     });
 
-    // 自然语言输入：Ctrl/Cmd+Enter 触发解析
+    // Natural language input: Ctrl/Cmd+Enter triggers parsing
     if (els.nl) {
         els.nl.addEventListener('keydown', (e) => {
             if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
@@ -294,7 +294,7 @@ function initInfoCollectPage() {
         });
     }
 
-    // textarea：按内容自动增高（避免默认留空白行）
+    // textarea: auto-grow with content (avoids leaving a blank line by default)
     const autoGrowTextarea = (el) => {
         if (!el) return;
         try {
@@ -308,7 +308,7 @@ function initInfoCollectPage() {
     };
     els.query.addEventListener('input', () => autoGrowTextarea(els.query));
     if (els.nl) els.nl.addEventListener('input', () => autoGrowTextarea(els.nl));
-    // 初始化时也执行一次
+    // Also run once on initialization
     setTimeout(() => {
         autoGrowTextarea(els.query);
         autoGrowTextarea(els.nl);
@@ -319,7 +319,7 @@ function initInfoCollectPage() {
         window.addEventListener('resize', scheduleInfoCollectQueryCardHeightStabilize);
     }
 
-    // 绑定表格事件（事件委托，只绑定一次）
+    // Bind table events (event delegation, bound only once)
     bindFofaTableEvents();
     updateSelectedMeta();
 }
@@ -347,11 +347,11 @@ function setInfoCollectQueryMode(mode, options) {
     const queryLabel = document.getElementById('info-collect-query-label');
     const cfg = INFO_COLLECT_PROVIDERS[getInfoCollectProvider()] || INFO_COLLECT_PROVIDERS.fofa;
     if (queryLabel) {
-        queryLabel.textContent = cfg.label + ' 查询语法（可编辑，可直接查询）';
+        queryLabel.textContent = cfg.label + ' query syntax (editable, can be run directly)';
     }
     const nlLabel = document.getElementById('info-collect-nl-label');
     if (nlLabel) {
-        nlLabel.textContent = '自然语言（可选，AI 解析为 ' + cfg.label + ' 语法）';
+        nlLabel.textContent = 'Natural language (optional, AI parses into ' + cfg.label + ' syntax)';
     }
 
     if (shouldFocus) {
@@ -401,7 +401,7 @@ function stabilizeInfoCollectQueryCardHeight() {
     const queryLabel = clone.querySelector('#info-collect-query-label');
     if (queryLabel) {
         const cfg = INFO_COLLECT_PROVIDERS[getInfoCollectProvider()] || INFO_COLLECT_PROVIDERS.fofa;
-        queryLabel.textContent = cfg.label + ' 查询语法（可编辑，可直接查询）';
+        queryLabel.textContent = cfg.label + ' query syntax (editable, can be run directly)';
     }
 
     document.body.appendChild(clone);
@@ -591,12 +591,12 @@ function renderInfoCollectSyntaxGuide(cfg) {
         return;
     }
     const docsLink = guide.docsUrl
-        ? `<a class="info-collect-doc-link" href="${presetDataAttr(guide.docsUrl)}" target="_blank" rel="noopener noreferrer">官方文档</a>`
+        ? `<a class="info-collect-doc-link" href="${presetDataAttr(guide.docsUrl)}" target="_blank" rel="noopener noreferrer">Official docs</a>`
         : '';
     const expanded = !!infoCollectState.syntaxGuideExpanded;
     const sections = (guide.sections || []).map(([title, examples]) => {
         const chips = (examples || []).map(example => {
-            return `<button class="syntax-example-chip" type="button" data-info-query-preset="${presetDataAttr(example)}" title="填入查询框">${escapeHtml(example)}</button>`;
+            return `<button class="syntax-example-chip" type="button" data-info-query-preset="${presetDataAttr(example)}" title="Fill into query box">${escapeHtml(example)}</button>`;
         }).join('');
         return `<div class="syntax-guide-section"><div class="syntax-guide-title">${escapeHtml(title)}</div><div class="syntax-guide-examples">${chips}</div></div>`;
     }).join('');
@@ -607,7 +607,7 @@ function renderInfoCollectSyntaxGuide(cfg) {
             <div class="syntax-guide-summary">${escapeHtml(guide.summary || '')}</div>
             <div class="syntax-guide-actions">
                 ${docsLink}
-                <button class="syntax-guide-toggle" type="button" data-info-syntax-guide-toggle aria-expanded="${expanded ? 'true' : 'false'}">${expanded ? '收起示例' : '展开示例'}</button>
+                <button class="syntax-guide-toggle" type="button" data-info-syntax-guide-toggle aria-expanded="${expanded ? 'true' : 'false'}">${expanded ? 'Hide examples' : 'Show examples'}</button>
             </div>
         </div>
         <div class="syntax-guide-body"${expanded ? '' : ' hidden'}>${sections}</div>
@@ -637,12 +637,12 @@ function refreshInfoCollectProviderUI(resetProviderFields) {
     const fullOption = document.getElementById('info-collect-full-option');
     const fullText = fullOption ? fullOption.querySelector('.checkbox-text') : null;
     const fullConfig = getInfoCollectFullOption(provider);
-    if (queryLabel) queryLabel.textContent = cfg.label + ' 查询语法';
-    if (nlLabel) nlLabel.textContent = '自然语言（AI 解析为 ' + cfg.label + ' 语法）';
+    if (queryLabel) queryLabel.textContent = cfg.label + ' query syntax';
+    if (nlLabel) nlLabel.textContent = 'Natural language (AI parses into ' + cfg.label + ' syntax)';
     if (queryHint) queryHint.textContent = cfg.hint;
     if (parseHint) parseHint.textContent = cfg.parseHint;
     if (sizeHint) sizeHint.textContent = cfg.sizeHint;
-    if (parseBtn && parseBtn.dataset.loading !== '1') parseBtn.title = '将自然语言解析为 ' + cfg.label + ' 查询语法';
+    if (parseBtn && parseBtn.dataset.loading !== '1') parseBtn.title = 'Parse natural language into ' + cfg.label + ' query syntax';
     if (els.query) els.query.placeholder = cfg.placeholder;
     if (els.nl) els.nl.placeholder = cfg.nlPlaceholder;
     if (els.size) {
@@ -664,12 +664,12 @@ function refreshInfoCollectProviderUI(resetProviderFields) {
     if (els.fields && (resetProviderFields || !els.fields.value.trim())) els.fields.value = cfg.fields;
     if (presets) {
         presets.innerHTML = cfg.presets.map(([label, query]) => {
-            return `<button class="preset-chip" type="button" data-info-query-preset="${presetDataAttr(query)}" title="填入示例">${escapeHtml(label)}</button>`;
+            return `<button class="preset-chip" type="button" data-info-query-preset="${presetDataAttr(query)}" title="Fill in example">${escapeHtml(label)}</button>`;
         }).join('');
     }
     if (fieldPresets) {
         fieldPresets.innerHTML = cfg.fieldPresets.map(([label, fields]) => {
-            return `<button class="preset-chip" type="button" data-info-fields-preset="${presetDataAttr(fields)}" title="填入字段模板">${escapeHtml(label)}</button>`;
+            return `<button class="preset-chip" type="button" data-info-fields-preset="${presetDataAttr(fields)}" title="Fill in field template">${escapeHtml(label)}</button>`;
         }).join('');
     }
     renderInfoCollectSyntaxGuide(cfg);
@@ -749,7 +749,7 @@ async function submitFofaSearch() {
     if (size > maxSize) {
         size = maxSize;
         if (els.size) els.size.value = String(maxSize);
-        showInlineToast(providerCfg.label + ' 单次最多返回 ' + maxSize + ' 条，已自动调整。');
+        showInlineToast(providerCfg.label + ' returns at most ' + maxSize + ' rows per request; adjusted automatically.');
     }
     const page = parseInt(els.page?.value, 10) || 1;
     const fields = (els.fields?.value || '').trim();
@@ -773,11 +773,11 @@ async function submitFofaSearch() {
 
         const result = await response.json().catch(() => ({}));
         if (!response.ok) {
-            throw new Error(result.error || `请求失败: ${response.status}`);
+            throw new Error(result.error || `Request failed: ${response.status}`);
         }
         renderFofaResults(result);
     } catch (e) {
-        console.error(providerLabel(provider) + ' 查询失败:', e);
+        console.error(providerLabel(provider) + ' Query failed:', e);
         setFofaMeta(_t('infoCollect.queryFailed'));
         renderFofaResults({ provider, query, fields: [], results: [], total: 0, page: 1, size: 0 });
         alert(_t('infoCollect.queryFailed') + ': ' + (e && e.message ? e.message : String(e)));
@@ -795,20 +795,20 @@ async function parseFofaNaturalLanguage() {
         return;
     }
 
-    // 二次点击：取消进行中的解析（避免“以为卡死/失败”）
+    // Second click: cancel the parse in progress (avoids the impression that it is hung/failed)
     if (fofaParseAbortController) {
         try { fofaParseAbortController.abort(); } catch (e) { /* ignore */ }
         return;
     }
 
-    // 先创建 controller，避免极快的重复点击触发并发请求
+    // Create the controller first, so that very fast repeated clicks cannot trigger concurrent requests
     fofaParseAbortController = new AbortController();
     setFofaParseLoading(true, _t('infoCollect.parsePending'));
 
-    // 持续提示：直到请求完成/取消/失败才消失
+    // Persistent notice: it disappears only when the request completes/is cancelled/fails
     fofaParseToastHandle = showInlineToast(_t('infoCollect.parsePendingClickCancel'), { duration: 0, id: 'fofa-parse-pending' });
 
-    // 如果超过一小段时间还没返回，再强调“仍在进行中”，降低误判为失败的概率
+    // If it has not returned after a short while, emphasize again that it is "still in progress", lowering the chance of it being mistaken for a failure
     fofaParseSlowTimer = setTimeout(() => {
         const status = document.getElementById('fofa-nl-status');
         if (status) {
@@ -826,17 +826,17 @@ async function parseFofaNaturalLanguage() {
         });
         const result = await resp.json().catch(() => ({}));
         if (!resp.ok) {
-            throw new Error(result.error || `请求失败: ${resp.status}`);
+            throw new Error(result.error || `Request failed: ${resp.status}`);
         }
         showFofaParseModal(text, result);
         showInlineToast(_t('infoCollect.parseDone'));
     } catch (e) {
-        // AbortController 取消：不视为失败
+        // AbortController cancellation: not treated as a failure
         if (e && (e.name === 'AbortError' || String(e).includes('AbortError'))) {
             showInlineToast(_t('infoCollect.parseCancelled'));
             return;
         }
-        console.error('FOFA 自然语言解析失败:', e);
+        console.error('FOFA natural language parse failed:', e);
         showInlineToast(_t('infoCollect.parseFailed') + (e && e.message ? e.message : String(e)), { duration: 2800 });
     }
     finally {
@@ -870,7 +870,7 @@ function setFofaParseLoading(loading, statusText) {
             const cfg = INFO_COLLECT_PROVIDERS[provider] || INFO_COLLECT_PROVIDERS.fofa;
             btn.classList.remove('btn-loading');
             btn.textContent = btn.dataset.originalText || _t('infoCollectPage.parseBtn');
-            btn.title = '将自然语言解析为 ' + cfg.label + ' 查询语法';
+            btn.title = 'Parse natural language into ' + cfg.label + ' query syntax';
             btn.disabled = false;
             delete btn.dataset.loading;
             btn.removeAttribute('aria-busy');
@@ -921,7 +921,7 @@ function showFofaParseModal(nlText, parsed) {
                 </div>
 
                 <div class="form-group info-collect-parse-form-group">
-                    <label for="fofa-parse-query">${escapeHtml(cfg.label)} 查询语法（可编辑）</label>
+                    <label for="fofa-parse-query">${escapeHtml(cfg.label)} query syntax (editable)</label>
                     <textarea id="fofa-parse-query" class="info-collect-query-input" rows="2" placeholder="${escapeHtml(cfg.placeholder)}"></textarea>
                     <small class="form-hint">${_t('infoCollect.confirmBeforeQuery')}</small>
                 </div>
@@ -975,7 +975,7 @@ function showFofaParseModal(nlText, parsed) {
             els.query.value = q;
             try { els.query.focus(); } catch (e) { /* ignore */ }
         }
-        // 写入表单缓存（与现有“直接查询”一致）
+        // Write to the form cache (consistent with the existing "direct query")
         saveFofaFormToStorage({
             query: q,
             size: parseInt(els.size?.value, 10) || 100,
@@ -990,7 +990,7 @@ function showFofaParseModal(nlText, parsed) {
     document.getElementById('fofa-parse-apply')?.addEventListener('click', () => applyToQuery(false));
     document.getElementById('fofa-parse-apply-run')?.addEventListener('click', () => applyToQuery(true));
 
-    // Esc 关闭
+    // Esc to close
     const onKey = (e) => {
         if (e.key === 'Escape') {
             close();
@@ -1048,7 +1048,7 @@ function renderFofaResults(payload) {
     const fields = Array.isArray(payload.fields) ? payload.fields : [];
     const results = Array.isArray(payload.results) ? payload.results : [];
 
-    // 保存当前 payload 到 state
+    // Save the current payload into state
     infoCollectState.currentPayload = {
         provider: payload.provider || getInfoCollectProvider(),
         query: payload.query || '',
@@ -1059,11 +1059,11 @@ function renderFofaResults(payload) {
         results
     };
 
-    // 清理选择（避免字段/结果变化导致错位）
+    // Clear the selection (avoids misalignment when fields/results change)
     infoCollectState.selectedRowIndexes.clear();
     updateSelectedMeta();
 
-    // 修剪隐藏字段：只保留当前 fields 中存在的
+    // Prune hidden fields: keep only those present in the current fields
     const allowed = new Set(fields);
     infoCollectState.hiddenFields.forEach(f => {
         if (!allowed.has(f)) infoCollectState.hiddenFields.delete(f);
@@ -1084,13 +1084,13 @@ function renderFofaResults(payload) {
         typeof payload.shortfall === 'number' ? payload.shortfall : 0
     ));
 
-    // 可见字段
+    // Visible fields
     const visibleFields = fields.filter(f => !infoCollectState.hiddenFields.has(f));
 
-    // 列面板
+    // Column panel
     renderFofaColumnsPanel(fields, visibleFields);
 
-    // 表头（左：勾选列；右：操作列固定）
+    // Table header (left: checkbox column; right: action column fixed)
     const headerCells = [
         '<th class="info-collect-col-select"><input type="checkbox" id="fofa-select-all" class="theme-checkbox" title="' + escapeHtml(_t('infoCollect.selectAll')) + '"/></th>',
         ...visibleFields.map(f => `<th>${escapeHtml(String(f))}</th>`),
@@ -1098,7 +1098,7 @@ function renderFofaResults(payload) {
     ].join('');
     els.thead.innerHTML = `<tr>${headerCells}</tr>`;
 
-    // 表体
+    // Table body
     if (results.length === 0) {
         const colspan = Math.max(1, visibleFields.length + 2);
         els.tbody.innerHTML = '<tr><td class="muted" style="padding: 16px;" colspan="' + colspan + '">' + escapeHtml(_t('common.noData')) + '</td></tr>';
@@ -1116,7 +1116,7 @@ function renderFofaResults(payload) {
         const cellsHtml = visibleFields.map(f => {
             const val = safeRow[f];
             const text = val == null ? '' : String(val);
-            // host 字段：尽量渲染为可点击链接
+            // host field: render as a clickable link where possible
             if (f === 'host') {
                 const href = normalizeHttpLink(text);
                 if (href) {
@@ -1153,13 +1153,13 @@ function renderFofaResults(payload) {
 
     els.tbody.innerHTML = rowsHtml;
 
-    // 更新全选框状态
+    // Update the select-all checkbox state
     syncSelectAllCheckbox();
     if (typeof applyRBACToUI === 'function') applyRBACToUI(els.tbody);
 }
 
 function inferTargetFromRow(row, fields) {
-    // 优先 host（FOFA 常见返回 http(s)://...）
+    // Prefer host (FOFA commonly returns http(s)://...)
     const host = row.host != null ? String(row.host).trim() : '';
     if (host) return host;
 
@@ -1172,7 +1172,7 @@ function inferTargetFromRow(row, fields) {
     if (!base) return '';
 
     if (port) {
-        // 仅做一个轻量推断：443 -> https, 80 -> http，其余不强行加 scheme
+        // Only a lightweight inference: 443 -> https, 80 -> http; otherwise do not force a scheme
         const p = parseInt(port, 10);
         if (!isNaN(p) && (p === 80 || p === 443)) {
             const scheme = p === 443 ? 'https' : 'http';
@@ -1191,7 +1191,7 @@ function normalizeHttpLink(raw) {
     const v = (raw || '').trim();
     if (!v) return '';
     if (v.startsWith('http://') || v.startsWith('https://')) return v;
-    // 某些 host 可能是 domain 或 ip:port；这里不强行拼装，避免误导
+    // Some hosts may be a domain or ip:port; do not force assembly here, to avoid misleading
     return '';
 }
 
@@ -1202,7 +1202,7 @@ function copyFofaTarget(target) {
         return;
     }
     navigator.clipboard.writeText(text).then(() => {
-        // 简单提示
+        // Simple notice
         showInlineToast(_t('infoCollect.targetCopied'));
     }).catch(() => {
         alert(_t('infoCollect.manualCopyHint') + text);
@@ -1217,7 +1217,7 @@ function copyFofaTargetEncoded(encodedTarget) {
     }
 }
 
-// showInlineToast('xxx')；也支持 showInlineToast('xxx', { duration: 0, id: '...' })
+// showInlineToast('xxx'); also supports showInlineToast('xxx', { duration: 0, id: '...' })
 function showInlineToast(text, options) {
     const opts = options && typeof options === 'object' ? options : {};
     const duration = typeof opts.duration === 'number' ? opts.duration : 1200;
@@ -1297,7 +1297,7 @@ function scanFofaRow(encodedRowJson, clickEvent) {
     try {
         row = JSON.parse(decodeURIComponent(encodedRowJson));
     } catch (e) {
-        console.warn('解析行数据失败', e);
+        console.warn('Failed to parse row data', e);
     }
 
     const fields = (document.getElementById('fofa-fields')?.value || '').split(',').map(s => s.trim()).filter(Boolean);
@@ -1307,7 +1307,7 @@ function scanFofaRow(encodedRowJson, clickEvent) {
         return;
     }
 
-    // 切换到对话页并发送消息（每次点击都新建会话，避免发到历史会话）
+    // Switch to the chat page and send the message (every click creates a new conversation, to avoid sending into a historical conversation)
     if (typeof switchPage === 'function') {
         switchPage('chat');
     } else {
@@ -1318,7 +1318,7 @@ function scanFofaRow(encodedRowJson, clickEvent) {
     const autoSend = !!(clickEvent && (clickEvent.ctrlKey || clickEvent.metaKey));
 
     setTimeout(async () => {
-        // 新建会话：必须等待其完成，否则它会在后续把输入框清空
+        // Create a new conversation: must wait for it to complete, otherwise it would clear the input box later
         try {
             if (typeof startNewConversation === 'function') {
                 const maybePromise = startNewConversation();
@@ -1333,7 +1333,7 @@ function scanFofaRow(encodedRowJson, clickEvent) {
         const input = document.getElementById('chat-input');
         if (input) {
             input.value = message;
-            // 触发自动高度调整（chat.js 里如果监听 input）
+            // Trigger the auto height adjustment (if chat.js listens to input)
             input.dispatchEvent(new Event('input', { bubbles: true }));
             input.focus();
         }
@@ -1356,7 +1356,7 @@ function buildScanMessage(target, row, options) {
 
     const summary = formatFofaRowSummary(row || {}, fields);
     const provider = providerLabel(infoCollectState.currentPayload?.provider || getInfoCollectProvider());
-    return `对以下目标做信息收集与基础扫描：\n${target}\n\n要求：\n1) 识别服务/框架与关键指纹\n2) 枚举开放端口与常见管理入口\n3) 用 httpx/指纹/目录探测等方式快速确认可访问面\n4) 输出可复现的命令与结论\n\n已知信息（来自 ${provider} 该行全部字段）：\n${summary}`.trim();
+    return `Perform information gathering and basic scanning on the following target:\n${target}\n\nRequirements:\n1) Identify the service/framework and key fingerprints\n2) Enumerate open ports and common management entry points\n3) Use httpx / fingerprinting / directory probing etc. to quickly confirm the accessible surface\n4) Output reproducible commands and conclusions\n\nKnown information (all fields of this row from ${provider}):\n${summary}`.trim();
 }
 
 function bindFofaTableEvents() {
@@ -1366,7 +1366,7 @@ function bindFofaTableEvents() {
     const els = getFofaFormElements();
     if (!els.tbody) return;
 
-    // 事件委托：选择/单元格展开
+    // Event delegation: selection / cell expansion
     els.tbody.addEventListener('click', (e) => {
         const checkbox = e.target && e.target.classList && e.target.classList.contains('fofa-row-select') ? e.target : null;
         if (checkbox) {
@@ -1384,7 +1384,7 @@ function bindFofaTableEvents() {
         if (cell) {
             const full = cell.getAttribute('data-full') || '';
             const field = cell.getAttribute('data-field') || '';
-            // 点击链接不弹窗
+            // Clicking a link does not open the popup
             if (e.target && e.target.tagName === 'A') return;
             if (full && full.length > 0) {
                 showCellDetailModal(field, full);
@@ -1392,7 +1392,7 @@ function bindFofaTableEvents() {
         }
     });
 
-    // thead 的全选（因为 thead 会重渲染，用事件捕获到 document）
+    // Select-all in thead (since thead is re-rendered, capture the event on document)
     document.addEventListener('change', (e) => {
         const t = e.target;
         if (!t || t.id !== 'fofa-select-all') return;
@@ -1461,7 +1461,7 @@ function toggleFofaColumn(field, visible) {
     if (visible) infoCollectState.hiddenFields.delete(f);
     else infoCollectState.hiddenFields.add(f);
     saveHiddenFieldsToStorage();
-    // 重新渲染表格（用 state 中缓存的 payload）
+    // Re-render the table (using the payload cached in state)
     if (infoCollectState.currentPayload) {
         renderFofaResults(infoCollectState.currentPayload);
     }
@@ -1479,7 +1479,7 @@ function closeFofaColumnsPanel() {
     if (els.columnsPanel) els.columnsPanel.style.display = 'none';
 }
 
-// 点击面板外部关闭（避免一直占着表格顶部）
+// Click outside the panel to close it (avoids it occupying the top of the table all the time)
 document.addEventListener('click', (e) => {
     const panel = document.getElementById('fofa-columns-panel');
     const btn = e.target && e.target.closest ? e.target.closest('button') : null;
@@ -1498,7 +1498,7 @@ function showAllFofaColumns() {
 function hideAllFofaColumns() {
     const p = infoCollectState.currentPayload;
     if (!p || !Array.isArray(p.fields)) return;
-    // 允许隐藏全部，但给用户一个最小可用：至少保留 host/ip/domain 中之一（如果存在）
+    // Allow hiding everything, but give the user a minimal usable set: keep at least one of host/ip/domain (if present)
     const keep = ['host', 'ip', 'domain'].find(x => p.fields.includes(x));
     infoCollectState.hiddenFields = new Set(p.fields.filter(f => f !== keep));
     saveHiddenFieldsToStorage();
@@ -1534,7 +1534,7 @@ function exportFofaResults(format) {
     }
 
     if (format === 'xlsx') {
-        // 使用 SheetJS 生成 XLSX（需在页面中引入 xlsx 库）
+        // Use SheetJS to generate the XLSX (the xlsx library must be included in the page)
         if (typeof XLSX === 'undefined') {
             alert(_t('infoCollect.xlsxNotLoaded'));
             return;
@@ -1550,7 +1550,7 @@ function exportFofaResults(format) {
         return;
     }
 
-    // csv：默认导出可见字段，带 UTF-8 BOM 以兼容 Excel 中文
+    // csv: export visible fields by default, with a UTF-8 BOM for Excel compatibility with Chinese text
     const header = visibleFields;
     const rows = p.results.map(row => {
         const r = row && typeof row === 'object' ? row : {};
@@ -1602,7 +1602,7 @@ async function batchScanSelectedFofaRows() {
             skipped.push(idx + 1);
             return;
         }
-        // 批量任务：与单条一致，只带“该行全部字段”的摘要（避免重复与超长）
+        // Batch task: same as the single one, only carrying a summary of "all fields of that row" (avoids duplication and excessive length)
         tasks.push(buildScanMessage(target, row || {}, {
             fields
         }));
@@ -1613,14 +1613,15 @@ async function batchScanSelectedFofaRows() {
         return;
     }
 
-    const title = (p.query ? _t('infoCollect.batchScanTitle') + '：' + p.query : _t('infoCollect.batchScanTitle')).slice(0, 80);
+    const title = (p.query ? _t('infoCollect.batchScanTitle') + ': ' + p.query : _t('infoCollect.batchScanTitle')).slice(0, 80);
     try {
-        // 不强制切换到“信息收集”角色：沿用当前已选角色；若为默认则传空字符串交给后端走默认逻辑
+        // Do not force switching to the "Information Gathering" role: keep the currently selected role; if it is the default, pass an empty string and let the backend take its default logic
         let role = '';
         if (typeof getCurrentRole === 'function') {
             try { role = getCurrentRole() || ''; } catch (e) { /* ignore */ }
         }
-        if (role === '默认') role = '';
+        // The default role is named 'Default' now, but the legacy Chinese name (\u9ed8\u8ba4) can still arrive from the backend / persisted state.
+        if (role === 'Default' || role === '\u9ed8\u8ba4') role = '';
 
         const resp = await apiFetch('/api/batch-tasks', {
             method: 'POST',
@@ -1638,10 +1639,10 @@ async function batchScanSelectedFofaRows() {
         }
         const queueId = result.queueId;
         if (!queueId) {
-            throw new Error('创建成功但未返回 queueId');
+            throw new Error('Created successfully but queueId was not returned');
         }
 
-        // 跳到任务管理并打开队列详情
+        // Jump to task management and open the queue details
         if (typeof switchPage === 'function') switchPage('tasks');
         setTimeout(() => {
             if (typeof showBatchQueueDetail === 'function') {
@@ -1655,7 +1656,7 @@ async function batchScanSelectedFofaRows() {
             showInlineToast(_t('infoCollect.batchQueueCreated'));
         }
     } catch (e) {
-        console.error('批量扫描失败:', e);
+        console.error('Batch scan failed:', e);
         alert(_t('infoCollect.batchScanFailed') + ': ' + (e && e.message ? e.message : String(e)));
     }
 }
@@ -1716,11 +1717,11 @@ function showCellDetailModal(field, fullText) {
         navigator.clipboard.writeText(text).then(() => showInlineToast(_t('common.copied'))).catch(() => alert(_t('common.copyFailed')));
     });
 
-    // Esc 关闭
+    // Esc to close
     document.addEventListener('keydown', onKey);
 }
 
-// 暴露到全局（供 index.html onclick 调用）
+// Expose globally (for index.html onclick calls)
 window.initInfoCollectPage = initInfoCollectPage;
 window.resetFofaForm = resetFofaForm;
 window.submitFofaSearch = submitFofaSearch;

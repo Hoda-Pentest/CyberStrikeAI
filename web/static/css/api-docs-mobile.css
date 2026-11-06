@@ -23,8 +23,8 @@
     .api-docs-container {
         padding: 12px calc(12px + var(--cs-sa-right)) calc(24px + var(--cs-sa-bottom)) calc(12px + var(--cs-sa-left));
         min-height: 100vh;
-        /* svh = 工具栏展开时的最小视口：写 dvh 会让页面恒定比可见区域高出一截，
-           最后一行内容落在 Safari 底栏后面 */
+        /* svh = the minimum viewport when the toolbar is expanded: using dvh would make the page constantly
+           taller than the visible area, leaving the last line of content behind Safari's bottom bar */
         min-height: 100svh;
     }
 

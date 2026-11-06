@@ -14,7 +14,7 @@ func (h *ConfigHandler) resolveProbeHeaders(req TestOpenAIRequest) (map[string]s
 	for name, value := range req.Headers {
 		key := strings.ToLower(strings.TrimSpace(name))
 		if seen[key] {
-			return nil, fmt.Errorf("重复的请求头名称")
+			return nil, fmt.Errorf("duplicate request header name")
 		}
 		seen[key] = true
 		if strings.Contains(value, maskedSecret) {
@@ -27,36 +27,36 @@ func (h *ConfigHandler) resolveProbeHeaders(req TestOpenAIRequest) (map[string]s
 	h.mu.RLock()
 	defer h.mu.RUnlock()
 	if h.config == nil {
-		return nil, fmt.Errorf("没有已保存的请求头凭据")
+		return nil, fmt.Errorf("no saved request header credential")
 	}
 	var stored config.OpenAIConfig
 	switch {
 	case req.ChannelID != "":
 		ch, ok := h.config.AI.Channels[req.ChannelID]
 		if !ok {
-			return nil, fmt.Errorf("未知通道，无法恢复请求头凭据")
+			return nil, fmt.Errorf("unknown channel; cannot restore request header credential")
 		}
 		stored = ch.ToOpenAIConfig()
 		if req.CredentialScope == "hitlAudit" {
 			stored = h.config.Hitl.AuditModelEffective(stored)
 		} else if req.CredentialScope != "" && req.CredentialScope != "openai" {
-			return nil, fmt.Errorf("请求头凭据范围不匹配")
+			return nil, fmt.Errorf("request header credential scope mismatch")
 		}
 	case req.CredentialScope == "hitlAudit":
 		stored = h.config.Hitl.AuditModelEffective(h.config.OpenAI)
 	case req.CredentialScope == "openai":
 		stored = h.config.OpenAI
 	default:
-		return nil, fmt.Errorf("请指定通道或模型凭据范围以恢复请求头")
+		return nil, fmt.Errorf("please specify the channel or model credential scope to restore the request headers")
 	}
 	if probeHeaderProvider(req.Provider) != probeHeaderProvider(stored.Provider) || probeHeaderURL(req.Provider, req.BaseURL) != probeHeaderURL(stored.Provider, stored.BaseURL) || strings.TrimSpace(req.APIKey) != strings.TrimSpace(stored.APIKey) {
-		return nil, fmt.Errorf("模型身份或地址已改变，请重新填写请求头凭据")
+		return nil, fmt.Errorf("the model identity or address has changed; please re-enter the request header credentials")
 	}
 	out := make(map[string]string, len(req.Headers))
 	for name, value := range req.Headers {
 		if strings.Contains(value, maskedSecret) {
 			if value != maskedSecret {
-				return nil, fmt.Errorf("无效的请求头凭据占位符")
+				return nil, fmt.Errorf("invalid request header credential placeholder")
 			}
 			found := ""
 			count := 0
@@ -67,7 +67,7 @@ func (h *ConfigHandler) resolveProbeHeaders(req TestOpenAIRequest) (map[string]s
 				}
 			}
 			if count != 1 || strings.TrimSpace(found) == "" || strings.Contains(found, maskedSecret) {
-				return nil, fmt.Errorf("没有唯一的已保存请求头凭据")
+				return nil, fmt.Errorf("no unique saved request header credential")
 			}
 			value = found
 		}

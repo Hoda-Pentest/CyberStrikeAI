@@ -5,17 +5,17 @@ short_description: "GraphQL安全扫描和自省工具"
 description: |
   高级GraphQL安全扫描和自省工具，用于检测GraphQL API中的安全问题。
 
-  **主要功能：**
+  **Key Features:**
   - GraphQL自省
   - 查询深度测试
   - 突变操作测试
   - 漏洞评估
 
-  **使用场景：**
+  **Use Cases:**
   - GraphQL安全测试
   - API安全评估
-  - 漏洞发现
-  - 安全测试
+  - Vulnerability discovery
+  - Security testing
 parameters:
   - name: "endpoint"
     type: "string"
@@ -47,14 +47,14 @@ parameters:
   - name: "additional_args"
     type: "string"
     description: |
-      额外的graphql-scanner参数。用于传递未在参数列表中定义的graphql-scanner选项。
+      Additional graphql-scanner parameters. Used to pass graphql-scanner options not defined in the parameter list.
 
-      **示例值：**
-      - 根据工具特性添加常用参数示例
+      **Example Values:**
+      - Add common parameter examples based on the tool's characteristics
 
-      **注意事项：**
-      - 多个参数用空格分隔
-      - 确保参数格式正确，避免命令注入
-      - 此参数会直接追加到命令末尾
+      **Notes:**
+      - Multiple parameters are separated by spaces
+      - Ensure the parameter format is correct to avoid command injection
+      - This parameter is appended directly to the end of the command
     required: false
     format: "positional"

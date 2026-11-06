@@ -8,26 +8,38 @@ import (
 	"cyberstrike-ai/internal/mcp"
 )
 
-const legacyToolGuardPrefix = "工具调用已被安全规则拦截"
+// The legacy envelope was persisted in Chinese by older versions, so the
+// migration must keep matching those exact stored strings. They are written as
+// \u escapes to keep the source ASCII-only without changing the matched bytes.
+const (
+	// "Tool call blocked by security rule"
+	legacyToolGuardPrefix = "\u5de5\u5177\u8c03\u7528\u5df2\u88ab\u5b89\u5168\u89c4\u5219\u62e6\u622a"
+	// Fullwidth colon that follows the prefix in the single-line form.
+	legacyToolGuardColon = "\uff1a"
+	// "\nRule: "
+	legacyToolGuardRuleLabel = "\n\u89c4\u5219: "
+	// "\nMatched content: "
+	legacyToolGuardMatchLabel = "\n\u5339\u914d\u5185\u5bb9: "
+)
 
 // Only the exact envelope emitted by the old local guard is recognized here.
 // New executions use the structured marker and never infer policy from text.
 func isLegacyToolGuardRefusal(text string) bool {
-	if !strings.HasPrefix(text, legacyToolGuardPrefix+"：") && !strings.HasPrefix(text, legacyToolGuardPrefix+"\n规则: ") {
+	if !strings.HasPrefix(text, legacyToolGuardPrefix+legacyToolGuardColon) && !strings.HasPrefix(text, legacyToolGuardPrefix+legacyToolGuardRuleLabel) {
 		return false
 	}
-	matchIndex := strings.LastIndex(text, "\n匹配内容: ")
+	matchIndex := strings.LastIndex(text, legacyToolGuardMatchLabel)
 	if matchIndex < 0 {
 		return false
 	}
-	if _, err := strconv.Unquote(text[matchIndex+len("\n匹配内容: "):]); err != nil {
+	if _, err := strconv.Unquote(text[matchIndex+len(legacyToolGuardMatchLabel):]); err != nil {
 		return false
 	}
-	ruleIndex := strings.LastIndex(text[:matchIndex], "\n规则: ")
+	ruleIndex := strings.LastIndex(text[:matchIndex], legacyToolGuardRuleLabel)
 	if ruleIndex < 0 {
 		return false
 	}
-	rule := text[ruleIndex+len("\n规则: ") : matchIndex]
+	rule := text[ruleIndex+len(legacyToolGuardRuleLabel) : matchIndex]
 	idIndex := strings.LastIndex(rule, " (")
 	return idIndex > 0 && strings.HasSuffix(rule, ")") && len(rule[idIndex+2:len(rule)-1]) > 0 && !strings.Contains(rule, "\n")
 }

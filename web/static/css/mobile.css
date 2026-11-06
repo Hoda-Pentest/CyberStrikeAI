@@ -1,21 +1,21 @@
 /* ==========================================================================
    CyberStrikeAI — Mobile UI Layer
    --------------------------------------------------------------------------
-   目标：在不改动 style.css（1.1MB）与既有桌面布局的前提下，用一层独立的
-   响应式样式把平台改造成"手机优先可用"的形态。
+   Goal: without touching style.css (1.1MB) or the existing desktop layout, use a separate layer of
+   responsive styles to turn the platform into a "mobile-first usable" form.
 
-   设计语言参考 QuantumNous/new-api 的移动端实现：
-     - 断点 768px（useIsMobile: innerWidth < 768）
-     - 底部滑出式面板（rounded sheet + backdrop-blur 遮罩 + spring 动画）
-     - 100svh/dvh 视口单位、--app-header-height 变量驱动的布局高度
-     - 抽屉式导航 + 卡片化列表
+   The design language follows the mobile implementation of QuantumNous/new-api:
+     - Breakpoint 768px (useIsMobile: innerWidth < 768)
+     - Bottom slide-up panel (rounded sheet + backdrop-blur scrim + spring animation)
+     - 100svh/dvh viewport units, layout heights driven by the --app-header-height variable
+     - Drawer navigation + card-style lists
 
-   本文件只在 max-width: 767.98px（以及平板/横屏区间）生效，
-   桌面端与 ≥768px 的既有表现完全不受影响。
+   This file only takes effect at max-width: 767.98px (plus the tablet/landscape range),
+   the existing desktop and ≥768px behavior is completely unaffected.
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   1. 设计令牌
+   1. Design tokens
    -------------------------------------------------------------------------- */
 :root {
     --m-appbar-h: 52px;
@@ -29,12 +29,12 @@
     --m-radius-sheet: 18px;
     --m-radius-card: 14px;
     --m-gutter: 14px;
-    /* 24 节「按钮 / 控件视觉体系」的度量：全站按钮只有这一组尺寸口径。
-       改造前 style.css 里没有 .btn 基类，圆角 11 种、字号 9 种、字重 7 档、
-       同一个 .btn-secondary 出现 12 种签名（_mbtn.mjs 实测 645 个控件）。 */
+    /* Metrics of section 24 "Button / control visual system": site-wide buttons use only this one set of size conventions.
+       Before the rework style.css had no .btn base class: 11 border radii, 9 font sizes, 7 font weights,
+       and the same .btn-secondary appeared with 12 different signatures (_mbtn.mjs measured 645 controls). */
     --m-r-ctl: 12px;
-    /* 图标按钮一律正圆、文字按钮一律胶囊：24 节那批 !important 规则读的就是这两个
-       令牌，改令牌一处生效全站，不要再往下补选择器或跟 !important 对轰 */
+    /* Icon buttons are always perfect circles and text buttons are always pills: the !important rules of section 24 read exactly these two
+       tokens, so changing a token takes effect site-wide; do not add more selectors below or fight with !important */
     --m-r-icon: 50%;
     --m-r-btn: 999px;
     --m-r-pill: 999px;
@@ -53,17 +53,17 @@
     --m-z-drawer: 1201;
     --m-z-sheet: 1202;
     --m-z-toast: 1300;
-    /* 运行时由 mobile-ui.js 写入，作为 100dvh 不可用时的兜底 */
+    /* Written at runtime by mobile-ui.js, as a fallback when 100dvh is unavailable */
     --m-app-height: 100vh;
-    /* 贴底固定件（底栏 / 面板）的抬升量：iOS Safari 工具栏展开时，可见视口比
-       100dvh 矮一截，bottom:0 的固定件会被 Safari 底栏压住。JS 每次 resize 都会
-       重写 --m-app-height，所以这里能实时算出那一截是多少。默认 0，桌面与
-       不支持 dvh 的环境都不动。 */
+    /* Lift amount for bottom-fixed elements (tab bar / panels): when the iOS Safari toolbar is expanded, the visible viewport is
+       shorter than 100dvh, so a bottom:0 fixed element would be covered by the Safari bottom bar. JS rewrites
+       --m-app-height on every resize, so the exact difference can be computed live here. Defaults to 0; desktop and
+       environments without dvh support are left untouched. */
     --m-bar-bottom: 0px;
 }
 
 /* --------------------------------------------------------------------------
-   2. 视口与滚动基础
+   2. Viewport and scrolling basics
    -------------------------------------------------------------------------- */
 @media (max-width: 767.98px) {
     html {
@@ -89,7 +89,7 @@
         overflow: hidden;
     }
 
-    /* 触摸设备：去掉 300ms 点击延迟与高亮块 */
+    /* Touch devices: remove the 300ms tap delay and the highlight block */
     a,
     button,
     .nav-item-content,
@@ -100,19 +100,19 @@
         touch-action: manipulation;
     }
 
-    /* 双击缩放整体抑制（仍保留双指缩放），替代原先的全局 JS touchend 拦截 */
+    /* Suppress double-tap zoom overall (pinch zoom is still kept); replaces the previous global JS touchend interception */
     body {
         touch-action: manipulation;
     }
 
-    /* iOS 输入聚焦自动放大：所有表单控件至少 16px */
+    /* Avoid iOS auto-zoom on input focus: all form controls are at least 16px */
     input,
     select,
     textarea {
         font-size: 16px;
     }
 
-    /* 滚动容器统一惯性滚动与边界收敛 */
+    /* Unified momentum scrolling and boundary containment for scroll containers */
     .page-content,
     .main-sidebar-nav,
     .chat-messages,
@@ -123,7 +123,7 @@
         overscroll-behavior: contain;
     }
 
-    /* 触控目标下限 */
+    /* Minimum touch target size */
     button,
     .btn-primary,
     .btn-secondary,
@@ -145,13 +145,13 @@
         gap: 6px;
     }
 
-    /* 桌面专属元素在手机上隐藏 */
+    /* Hide desktop-only elements on phones */
     .m-desktop-only {
         display: none !important;
     }
 }
 
-/* 手机专属元素默认隐藏，避免桌面端闪现 */
+/* Phone-only elements are hidden by default to avoid flashing on desktop */
 .m-mobile-only {
     display: none;
 }
@@ -171,7 +171,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   3. 顶部应用栏
+   3. Top app bar
    -------------------------------------------------------------------------- */
 @media (max-width: 767.98px) {
     /* Only the application bar has a fixed height and overlays page content.
@@ -236,7 +236,7 @@
         align-items: center;
     }
 
-    /* 桌面端的次要操作（API 文档 / GitHub / 主题 / 语言）收进"更多"面板 */
+    /* Secondary desktop actions (API docs / GitHub / theme / language) are moved into the "More" panel */
     .header-actions > .openapi-doc-btn,
     .header-actions > .lang-switcher,
     .header-actions > .theme-toggle,
@@ -250,7 +250,7 @@
         display: flex;
     }
 
-    /* 汉堡按钮 / 关闭按钮 */
+    /* Hamburger button / close button */
     .m-menu-btn,
     .m-more-btn,
     .m-close-btn {
@@ -283,8 +283,8 @@
         height: 22px;
     }
 
-    /* 通知与用户菜单是本层唯一漏掉 44px 下限的常驻控件：38px 在手指下是
-       「看得见但点不准」，与上面 --m-touch 的口径必须一致 */
+    /* Notifications and the user menu are the only persistent controls in this layer that missed the 44px floor: at 38px under a finger it is
+       "visible but hard to hit", and it must stay consistent with the --m-touch convention above */
     .notification-btn,
     .user-avatar-btn {
         width: var(--m-touch);
@@ -298,7 +298,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   4. 侧边栏 → 抽屉导航
+   4. Sidebar → drawer navigation
    -------------------------------------------------------------------------- */
 @media (max-width: 767.98px) {
     .main-layout {
@@ -336,7 +336,7 @@
         box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45);
     }
 
-    /* 折叠态在手机上无意义，强制展开 */
+    /* The collapsed state is meaningless on phones, so force it expanded */
     .main-sidebar.collapsed {
         width: var(--m-drawer-w) !important;
     }
@@ -346,12 +346,12 @@
         display: revert;
     }
 
-    /* 桌面折叠按钮由抽屉头部关闭按钮取代 */
+    /* The desktop collapse button is replaced by the drawer header close button */
     .sidebar-collapse-btn {
         display: none !important;
     }
 
-    /* 抽屉头部（由 mobile-ui.js 注入） */
+    /* Drawer header (injected by mobile-ui.js) */
     .m-drawer-head {
         display: flex;
         align-items: center;
@@ -416,7 +416,7 @@
     }
 
 
-    /* 抽屉内的导航项：更大、更好点 */
+    /* Navigation items inside the drawer: larger and easier to tap */
     .main-sidebar-nav {
         flex: 1;
         overflow-y: auto;
@@ -447,7 +447,7 @@
 
     .nav-submenu-item {
         padding: 10px 12px 10px 44px;
-        /* 原来是 42px——本层自己定的 --m-touch(44px) 下限被自己漏掉了一处 */
+        /* This used to be 42px - one spot where this layer missed its own --m-touch (44px) floor */
         min-height: var(--m-touch);
         font-size: 0.9rem;
         border-radius: 8px;
@@ -464,7 +464,7 @@
         color: var(--accent-color);
     }
 
-    /* 菜单搜索命中的项 */
+    /* Items matched by the menu search */
     .m-nav-hit > .nav-item-content,
     .nav-submenu-item.m-nav-hit {
         outline: 1px solid color-mix(in srgb, var(--accent-color) 45%, transparent);
@@ -474,12 +474,12 @@
         display: none !important;
     }
 
-    /* 遮罩 */
+    /* Scrim */
     .m-scrim {
         position: fixed;
         inset: 0;
         z-index: var(--m-z-scrim);
-        /* 全屏 backdrop-filter 在无 GPU 加速环境代价极高，用不透明度替代 */
+        /* A full-screen backdrop-filter is extremely costly without GPU acceleration, so use opacity instead */
         background: var(--m-scrim);
         opacity: 0;
         visibility: hidden;
@@ -493,7 +493,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   5. 底部标签栏
+   5. Bottom tab bar
    -------------------------------------------------------------------------- */
 @media (max-width: 767.98px) {
     .content-area {
@@ -513,7 +513,7 @@
         padding-bottom: var(--m-safe-bottom);
         padding-left: var(--m-safe-left);
         padding-right: var(--m-safe-right);
-        /* 固定底栏带 backdrop-filter 时，软件渲染每帧都要重算模糊，是移动端掉帧主因 */
+        /* When a fixed bottom bar uses backdrop-filter, software rendering must recompute the blur every frame, the main cause of dropped frames on mobile */
         background: var(--bg-primary);
         border-top: 1px solid var(--border-color);
         box-shadow: 0 -2px 14px rgba(0, 0, 0, 0.06);
@@ -536,8 +536,8 @@
         border: none;
         background: transparent;
         color: var(--text-muted);
-        /* 原 0.66rem = 10.56px，是本层自己漏掉的"小字号下限 12px"（见 18.2），
-           底部标签栏是主导航，字号必须达标 */
+        /* The original 0.66rem = 10.56px was one place this layer missed its own "12px minimum font size" (see 18.2),
+           the bottom tab bar is primary navigation, so its font size must meet the floor */
         font-size: 12px;
         line-height: 1.15;
         position: relative;
@@ -601,7 +601,7 @@
         background: var(--error-color, #ef4444);
     }
 
-    /* 键盘弹出时让出空间 */
+    /* Make room when the keyboard pops up */
     body.m-keyboard #m-tabbar {
         transform: translateY(110%);
     }
@@ -612,7 +612,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   6. 底部滑出面板（更多 / 快捷操作）
+   6. Bottom slide-up panel (More / Quick actions)
    -------------------------------------------------------------------------- */
 @media (max-width: 767.98px) {
     #m-sheet {
@@ -716,7 +716,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   7. 页面头 / 内容区
+   7. Page header / content area
    -------------------------------------------------------------------------- */
 @media (max-width: 767.98px) {
     .page-header {
@@ -728,8 +728,8 @@
         border-radius: 0;
     }
 
-    /* 标题独占一行，操作按钮区满宽换到下一行（避免 space-between 把按钮挤窄、
-       主按钮右端出屏被截）。按钮区内部仍可横向滚动，但占满整行、左对齐平齐。 */
+    /* The title takes its own row and the action button area drops to the next row at full width (avoids space-between squeezing the buttons narrow
+       and clipping the primary button's right end off screen). The button area can still scroll horizontally inside, but fills the whole row and is left-aligned and flush. */
     .page-header h1,
     .page-header h2,
     .page-header h3 {
@@ -757,7 +757,7 @@
         overflow-x: hidden;
     }
 
-    /* 页面切换的轻量过渡 */
+    /* Lightweight page transition */
     .page.active {
         animation: m-page-in 0.22s var(--m-ease);
     }
@@ -774,7 +774,7 @@
         }
     }
 
-    /* 卡片化：常见容器统一圆角与内边距 */
+    /* Card-style: common containers get unified border radius and padding */
     .card,
     .stat-card,
     .metric-card,
@@ -787,7 +787,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   8. 表格 → 横向滚动 + 边缘渐隐
+   8. Tables → horizontal scrolling + edge fade
    -------------------------------------------------------------------------- */
 @media (max-width: 767.98px) {
     .m-table-scroll {
@@ -798,7 +798,7 @@
         margin-left: calc(-1 * var(--m-gutter));
         margin-right: calc(-1 * var(--m-gutter));
         padding: 0 var(--m-gutter);
-        /* 左右渐隐阴影（Lea Verou 滚动阴影） */
+        /* Left/right fade shadows (Lea Verou scroll shadows) */
         background:
             linear-gradient(to right, var(--bg-primary) 30%, rgba(255, 255, 255, 0)) left / 32px 100% no-repeat local,
             linear-gradient(to left, var(--bg-primary) 30%, rgba(255, 255, 255, 0)) right / 32px 100% no-repeat local,
@@ -827,7 +827,7 @@
         white-space: nowrap;
     }
 
-    /* 表格内的按钮别撑破行 */
+    /* Buttons inside tables must not break the row */
     table .btn-primary,
     table .btn-secondary,
     table .btn-danger,
@@ -839,7 +839,7 @@
         font-size: 0.78rem;
     }
 
-    /* 单元格里的长文本允许换行 */
+    /* Long text in cells is allowed to wrap */
     .data-table td .m-wrap,
     td.m-wrap {
         white-space: normal;
@@ -848,7 +848,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   9. 表单与按钮
+   9. Forms and buttons
    -------------------------------------------------------------------------- */
 @media (max-width: 767.98px) {
     .form-group,
@@ -892,7 +892,7 @@
         resize: vertical;
     }
 
-    /* 一行多列的表单在手机上堆叠 */
+    /* Multi-column forms stack on phones */
     .form-grid,
     .form-row.multi,
     .settings-grid {
@@ -915,7 +915,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   10. 弹窗 / 下拉 / 浮层
+   10. Dialogs / dropdowns / overlays
    -------------------------------------------------------------------------- */
 @media (max-width: 767.98px) {
     .modal {
@@ -990,7 +990,7 @@
         min-height: var(--m-touch);
     }
 
-    /* 头部下拉：贴边全宽 */
+    /* Header dropdown: edge-to-edge full width */
     .notification-dropdown,
     .user-menu-dropdown,
     .lang-dropdown {
@@ -1007,13 +1007,13 @@
         z-index: 1210;
     }
 
-    /* 角色 / 项目 / 对话模式选择面板在手机上统一为底部抽屉，但**不盖输入框**：
-       YG 反馈「输入框和这三个功能点重叠」，实测面板 bottom:66px 恰好盖住输入条
-       （.chat-input-container 占据视口底部 186px）。现在 bottom 用 JS 测得的
-       --m-panel-offset（输入条顶部到视口底 + 8px 间距），面板始终弹在输入条正上方，
-       微信输入面板同款行为：输入条全程可见可点，点输入条即收起面板。
-       对话模式面板原先漏在这一组之外，仍按桌面的 position:absolute + left:0 定位，
-       在 320–412px 视口下以按钮包裹层为基准取全屏宽度，右边缘实测越界 198px。 */
+    /* The role / project / chat-mode selection panels are unified into a bottom drawer on phones, but **do not cover the input box**:
+       YG reported "the input box overlaps these three feature points"; measurement showed the panel at bottom:66px exactly covers the input bar
+       (.chat-input-container occupies 186px at the bottom of the viewport). Now bottom uses the --m-panel-offset measured by JS
+       (distance from the top of the input bar to the viewport bottom + 8px gap), so the panel always pops up directly above the input bar,
+       the same behavior as the WeChat input panel: the input bar stays visible and tappable throughout, and tapping the input bar closes the panel.
+       The chat-mode panel was previously left out of this group and was still positioned with the desktop position:absolute + left:0,
+       taking the full-screen width relative to the button wrapper at 320–412px viewports; the right edge was measured overflowing by 198px. */
     .role-selection-panel,
     .chat-project-panel,
     .agent-mode-panel {
@@ -1027,15 +1027,15 @@
         max-height: var(--m-panel-maxh, 62vh);
         border-radius: var(--m-radius-sheet);
         z-index: 1210;
-        /* 面板与背景同色，上向投影把抽屉与聊天区明确分开 */
+        /* The panel has the same color as the background; the upward shadow clearly separates the drawer from the chat area */
         box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.16), 0 -1px 0 rgba(0, 0, 0, 0.06);
     }
 
-    /* 轻提示 */
+    /* Toast */
     #m-toast {
         position: fixed;
         left: 50%;
-        /* 底栏按 --m-bar-bottom 抬升时提示条要一起抬，否则会压在底栏上 */
+        /* When the tab bar is lifted by --m-bar-bottom, the toast must be lifted with it, otherwise it would sit on top of the tab bar */
         bottom: calc(var(--m-tabbar-h) + var(--m-safe-bottom) + 16px + var(--m-bar-bottom));
         transform: translate(-50%, 12px);
         z-index: var(--m-z-toast);
@@ -1061,14 +1061,14 @@
 }
 
 /* --------------------------------------------------------------------------
-   11. 对话页
+   11. Chat page
    -------------------------------------------------------------------------- */
 @media (max-width: 767.98px) {
     .chat-page-layout {
         flex-direction: row;
     }
 
-    /* 会话列表 → 左侧抽屉 */
+    /* Session list → left drawer */
     .conversation-sidebar {
         position: fixed;
         top: 0;
@@ -1098,12 +1098,12 @@
         width: var(--m-drawer-w) !important;
     }
 
-    /* 桌面语义的「折叠」在手机上只会加一个无效 class，隐藏掉，让位给关闭按钮 */
+    /* The desktop-semantic "collapse" only adds a useless class on phones, so hide it and give way to the close button */
     .conversation-sidebar-collapse-btn {
         display: none !important;
     }
 
-    /* 抽屉只盖住左侧 320px，右侧露出的工具条按钮会误触，打开时整体隐藏 */
+    /* The drawer only covers the left 320px, and the toolbar buttons exposed on the right could be tapped by mistake, so hide them all while it is open */
     body.m-chat-drawer-open .m-chat-bar {
         visibility: hidden;
     }
@@ -1138,14 +1138,14 @@
         padding: 12px 12px 12px 12px;
     }
 
-    /* 消息气泡占满宽度 */
+    /* Message bubbles fill the full width */
     .chat-messages .message,
     .chat-messages .message-row,
     .chat-messages .conversation-message {
         max-width: 100%;
     }
 
-    /* 轮次导航条在窄屏上太挤，直接收起 */
+    /* The turn navigation bar is too cramped on narrow screens, so collapse it directly */
     #chat-turn-rail {
         display: none !important;
     }
@@ -1169,7 +1169,7 @@
         gap: 6px;
     }
 
-    /* 输入区里的次要按钮收成图标 */
+    /* Secondary buttons in the input area are collapsed into icons */
     .chat-input-container .role-selector-text {
         max-width: 88px;
         overflow: hidden;
@@ -1177,7 +1177,7 @@
         white-space: nowrap;
     }
 
-    /* 三个选择面板的关闭按钮桌面是 32×32，手机端放大到 44×44 满足触控 */
+    /* The close buttons of the three selection panels are 32×32 on desktop; enlarge to 44×44 on phones to meet touch needs */
     .role-selection-panel-close {
         width: var(--m-touch) !important;
         height: var(--m-touch) !important;
@@ -1185,7 +1185,7 @@
         min-height: var(--m-touch) !important;
     }
 
-    /* 发送按钮桌面是 40×40 圆形，手机端补足到 44×44（触控最小命中区） */
+    /* The send button is a 40×40 circle on desktop; bring it up to 44×44 on phones (minimum touch hit area) */
     .chat-input-container .send-btn,
     #chat-send-btn {
         width: var(--m-touch) !important;
@@ -1200,10 +1200,10 @@
     }
 
     /* ------------------------------------------------------------------
-       19.1 触摸命中区统一补齐到 44×44（WCAG 2.5.8 / iOS HIG 最小可点区）
-       依据 _mtouch.mjs 实测：顶部栏图标 38×38、通用按钮高 40、
-       .btn-small 高 38、设置页导航项高 37、对话工具条高 40 —— 均低于 44。
-       只提升命中区高度/宽度，不改字号与配色。
+       19.1 Touch hit areas are uniformly raised to 44×44 (WCAG 2.5.8 / iOS HIG minimum tappable area)
+       Based on _mtouch.mjs measurements: top bar icons 38×38, general button height 40,
+       .btn-small height 38, settings page nav item height 37, chat toolbar height 40 - all below 44.
+       Only the hit area height/width is raised; font size and colors are unchanged.
        ------------------------------------------------------------------ */
     .header-logo-link,
     #notification-bell-btn,
@@ -1228,12 +1228,12 @@
         min-width: var(--m-touch) !important;
     }
 
-    /* 设置页导航 chip「C2」是最短项，实测只有 41px 宽 */
+    /* The settings page nav chip "C2" is the shortest item, measured at only 41px wide */
     .settings-nav-item {
         min-width: var(--m-touch) !important;
     }
 
-    /* 复选框/单选框的尺寸见 24.11（已并入按钮体系，避免两处各说一套） */
+    /* Checkbox/radio sizes are covered in 24.11 (merged into the button system so the two places do not each say something different) */
 
     .chat-input-field textarea,
     .chat-input-field .chat-textarea {
@@ -1245,14 +1245,14 @@
         border-radius: var(--m-radius-card);
     }
 
-    /* 附件列表横向滚动 */
+    /* Attachment list scrolls horizontally */
     .chat-file-list {
         overflow-x: auto;
         flex-wrap: nowrap;
         -webkit-overflow-scrolling: touch;
     }
 
-    /* 对话页移动端工具条（由 mobile-ui.js 注入到 .chat-container 首位） */
+    /* Mobile toolbar on the chat page (injected by mobile-ui.js as the first child of .chat-container) */
     #m-chat-bar {
         display: flex;
         align-items: center;
@@ -1301,9 +1301,9 @@
         color: #ffffff;
     }
 
-    /* _mchat12.mjs 实测：会话抽屉条目 38px、会话设置折叠头 39px、
-       HITL 审批人开关仅 30px——都藏在抽屉/折叠区，之前全站扫描扫不到。
-       这些是可点交互控件，统一提到 44px。 */
+    /* _mchat12.mjs measurements: session drawer entries 38px, session settings collapse header 39px,
+       HITL approver switch only 30px - all hidden inside the drawer/collapsed areas, which the earlier site-wide scan could not reach.
+       These are tappable interactive controls, so they are all raised to 44px. */
     #conversation-sidebar .conversation-item,
     #conversation-sidebar .project-conversation-item,
     #conversation-reasoning-toggle,
@@ -1320,7 +1320,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   12. 终端 / WebShell / C2
+   12. Terminal / WebShell / C2
    -------------------------------------------------------------------------- */
 @media (max-width: 767.98px) {
     .webshell-layout,
@@ -1349,7 +1349,7 @@
         overscroll-behavior: contain;
     }
 
-    /* 终端工具条横向滚动 */
+    /* Terminal toolbar scrolls horizontally */
     .terminal-toolbar,
     .webshell-toolbar,
     .c2-toolbar {
@@ -1367,7 +1367,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   13. 登录页
+   13. Login page
    -------------------------------------------------------------------------- */
 @media (max-width: 767.98px) {
     .login-overlay {
@@ -1399,7 +1399,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   14. 网格 / 统计卡 / 图表
+   14. Grid / stat cards / charts
    -------------------------------------------------------------------------- */
 @media (max-width: 767.98px) {
     .stats-grid,
@@ -1417,7 +1417,7 @@
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     }
 
-    /* 图表容器限高，避免 canvas 撑出屏幕 */
+    /* Chart containers have a height limit so the canvas does not push beyond the screen */
     canvas {
         max-width: 100% !important;
     }
@@ -1430,7 +1430,7 @@
         max-height: 62vh;
     }
 
-    /* 标签 / 徽章不换行溢出 */
+    /* Tags / badges do not wrap or overflow */
     .badge,
     .tag,
     .status-badge,
@@ -1440,7 +1440,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   15. 平板区间（768–1023.98px）：保留桌面结构，仅做收敛
+   15. Tablet range (768–1023.98px): keep the desktop structure, only tighten it
    -------------------------------------------------------------------------- */
 @media (min-width: 768px) and (max-width: 1023.98px) {
     .main-sidebar {
@@ -1461,7 +1461,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   16. 横屏手机：把底部栏压薄，让出纵向空间
+   16. Landscape phones: thin out the bottom bar to free up vertical space
    -------------------------------------------------------------------------- */
 @media (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
     :root {
@@ -1484,7 +1484,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   17. 无障碍与性能
+   17. Accessibility and performance
    -------------------------------------------------------------------------- */
 @media (max-width: 767.98px) {
     @media (prefers-reduced-motion: reduce) {
@@ -1503,7 +1503,7 @@
         }
     }
 
-    /* 焦点可见性（键盘 / 辅助设备） */
+    /* Focus visibility (keyboard / assistive devices) */
     a:focus-visible,
     button:focus-visible,
     input:focus-visible,
@@ -1515,21 +1515,21 @@
     }
 }
 
-/* 抽屉/面板打开时锁定背景滚动 */
+/* Lock background scrolling while a drawer/panel is open */
 body.m-locked {
     overflow: hidden !important;
 }
 
 /* --------------------------------------------------------------------------
-   17.6 选择面板层级修正（关键）
+   17.6 Selection panel stacking fix (critical)
    --------------------------------------------------------------------------
-   .chat-input-container 带 container-type: inline-size，会创建独立的层叠
-   上下文，导致内部 position:fixed 的 .chat-project-panel / .role-selection-panel
-   / .agent-mode-panel 的 z-index:1210 只在容器内部比较，无法与 body 级
-   #m-scrim(z-index:1200) 竞争 —— 实测 elementFromPoint 命中 .m-scrim，
-   面板收不到任何触摸事件，下滑关闭失效。
-   面板打开期间把容器提升到 1215（高于 scrim 1200 / drawer 1201 / sheet 1202，
-   低于 toast 1300），容器本身无 position，故需显式 position: relative。
+   .chat-input-container has container-type: inline-size, which creates a separate stacking
+   context, so the z-index:1210 of the inner position:fixed .chat-project-panel / .role-selection-panel
+   / .agent-mode-panel is only compared inside the container and cannot compete with the body-level
+   #m-scrim(z-index:1200) - measured: elementFromPoint hits .m-scrim,
+   the panel receives no touch events at all, and swipe-down to close does not work.
+   While a panel is open, raise the container to 1215 (above scrim 1200 / drawer 1201 / sheet 1202,
+   below toast 1300); the container itself has no position, so position: relative must be set explicitly.
    -------------------------------------------------------------------------- */
 body.m-panel-open .chat-input-container {
     position: relative;
@@ -1537,32 +1537,32 @@ body.m-panel-open .chat-input-container {
 }
 
 /* --------------------------------------------------------------------------
-   18. 可读性 / 对比度 / 溢出修复
+   18. Readability / contrast / overflow fixes
    --------------------------------------------------------------------------
-   依据 _mvisual.mjs 实测：light 主题 --text-muted(#adb5bd) 在白底上只有
-   2.07:1，--text-secondary(#6c757d) 4.69:1，均不满足 WCAG AA(4.5:1)；
-   11px 标签在手机上不可读；WebShell 工作区比视口宽 5px；设置页下拉选中值
-   与 AI 通道 chip 被 flex 压缩到 6~22px 宽。
-   以下仅在移动端生效，桌面端保持原样。
+   Based on _mvisual.mjs measurements: in the light theme --text-muted(#adb5bd) is only
+   2.07:1 on a white background and --text-secondary(#6c757d) is 4.69:1, neither meeting WCAG AA(4.5:1);
+   11px labels are unreadable on phones; the WebShell workspace is 5px wider than the viewport; the selected value of settings dropdowns
+   and the AI channel chips are squeezed by flex to 6~22px wide.
+   The following only takes effect on mobile; desktop stays as is.
    -------------------------------------------------------------------------- */
 @media (max-width: 767.98px) {
 
-    /* 18.1 文本色令牌提到 AA 级 */
+    /* 18.1 Raise text color tokens to AA level */
     html:not([data-theme="dark"]) {
         --text-secondary: #525d6c;
-        /* 白底 6.6:1，灰底(≥#f8fafc)仍 ≥6.2:1 */
+        /* 6.6:1 on white, still ≥6.2:1 on gray backgrounds (≥#f8fafc) */
         --text-muted: #5b6472;
-        /* 白底 6.0:1，浅灰底(#f1f3f5) 5.5:1 —— 原 #adb5bd 仅 2.07:1 */
-        /* 原 #3b82f6 作正文色在白底仅 3.68:1，深一档后 5.2:1 */
+        /* 6.0:1 on white, 5.5:1 on light gray (#f1f3f5) - the original #adb5bd was only 2.07:1 */
+        /* The original #3b82f6 as body text color is only 3.68:1 on white; one shade darker gives 5.2:1 */
         --accent-color: #2563eb;
     }
 
     html[data-theme="dark"] {
         --text-muted: #9ca3af;
-        /* #111827 底 7.2:1 */
+        /* 7.2:1 on #111827 background */
     }
 
-    /* 18.2 小字号下限 12px */
+    /* 18.2 Minimum font size 12px */
     .dashboard-severity-insight-score-label,
     .dashboard-severity-insight-urgent-label,
     .dashboard-severity-center-label,
@@ -1573,8 +1573,8 @@ body.m-panel-open .chat-input-container {
     .pagination-page,
     .hitl-tab-badge,
     .version-badge,
-    /* 补漏（_mprobe.mjs 实测仍为 11px）：projects 页的状态胶囊、统计 chip、
-       事实筛选标签，以及分页的「每页」标签 */
+    /* Missed spots (_mprobe.mjs measurements still showed 11px): the status pills, stat chips and
+       fact filter labels on the projects page, and the "per page" label of pagination */
     .projects-status-pill,
     .projects-stat-chip,
     .projects-fact-filter-label,
@@ -1582,10 +1582,10 @@ body.m-panel-open .chat-input-container {
         font-size: 12px !important;
     }
 
-    /* 18.2b 第九轮（审计覆盖从假 14 页修成真实 29 页后）新暴露的小字。
-       asset-overview 的资产类型统计标签 11px、协议表头 9px；
-       agents-management 的角色徽章 11px；platform-rbac 的状态胶囊 11px。
-       图标字符（如 .tool-expand-icon 的 ▶ 10px）不属于文本，不在此列。 */
+    /* 18.2b Round 9: small text newly exposed after the audit coverage was fixed from a fake 14 pages to the real 29 pages.
+       asset-overview asset type stat labels 11px, protocol table headers 9px;
+       agents-management role badges 11px; platform-rbac status pills 11px.
+       Icon characters (such as the ▶ 10px of .tool-expand-icon) are not text and are not included here. */
     .asset-type-item span,
     .asset-protocol-compact__header p,
     .asset-panel-meta,
@@ -1595,14 +1595,14 @@ body.m-panel-open .chat-input-container {
         font-size: 12px !important;
     }
 
-    /* 18.3 语义色徽章/数值加粗，补偿配色本身的低对比 */
+    /* 18.3 Semantic-color badges/values are bolded to compensate for the low contrast of the colors themselves */
     .dashboard-severity-insight-risk-badge,
     .dashboard-severity-status-value,
     .dashboard-severity-insight-score-value {
         font-weight: 700;
     }
 
-    /* 18.4 WebShell / C2 / 终端工作区横向溢出 */
+    /* 18.4 WebShell / C2 / terminal workspace horizontal overflow */
     .webshell-main,
     .webshell-workspace,
     .c2-main,
@@ -1614,7 +1614,7 @@ body.m-panel-open .chat-input-container {
         overflow-x: hidden;
     }
 
-    /* 18.5 设置页自定义下拉：选中值不再被压扁 */
+    /* 18.5 Settings page custom dropdown: the selected value is no longer squashed */
     *:has(> .settings-custom-select-value) {
         min-width: 0;
     }
@@ -1628,7 +1628,7 @@ body.m-panel-open .chat-input-container {
         white-space: nowrap;
     }
 
-    /* 18.6 AI 通道 chip：容器占满整行并允许换行，chip 不再被压到不可读 */
+    /* 18.6 AI channel chips: the container fills the whole row and may wrap, so chips are no longer squeezed into unreadability */
     *:has(> .ai-channel-editor-chip) {
         flex: 1 1 100% !important;
         flex-wrap: wrap !important;
@@ -1645,24 +1645,24 @@ body.m-panel-open .chat-input-container {
         white-space: nowrap;
     }
 
-    /* 18.7 对话页人工审批标签：原思路是"缩小 1px 就能完整显示"，实测不成立
-       —— 见 24.14 的真实根因（max-width:142px 才是瓶颈，缩字号只是把裁切推迟）。 */
+    /* 18.7 Chat page manual approval label: the original idea was "shrink by 1px and it fits completely", which measurement showed does not hold
+       - see 24.14 for the real root cause (max-width:142px is the bottleneck; shrinking the font only postpones the clipping). */
 
-    /* 18.8 dashboard 残留 11px 标签 */
+    /* 18.8 Remaining 11px labels in the dashboard */
     .dashboard-batch-side-stat-label,
     .dashboard-severity-progress-legend-item span,
     .dashboard-severity-status-text span:not([id]) {
         font-size: 12px !important;
     }
 
-    /* 18.9 硬编码浅灰文本（不随令牌走）逐个纠正 */
+    /* 18.9 Hard-coded light gray text (does not follow the tokens) corrected one by one */
     #c2-sessions-count,
     #page-knowledge-management .empty-state p,
     #page-knowledge-management .empty-state div {
         color: var(--text-secondary) !important;
     }
 
-    /* 18.10 语义色徽章 / 状态数值：加深到 AA 级 */
+    /* 18.10 Semantic-color badges / status values: darkened to AA level */
     .role-card-badge.enabled {
         color: #157347;
         background: rgba(40, 167, 69, 0.16);
@@ -1672,16 +1672,16 @@ body.m-panel-open .chat-input-container {
         color: #64748b !important;
     }
 
-    /* 18.10b 第七轮补：语义色**文字**再次加深（原 2.09~2.88:1）
-       重算方式不是拿白底硬套，而是用 `_mcontrast.mjs` 逐层合成真实有效背景
-       （徽章自己还叠了 rgba(34,197,94,0.12)+0.04 两层底 → #dcf6e6），再对
-       "保持色相与饱和度、只压亮度"做二分求解，目标 5.0:1（比 AA 的 4.5 留一点
-       余量，避免不同背景合成算法得出不同结论）。
-       最要紧的是 dashboard 的「安全」徽章与四个状态计数——它们是页面主数据，
-       2.09:1 在手机户外基本读不出来。原则：**只动亮度，不动色相**，所以
-       「红=高危 / 绿=已修复 / 琥珀=待确认 / 灰=已忽略」的语义完整保留，
-       纠正的只是「把填充色直接当文字色用」这个反模式。
-       深色主题不受影响（同 18.14 的做法，见 23.4 的对称处理）。 */
+    /* 18.10b Round 7 supplement: semantic-color **text** darkened again (originally 2.09~2.88:1)
+       The recalculation does not force a white background; instead it uses `_mcontrast.mjs` to composite the real effective background layer by layer
+       (the badge itself also stacks two layers, rgba(34,197,94,0.12)+0.04 → #dcf6e6), and then does a binary search that
+       "keeps hue and saturation and only lowers lightness", targeting 5.0:1 (leaving a little
+       margin over AA's 4.5, so that different background compositing algorithms do not reach different conclusions).
+       Most important are the dashboard "Safe" badge and the four status counts - they are the main data of the page,
+       and 2.09:1 is basically unreadable outdoors on a phone. Principle: **change only lightness, never hue**, so
+       the semantics of "red=high risk / green=fixed / amber=to be confirmed / gray=ignored" are fully preserved;
+       what is corrected is only the anti-pattern of "using the fill color directly as the text color".
+       The dark theme is unaffected (same approach as 18.14, see the symmetric handling in 23.4). */
     html:not([data-theme="dark"]) #dashboard-severity-risk-level {
         color: #107636 !important;
     }
@@ -1710,11 +1710,11 @@ body.m-panel-open .chat-input-container {
         color: #5d718c !important;
     }
 
-    /* 18.10c 必填项星号：样式表里有 4 种写法（`.required-mark` / `.form-required` /
-       `.required` / 内联 `style="color: red;"`），同一种语义 4 套颜色。
-       其中内联那种是纯 #ff0000，在白底上只有 4.0:1（星号也是文字，归 AA）。
-       统一到 18.11 已经在用的 #b02a37（≈6.0:1），一个语义一个颜色。
-       内联样式优先级高于普通规则，必须 !important 才压得住。 */
+    /* 18.10c Required-field asterisk: the stylesheet has 4 spellings (`.required-mark` / `.form-required` /
+       `.required` / inline `style="color: red;"`), 4 sets of colors for the same semantics.
+       The inline one is pure #ff0000, only 4.0:1 on white (the asterisk is also text, so it falls under AA).
+       Unify to the #b02a37 already used in 18.11 (≈6.0:1): one semantic, one color.
+       Inline styles have higher priority than ordinary rules, so !important is required to override them. */
     html:not([data-theme="dark"]) label > span[style*="color: red"],
     html:not([data-theme="dark"]) label > span[style*="color:red"],
     html:not([data-theme="dark"]) label > span.form-required,
@@ -1723,19 +1723,19 @@ body.m-panel-open .chat-input-container {
         color: #b02a37 !important;
     }
 
-    /* 18.11 白底红字按钮：原 #dc3545 仅 4.0:1 */
+    /* 18.11 Red-text button on white: the original #dc3545 is only 4.0:1 */
     .btn-secondary.btn-danger,
     .btn-secondary.btn-delete {
         color: #b02a37 !important;
     }
 
-    /* 18.12 C2 工具栏文字型按钮（无类名，继承 accent 色）；
-       排除带内联背景的按钮，避免文字色与底色撞车 */
+    /* 18.12 C2 toolbar text-style buttons (no class name, inheriting the accent color);
+       buttons with an inline background are excluded to avoid text color clashing with the background color */
     #page-c2-sessions button:not(.btn-primary):not(.btn-secondary):not(.btn-danger):not([style*="background"]) {
         color: #1d4ed8 !important;
     }
 
-    /* 18.13 dashboard / HITL / 知识库残留的低对比文本（原 3.3~4.5:1） */
+    /* 18.13 Remaining low-contrast text in dashboard / HITL / knowledge base (originally 3.3~4.5:1) */
     #dashboard-fix-rate,
     .dashboard-feed-tab {
         color: var(--text-secondary) !important;
@@ -1755,8 +1755,8 @@ body.m-panel-open .chat-input-container {
         font-weight: 600;
     }
 
-    /* 18.14 硬编码灰/蓝文本再深一档（实测 4.0~4.34:1）
-       注意：这个深灰只在亮色主题下成立，深色主题下由区块 23.4 覆写。 */
+    /* 18.14 Hard-coded gray/blue text darkened by one more step (measured 4.0~4.34:1)
+       Note: this dark gray only holds under the light theme; under the dark theme it is overridden by section 23.4. */
     html:not([data-theme="dark"]) #chat-hitl-shortcut-text,
     html:not([data-theme="dark"]) #page-hitl .hitl-reviewer-toggle-btn,
     html:not([data-theme="dark"]) #page-hitl .hitl-reviewer-toggle-btn span {
@@ -1773,12 +1773,12 @@ body.m-panel-open .chat-input-container {
 }
 
 /* ==========================================================================
-   19. 设置页两栏布局在移动端塌陷（实测正文区仅剩 98px 宽）
+   19. The two-column settings layout collapses on mobile (measured: the body area is left with only 98px width)
    --------------------------------------------------------------------------
-   根因：.page-content.settings-layout 是 flex-direction:row，
-   .settings-sidebar 固定 200px。390px 视口下 .settings-content 只剩 162px，
-   再扣 32px×2 内边距 → 正文 98px，下拉选中值与 AI 通道 chip 被压到 6~22px。
-   方案：移动端改单列，左侧导航变成顶部横向滚动的胶囊标签条。
+   Root cause: .page-content.settings-layout is flex-direction:row,
+   .settings-sidebar is fixed at 200px. At a 390px viewport .settings-content has only 162px left,
+   minus 32px×2 padding → the body is 98px, and the selected value of dropdowns and the AI channel chips are squeezed to 6~22px.
+   Solution: switch to a single column on mobile, and turn the left nav into a pill tab strip with horizontal scrolling at the top.
    ========================================================================== */
 @media (max-width: 767.98px) {
 
@@ -1846,7 +1846,7 @@ body.m-panel-open .chat-input-container {
         overflow-x: hidden;
     }
 
-    /* 19.1 设置页内所有可伸缩容器放开宽度，禁止再被压缩 */
+    /* 19.1 All flexible containers in the settings page are released in width and may no longer be compressed */
     #page-settings .settings-section-content,
     #page-settings .settings-subsection,
     #page-settings .ai-channel-manager,
@@ -1864,13 +1864,13 @@ body.m-panel-open .chat-input-container {
         box-sizing: border-box;
     }
 
-    /* 19.2 通道选择区原为 grid，移动端改为单列堆叠 */
+    /* 19.2 The channel selection area was originally a grid; on mobile it becomes a single-column stack */
     #page-settings .ai-channel-switcher-field {
         display: block !important;
     }
 
-    /* 19.3 设置页宽表（审计日志 / 存储明细）自带 min-width:560px，
-       在 390px 视口直接撑破页面 → 改为容器内横向滚动 */
+    /* 19.3 Wide tables in the settings page (audit log / storage details) come with min-width:560px,
+       which directly bursts the page at a 390px viewport → changed to horizontal scrolling inside the container */
     #page-settings *:has(> table.audit-log-table) {
         overflow-x: auto !important;
         max-width: 100% !important;
@@ -1882,8 +1882,8 @@ body.m-panel-open .chat-input-container {
         max-width: none;
     }
 
-    /* 19.4 审计筛选区：.audit-field 固定 min-width:150px，
-       320px 视口下第二个字段被挤出屏幕 → 允许压缩 + 整行换行 */
+    /* 19.4 Audit filter area: .audit-field has a fixed min-width:150px,
+       at a 320px viewport the second field is pushed off screen → allow shrinking + wrap the whole row */
     #page-settings .audit-field {
         min-width: 0 !important;
         flex: 1 1 140px !important;
@@ -1900,19 +1900,19 @@ body.m-panel-open .chat-input-container {
 }
 
 /* --------------------------------------------------------------------------
-   20. 页面头功能按钮布局 / 工具条触控 / 底部安全区
+   20. Page header action button layout / toolbar touch / bottom safe area
    -------------------------------------------------------------------------- */
 @media (max-width: 767.98px) {
 
-    /* 20.1 页面头功能按钮位置
-       根因：style.css:19132 的 @media (max-width: 768px) 把 .page-header-actions
-       设为 flex-direction: column; align-items: stretch;。本文件此前只覆盖了
-       align-items / flex-wrap / width，没有覆盖 flex-direction，于是
-       「刷新 / 批量导入 / 新增资产」这类按钮在手机上各占一行、各自居中。
-       改为横向换行自适应排列：能一行就一行（宽度 ≥444 左右），放不下自动换行，
-       任何设备宽度下按钮都完整可见、无需横向滑动。
-       注意：不要改回 nowrap + overflow-x —— 那会让主按钮（保存/新建）被推到
-       视口外需横滑才能看到，违背"自适应"诉求。 */
+    /* 20.1 Page header action button position
+       Root cause: the @media (max-width: 768px) at style.css:19132 sets .page-header-actions
+       to flex-direction: column; align-items: stretch;. This file previously only overrode
+       align-items / flex-wrap / width and not flex-direction, so
+       buttons like "Refresh / Bulk import / Add asset" each took a row and were centered on phones.
+       Changed to a horizontally wrapping adaptive layout: one row if it fits (width ≥ about 444), automatic wrapping if it does not,
+       so at any device width the buttons are fully visible with no horizontal swiping needed.
+       Note: do not change it back to nowrap + overflow-x - that would push the primary button (Save/New) outside
+       the viewport so it can only be seen after swiping sideways, contradicting the "adaptive" requirement. */
     .page-header-actions,
     .page-header > .page-header-actions,
     .platform-rbac-page .page-header-actions,
@@ -1926,8 +1926,8 @@ body.m-panel-open .chat-input-container {
         padding-bottom: 0;
     }
 
-    /* 20.1b「已与服务端同步」状态块（tool-guard）84px 太占宽，会把主按钮挤出
-       一行。允许它在窄容器里收缩省略，留出空间给按钮。 */
+    /* 20.1b The "Synced with server" status block (tool-guard) at 84px takes too much width and pushes the primary button off
+       the row. Allow it to shrink with an ellipsis in narrow containers, leaving room for the buttons. */
     .page-header-actions > .tool-guard-save-state {
         flex: 0 1 auto;
         min-width: 0;
@@ -1943,7 +1943,7 @@ body.m-panel-open .chat-input-container {
         white-space: nowrap;
     }
 
-    /* 头部文字按钮统一到可点尺寸并留出横向内边距 */
+    /* Header text buttons are unified to a tappable size with horizontal padding reserved */
     .page-header-actions > button,
     .page-header-actions > a.btn,
     .page-header-actions > .btn-primary,
@@ -1955,7 +1955,7 @@ body.m-panel-open .chat-input-container {
         padding-right: 14px !important;
     }
 
-    /* 20.2 图标型按钮（分页 ‹ › 等）原本只有 20~32px 宽，点不中 */
+    /* 20.2 Icon-style buttons (pagination ‹ › etc.) were only 20~32px wide and hard to hit */
     .btn-icon-pagination,
     .btn-icon,
     .table-icon-btn,
@@ -1964,7 +1964,7 @@ body.m-panel-open .chat-input-container {
         min-height: var(--m-touch) !important;
     }
 
-    /* 20.3 工作流画布工具条：5 个按钮挤在 32px 宽里，文字被截断 */
+    /* 20.3 Workflow canvas toolbar: 5 buttons squeezed into 32px width, text truncated */
     .workflow-toolbar,
     .workflow-toolbar-actions,
     .workflow-canvas-toolbar,
@@ -1981,32 +1981,32 @@ body.m-panel-open .chat-input-container {
         font-size: 12px;
     }
 
-    /* 20.4 小号按钮保底触控高度（原 .btn-small 只有 30~36px 高） */
+    /* 20.4 Small buttons get a minimum touch height (the original .btn-small was only 30~36px tall) */
     .btn-small {
         min-height: var(--m-touch) !important;
         padding: 0 12px !important;
     }
 
-    /* 20.5 底部安全区：在标签栏之上再留 10px，
-       避免滚到底后最后一行控件仍贴住标签栏 */
+    /* 20.5 Bottom safe area: leave another 10px above the tab bar,
+       so the last row of controls does not stick to the tab bar after scrolling to the bottom */
     .content-area {
         padding-bottom: calc(var(--m-tabbar-h) + var(--m-safe-bottom) + 10px);
     }
 
-    /* 20.6 页面内自定义下拉触发器高度不足 44px */
+    /* 20.6 In-page custom dropdown triggers are shorter than 44px */
     .settings-custom-select-trigger,
     .monitor-filter-select-trigger,
     .projects-filter-select-trigger {
         min-height: var(--m-touch) !important;
     }
 
-    /* 20.7 对话页顶部工具条按钮原为 36px 高 */
+    /* 20.7 Chat page top toolbar buttons were originally 36px tall */
     .m-chat-bar-btn {
         min-height: var(--m-touch) !important;
         padding: 0 12px !important;
     }
 
-    /* 20.8 上传等纯图标按钮宽高都不足 */
+    /* 20.8 Icon-only buttons such as upload are insufficient in both width and height */
     .chat-upload-btn {
         min-width: var(--m-touch) !important;
         min-height: var(--m-touch) !important;
@@ -2014,16 +2014,16 @@ body.m-panel-open .chat-input-container {
 }
 
 /* ==========================================================================
-   21. 内容区滚动模型修复（手机端局部滚动容器塌陷）
+   21. Content area scrolling model fix (local scroll containers collapse on phones)
    --------------------------------------------------------------------------
-   桌面端这些页面用「固定高度容器 + 内部 overflow:hidden」把滚动锁在局部，
-   例如 .asset-list-card 自己滚分页。390x664 的手机视口下父级 flex 空间不足，
-   这些局部滚动容器被压到 16~48px 高，内部控件被 overflow:hidden 裁掉，
-   而且无论怎么滑动都露不出来。改成「内容区整页滚动 + 内部容器按内容展开」。
+   On desktop these pages use a "fixed-height container + inner overflow:hidden" to lock scrolling locally,
+   for example .asset-list-card scrolls its pagination by itself. In a 390x664 phone viewport the parent flex space is insufficient,
+   so these local scroll containers are squeezed to 16~48px tall, the inner controls are clipped by overflow:hidden,
+   and they cannot be revealed no matter how you swipe. Changed to "the content area scrolls as a whole page + inner containers expand to their content".
    ========================================================================== */
 @media (max-width: 767.98px) {
 
-    /* 21.1 资产库：.asset-list-card 实测仅 48px 高，里面的分页控件 183px 全被裁 */
+    /* 21.1 Asset library: .asset-list-card measured at only 48px tall, and the 183px pagination control inside is completely clipped */
     .page-content.asset-content {
         display: block !important;
         overflow-y: auto !important;
@@ -2047,7 +2047,7 @@ body.m-panel-open .chat-input-container {
         min-height: 0 !important;
     }
 
-    /* 21.2 技能管理：#skills-list 实测仅 16px 高，5483px 内容挤成一条缝 */
+    /* 21.2 Skills management: #skills-list measured at only 16px tall, 5483px of content squeezed into a sliver */
     .page-content.page-content-with-pagination {
         display: block !important;
         overflow-y: auto !important;
@@ -2069,7 +2069,7 @@ body.m-panel-open .chat-input-container {
         height: auto !important;
     }
 
-    /* 21.3 平台 RBAC：.rbac-panel-detail 实测 2px、#rbac-tab-roles 28px */
+    /* 21.3 Platform RBAC: .rbac-panel-detail measured at 2px, #rbac-tab-roles at 28px */
     .platform-rbac-page .page-content {
         display: block !important;
         overflow-y: auto !important;
@@ -2098,7 +2098,7 @@ body.m-panel-open .chat-input-container {
         overflow: visible !important;
     }
 
-    /* 21.4 工作流：侧栏节点列表与画布工具条被 overflow:hidden 裁掉 */
+    /* 21.4 Workflow: the sidebar node list and canvas toolbar are clipped by overflow:hidden */
     .page-content.workflow-page-content {
         display: block !important;
         min-height: 0 !important;
@@ -2113,7 +2113,7 @@ body.m-panel-open .chat-input-container {
         overflow: visible !important;
     }
 
-    /* 画布本身需要一块固定高度，不能被内容压成 0 */
+    /* The canvas itself needs a fixed height and must not be compressed to 0 by content */
     .workflow-main {
         height: auto !important;
         min-height: 380px !important;
@@ -2219,7 +2219,7 @@ body.m-panel-open .chat-input-container {
         max-height: none;
     }
 
-    /* 21.5 C2 会话「重置」按钮实测 24x44，横向点不中 */
+    /* 21.5 C2 session "Reset" button measured at 24x44, hard to hit horizontally */
     #page-c2-sessions button,
     .c2-sessions-page button {
         min-width: 44px !important;
@@ -2227,11 +2227,11 @@ body.m-panel-open .chat-input-container {
 }
 
 /* --------------------------------------------------------------------------
-   22. 平板竖屏（768–1023.98px）：对话页三个选择面板同样贴底
-   桌面规则 style.css:29402 的 @media (max-width:768px) 把 .role-selection-panel /
-   .agent-mode-panel 改成 width:calc(100vw - 16px) + left:-8px，但仍是
-   position:absolute，定位基准是各自在 100–200px 处的按钮包裹层；实测 768x1024
-   下两者右边缘分别越界 563px 与 654px，面板完全落在屏幕之外。
+   22. Tablet portrait (768–1023.98px): the three selection panels on the chat page also stick to the bottom
+   The desktop rule at style.css:29402, @media (max-width:768px), changes .role-selection-panel /
+   .agent-mode-panel to width:calc(100vw - 16px) + left:-8px, but they are still
+   position:absolute, positioned relative to their respective button wrappers at 100–200px; measured at 768x1024
+   the right edges of the two overflow by 563px and 654px respectively, and the panels fall completely outside the screen.
    -------------------------------------------------------------------------- */
 @media (min-width: 768px) and (max-width: 1023.98px) {
     .role-selection-panel,
@@ -2252,9 +2252,9 @@ body.m-panel-open .chat-input-container {
 }
 
 /* --------------------------------------------------------------------------
-   22.2 触摸型横屏平板（1024–1439.98px + pointer:coarse）：模式面板仍会越界
-   _mchat11.mjs 实测 1024x768 下 .agent-mode-panel 右边缘 1035 > 1024（offR=11）。
-   桌面鼠标保持原样（_mdesktop.mjs 已证明 1024x768 的桌面溢出为既有问题，不归本层管）。
+   22.2 Touch landscape tablets (1024–1439.98px + pointer:coarse): the mode panel still overflows
+   _mchat11.mjs measured the .agent-mode-panel right edge at 1035 > 1024 (offR=11) at 1024x768.
+   Desktop mouse stays as is (_mdesktop.mjs proved that the desktop overflow at 1024x768 is a pre-existing issue, not this layer's concern).
    -------------------------------------------------------------------------- */
 @media (min-width: 1024px) and (max-width: 1439.98px) and (pointer: coarse) {
     .role-selection-panel,
@@ -2275,14 +2275,14 @@ body.m-panel-open .chat-input-container {
 }
 
 /* --------------------------------------------------------------------------
-   23. 深色主题对比度修正（_mdark.mjs 全站实测出 4 类违规）
-   深色令牌里 --accent-color 是 #60a5fa（浅蓝），配白字只有 2.54:1；
-   语义绿 #15803d 在 #111f29 底上 3.33:1；危险红 #b02a37 在 #111827 底上 2.73:1。
-   统一只改文字色、不动背景，保证亮色主题与桌面端完全不受影响。
+   23. Dark theme contrast fixes (_mdark.mjs measured 4 categories of violations site-wide)
+   In the dark tokens --accent-color is #60a5fa (light blue), which gives only 2.54:1 with white text;
+   semantic green #15803d is 3.33:1 on a #111f29 background; danger red #b02a37 is 2.73:1 on a #111827 background.
+   Only the text color is changed uniformly and backgrounds are untouched, so the light theme and desktop are completely unaffected.
    -------------------------------------------------------------------------- */
 @media (max-width: 767.98px) {
 
-    /* 23.1 浅蓝底(#60a5fa)上的白字 → 深墨蓝 #0b1120，实测 9.4:1 */
+    /* 23.1 White text on a light blue background (#60a5fa) → deep ink blue #0b1120, measured 9.4:1 */
     html[data-theme="dark"] .btn-primary,
     html[data-theme="dark"] .btn-primary:hover,
     html[data-theme="dark"] .btn-primary:focus,
@@ -2306,7 +2306,7 @@ body.m-panel-open .chat-input-container {
         stroke: currentColor;
     }
 
-    /* 23.2 语义绿在深底上提亮：#15803d → #4ade80，实测 8.9:1 */
+    /* 23.2 Semantic green is brightened on dark backgrounds: #15803d → #4ade80, measured 8.9:1 */
     html[data-theme="dark"] .is-success,
     html[data-theme="dark"] .dashboard-kpi-sub-text.is-success,
     html[data-theme="dark"] .mcp-stats-kpi__value--rate.is-success,
@@ -2316,13 +2316,13 @@ body.m-panel-open .chat-input-container {
         color: #4ade80 !important;
     }
 
-    /* 刷新闪烁态「上次更新」徽章同样是硬编码 #15803d */
+    /* The "Last updated" badge in the refresh flash state is also hard-coded #15803d */
     html[data-theme="dark"] .dashboard-last-updated.is-flash {
         color: #4ade80 !important;
         background: rgba(74, 222, 128, 0.14);
     }
 
-    /* 23.3 危险红在深底上提亮：#b02a37 → #f87171，实测 6.4:1 */
+    /* 23.3 Danger red is brightened on dark backgrounds: #b02a37 → #f87171, measured 6.4:1 */
     html[data-theme="dark"] {
         --danger-color: #f87171;
         --success-color: #4ade80;
@@ -2336,7 +2336,7 @@ body.m-panel-open .chat-input-container {
         color: #f87171 !important;
     }
 
-    /* 23.4 18.14 的硬编码深灰只对亮色成立，深色下交回 --text-muted(#9ca3af) */
+    /* 23.4 The hard-coded dark gray of 18.14 only holds for light mode; in dark mode hand it back to --text-muted(#9ca3af) */
     html[data-theme="dark"] #chat-hitl-shortcut-text,
     html[data-theme="dark"] #page-hitl .hitl-reviewer-toggle-btn,
     html[data-theme="dark"] #page-hitl .hitl-reviewer-toggle-btn span {
@@ -2345,43 +2345,43 @@ body.m-panel-open .chat-input-container {
 }
 
 /* ==========================================================================
-   24. 按钮 / 控件视觉体系统一
+   24. Unified button / control visual system
    --------------------------------------------------------------------------
-   _mbtn.mjs 在 27 页上实测 645 个可点控件，改造前的客观问题：
+   _mbtn.mjs measured 645 clickable controls on 27 pages; objective problems before the rework:
 
-     · style.css 里**没有 .btn 基类**（`^\s*\.btn\s*\{` 零命中），因此没有尺寸
-       基准：.btn-danger 是唯一 10px 20px / 15px 的"大一号"按钮，.btn-search 与
-       .pagination-btn 固定 height:32px，.btn-icon-pagination 只有 20x20，
-       .settings-custom-select-trigger 同一页存在 32/38/42/48px 四种高度。
-     · 类语义被打破：.btn-secondary 一个类出现 **12 种签名**（205 个实例）——
-       高度 44/52/71、圆角 6px/8px、字号 13px/14px、横内边距 12/14/16/18px；
-       .btn-primary 6 种、.btn-small 4 种。
-     · 度量发散：圆角 11 种（0/4/5/6/7/8/10/12/14/999px/50%）、字号 9 种
-       （10.56~16px）、字重 7 档（400/500/520/560/600/650/700）。
-     · 同一行内尺寸互不相同（39 处容器）：mcp-management 分页「上一页/下一页」
-       被 style.css:11867 的 `flex:1 + max-width:120px` 压到 53px 宽、中文换行
-       撑高成 53x71，而同行「首页/末页」是 44x52；资产库工具条三个按钮的横内边距
-       是 16/16/6；工作流工具条的圆角是 7px 与 0px。
-     · 手机主导航（底部标签栏）字号 10.56px、角标 9.6px，低于本层 18.2 自己
-       定的 12px 下限。
+     · style.css has **no .btn base class** (`^\s*\.btn\s*\{` has zero hits), so there is no size
+       baseline: .btn-danger is the only "one size bigger" button at 10px 20px / 15px, .btn-search and
+       .pagination-btn are fixed at height:32px, .btn-icon-pagination is only 20x20,
+       .settings-custom-select-trigger has four heights on the same page: 32/38/42/48px.
+     · Class semantics are broken: the single class .btn-secondary appears with **12 signatures** (205 instances) -
+       height 44/52/71, border radius 6px/8px, font size 13px/14px, horizontal padding 12/14/16/18px;
+       .btn-primary has 6, .btn-small has 4.
+     · Divergent metrics: 11 border radii (0/4/5/6/7/8/10/12/14/999px/50%), 9 font sizes
+       (10.56~16px), 7 font weights (400/500/520/560/600/650/700).
+     · Different sizes within the same row (39 containers): the mcp-management pagination "Previous/Next"
+       is squeezed to 53px wide by `flex:1 + max-width:120px` at style.css:11867, and the Chinese text wrapping
+       pushes it up to 53x71, while "First/Last" in the same row is 44x52; the three asset library toolbar buttons have horizontal padding
+       of 16/16/6; the workflow toolbar border radii are 7px and 0px.
+     · The mobile primary navigation (bottom tab bar) has font size 10.56px and badge 9.6px, below the 12px floor
+       set by this layer's own 18.2.
 
-   本节只做"收敛"，不改任何布局结构与配色（配色仍由 18/23 节负责）：
-     按钮高度  -> 44px（触控下限，也是唯一档）
-     圆角      -> 矩形控件 10px / 方形图标按钮 12px / 标签胶囊 999px
-     字号      -> 标准 14px、小号与胶囊 13px
-     字重      -> 常规 500、主要行动与选中态 600
-     横内边距  -> 标准 16px、小号 12px
-     分组间距  -> 8px
+   This section only does "convergence" and changes no layout structure or colors (colors remain the responsibility of sections 18/23):
+     Button height  -> 44px (touch floor, and the only tier)
+     Border radius  -> rectangular controls 10px / square icon buttons 12px / tag pills 999px
+     Font size      -> standard 14px, small and pill 13px
+     Font weight    -> regular 500, primary actions and selected state 600
+     Horizontal padding -> standard 16px, small 12px
+     Group spacing  -> 8px
 
-   两条刻意不碰：`.btn-compact`（style.css:32833 显式 `min-height:0`，它是侧栏
-   分页的紧凑按钮，抬到 44px 会把侧栏撑破）与 `.chat-files-dropdown-item`
-   （是左对齐的菜单行，不是按钮，单独定义）。
+   Two are deliberately left alone: `.btn-compact` (style.css:32833 explicitly sets `min-height:0`; it is the compact button of the sidebar
+   pagination, and raising it to 44px would burst the sidebar) and `.chat-files-dropdown-item`
+   (a left-aligned menu row, not a button, defined separately).
    ========================================================================== */
 @media (max-width: 767.98px) {
 
-    /* 24.1 基底：所有"按钮化控件"共用同一套度量，取代原先散落在
-       20.1 / 20.2 / 20.4 / 20.6 / 20.7 / 20.8 的逐类补丁。
-       只设左右内边距，不动上下——保持 style.css 里各族的垂直视觉重心。 */
+    /* 24.1 Base: all "button-like controls" share one set of metrics, replacing the per-class patches previously scattered across
+       20.1 / 20.2 / 20.4 / 20.6 / 20.7 / 20.8.
+       Only left/right padding is set, top/bottom is untouched - keeping the vertical visual center of gravity of each family in style.css. */
     :is(.btn-primary, .btn-secondary, .btn-danger, .btn-ghost,
         .btn-small, .btn-sm, .btn-filter, .btn-search,
         .mcp-detail-btn, .btn-delete, .btn-loading,
@@ -2408,7 +2408,7 @@ body.m-panel-open .chat-input-container {
         justify-content: center;
     }
 
-    /* 24.2 小号档：横内边距收到 12px，字号 13px（高度仍是 44px 触控下限） */
+    /* 24.2 Small tier: horizontal padding reduced to 12px, font size 13px (height is still the 44px touch floor) */
     :is(.btn-small, .btn-sm, .btn-filter, .btn-search,
         .btn-icon-pagination, .mcp-detail-btn,
         .tools-actions button, .workflow-toolbar-button,
@@ -2420,10 +2420,10 @@ body.m-panel-open .chat-input-container {
         font-size: var(--m-ctl-fs-sm) !important;
     }
 
-    /* 24.3 图标档：纯图标按钮一律 44x44 正方形，圆角略大于文字按钮，
-       让"图标块"与"文字条"在一起时不显单薄。
-       （原来 .chat-upload-btn 36x36/圆角 10、.btn-icon-pagination 20x20、
-       顶部图标 38x38，三种口径并存） */
+    /* 24.3 Icon tier: icon-only buttons are uniformly 44x44 squares, with a border radius slightly larger than text buttons,
+       so that "icon blocks" do not look flimsy when placed together with "text bars".
+       (Originally .chat-upload-btn was 36x36 / radius 10, .btn-icon-pagination 20x20,
+       and top icons 38x38 - three conventions coexisting) */
     :is(.btn-icon, .btn-icon-pagination, .chat-upload-btn,
         .m-menu-btn, .m-more-btn, .m-close-btn, .projects-list-item-menu,
         #notification-bell-btn, #user-avatar-btn, .header-actions .btn-icon) {
@@ -2443,8 +2443,8 @@ body.m-panel-open .chat-input-container {
         height: 20px;
     }
 
-    /* 24.4 行内文字按钮（.btn-link）：原来只有 32px 宽、圆角 0、横内边距 6px，
-       和旁边 6px 圆角按钮排在一行时基线都不齐。给它按钮的位置感，但保持无底无框。 */
+    /* 24.4 Inline text button (.btn-link): originally only 32px wide, radius 0, horizontal padding 6px,
+       so baselines were not even when lined up with neighboring 6px-radius buttons. Give it the presence of a button, but keep it background-less and border-less. */
     .btn-link {
         min-width: var(--m-touch) !important;
         min-height: var(--m-ctl-h) !important;
@@ -2457,10 +2457,10 @@ body.m-panel-open .chat-input-container {
         box-shadow: none !important;
     }
 
-    /* 24.5 标签 / 胶囊档：凡是"一组里选一个"的控件统一胶囊形，
-       原来 .rbac-tab 是 0 圆角 + 1px 内边距、.projects-tab 是 8px、
-       .hitl-page-tab 是 0 圆角、.asset-period-switch 是 11px 字号、
-       .c2-tasks-time-preset-btn 是 12px 字号。 */
+    /* 24.5 Tag / pill tier: controls of the "pick one from a group" kind are uniformly pill-shaped,
+       originally .rbac-tab had 0 radius + 1px padding, .projects-tab 8px,
+       .hitl-page-tab 0 radius, .asset-period-switch 11px font size,
+       .c2-tasks-time-preset-btn 12px font size. */
     :is(.rbac-tab, .projects-tab, .dashboard-feed-tab, .hitl-page-tab,
         .rbac-workspace-tab, .settings-nav-item, .preset-chip,
         .asset-period-switch button, .c2-tasks-time-preset-btn,
@@ -2487,7 +2487,7 @@ body.m-panel-open .chat-input-container {
         font-weight: var(--m-ctl-fw-strong) !important;
     }
 
-    /* 分段控件（周期切换）容器跟着胶囊化，3px 内衬保留 */
+    /* The segmented control (period switch) container is pilled along with them, keeping the 3px inner lining */
     .asset-period-switch {
         border-radius: var(--m-r-pill) !important;
         padding: 3px !important;
@@ -2496,10 +2496,10 @@ body.m-panel-open .chat-input-container {
         align-items: center;
     }
 
-    /* 24.5b rbac-summary-count 是"查看明细 70"的**虚线文字按钮**，style.css 设计为
-       border-radius:0 + 虚线底边 + color:secondary。上面把它误纳入胶囊档，被强制
-       成全圆角、无背景的怪圈（实测 42×44、border-radius:999px）。排除它并还原
-       虚线文字按钮本义，仅给移动端 44px 命中高。 */
+    /* 24.5b rbac-summary-count is the **dashed text button** of "View details 70"; style.css designs it as
+       border-radius:0 + dashed bottom border + color:secondary. Above it was wrongly lumped into the pill tier and forced
+       into a fully rounded, background-less oddity (measured 42×44, border-radius:999px). Exclude it and restore
+       the original meaning of a dashed text button, only giving it a 44px hit height on mobile. */
     .rbac-summary-count--interactive {
         border-radius: 0 !important;
         background: none !important;
@@ -2509,8 +2509,8 @@ body.m-panel-open .chat-input-container {
         align-items: flex-end;
     }
 
-    /* 24.6 下拉触发器：与按钮同高同圆角，但文字左对齐、右端留给箭头。
-       原来同一类在资产库有 32/38/42/48px 四种高度、在内距 9/11/12 之间跳动。 */
+    /* 24.6 Dropdown trigger: same height and radius as buttons, but with left-aligned text and the right end reserved for the arrow.
+       Originally the same class had four heights 32/38/42/48px in the asset library and jumped among 9/11/12 for inner padding. */
     :is(.settings-custom-select-trigger, .monitor-filter-select-trigger,
         .projects-filter-select-trigger, .vuln-filter-select-trigger,
         .tasks-filter-select-trigger, .chat-files-filter-select-trigger,
@@ -2529,12 +2529,12 @@ body.m-panel-open .chat-input-container {
         gap: 8px;
     }
 
-    /* 24.7 分页结构修复
-       实测：mcp-management 分页里「上一页/下一页」53x71（中文被挤成两行），
-       同行「首页/末页」44x52 —— style.css:11867 在 ≤768px 给
-       `.pagination-fixed .pagination-controls .btn-secondary` 设了
-       `flex:1; min-width:60px; max-width:120px`，按钮被压窄后文字换行撑高。
-       这里取消伸缩、禁止换行、允许整行折行，四个按钮回到同一高度。 */
+    /* 24.7 Pagination structure fix
+       Measured: in the mcp-management pagination "Previous/Next" is 53x71 (the Chinese squeezed into two lines),
+       "First/Last" in the same row is 44x52 - style.css:11867 sets, at ≤768px,
+       `.pagination-fixed .pagination-controls .btn-secondary` to
+       `flex:1; min-width:60px; max-width:120px`, and after the buttons are squeezed narrow the text wraps and pushes up the height.
+       Here we cancel flex-shrinking, forbid wrapping, and allow the whole row to wrap, so all four buttons return to the same height. */
     :is(.pagination-controls, .pagination-fixed .pagination-controls,
         .pagination) {
         display: flex !important;
@@ -2554,7 +2554,7 @@ body.m-panel-open .chat-input-container {
         white-space: nowrap !important;
     }
 
-    /* 24.8 分组间距统一：控件成组出现时一律 8px，原来 6/8/10/12/16 混用 */
+    /* 24.8 Unified group spacing: when controls appear in a group it is always 8px, originally a mix of 6/8/10/12/16 */
     :is(.page-header-actions, .tools-actions, .rbac-tabs, .projects-tabs,
         .dashboard-feed-tabs, .attack-chain-filters, .asset-toolbar-main,
         .workflow-toolbar, .workflow-toolbar-group, .workflow-node-palette,
@@ -2565,7 +2565,7 @@ body.m-panel-open .chat-input-container {
         gap: var(--m-ctl-gap) !important;
     }
 
-    /* 24.9 可点卡片 / 行的圆角归一到卡片档（原为 0/4/8/10/12 五种混用） */
+    /* 24.9 Border radius of clickable cards / rows is normalized to the card tier (originally a mix of five values 0/4/8/10/12) */
     :is(.dashboard-resource-item, .dashboard-severity-legend-item,
         .dashboard-severity-status-cell, .dashboard-access-stat,
         .dashboard-recommend-item, .tool-guard-rule-summary,
@@ -2573,8 +2573,8 @@ body.m-panel-open .chat-input-container {
         border-radius: var(--m-radius-card) !important;
     }
 
-    /* 24.10 层级：主要行动与选中态用 600，其余 500。
-       原来同一个界面里并存 400/500/520/560/600/650 六档字重。 */
+    /* 24.10 Hierarchy: primary actions and selected state use 600, the rest 500.
+       Originally six font weights 400/500/520/560/600/650 coexisted in the same UI. */
     :is(.btn-primary, .new-chat-btn, .ai-channel-save-btn,
         .rbac-summary-count, .empty-state button,
         .role-selector-btn.m-primary) {
@@ -2585,23 +2585,23 @@ body.m-panel-open .chat-input-container {
         font-weight: var(--m-ctl-fw-strong) !important;
     }
 
-    /* 24.11 表单勾选类控件：视觉 24px，命中面 44x44（由整行 label 提供）
-       实测结论（_mchk2.mjs，运行时注入对照实验）：Chrome 对
-       input[type=checkbox]/radio 这类替换元素**不采纳作者的 padding**——连运行时
-       注入 `input[type=checkbox]{padding:10px !important}` 都不生效（computed
-       padding 恒为 0、外框恒为 24x24）。按 CSS 层叠规范，!important 的优先级是
-       反的：UA 的 !important 高于作者的 !important，而 Blink 的 UA 样式表对勾选框
-       强制了内衬。所以"把本体撑到 44px"这条路在本平台上不成立（真撑大了视觉上也
-       是个巨大方框）。正确做法是：本体保持 24px 视觉，把 44px 命中面交给整行
-       label —— 实测该行 68x44，点行内任意位置都能切换。 */
+    /* 24.11 Form checkbox-like controls: visual 24px, hit area 44x44 (provided by the whole-row label)
+       Measured conclusion (_mchk2.mjs, runtime injection control experiment): for replaced elements like
+       input[type=checkbox]/radio, Chrome **does not honor the author's padding** - even runtime
+       injection of `input[type=checkbox]{padding:10px !important}` has no effect (computed
+       padding is always 0, the outer frame always 24x24). Under the CSS cascade spec, the priority of !important is
+       reversed: the UA's !important beats the author's !important, and Blink's UA stylesheet forces an inner lining
+       on checkboxes. So the route of "stretching the element itself to 44px" does not work on this platform (if it were really enlarged it would
+       also be a huge box visually). The correct approach: keep the element at 24px visually and hand the 44px hit area to the whole-row
+       label - measured, that row is 68x44, and tapping anywhere in the row toggles it. */
     input[type="checkbox"],
     input[type="radio"] {
         width: 30px !important;
         height: 30px !important;
         min-width: 30px !important;
         min-height: 30px !important;
-        /* 仍需 !important：style.css 的 `.auto-refresh-toggle input[type=checkbox]`
-           （18871）等后代选择器特异性更高，会把它按回 18px */
+        /* !important is still required: descendant selectors in style.css such as `.auto-refresh-toggle input[type=checkbox]`
+           (18871) have higher specificity and would press it back to 18px */
     }
 
     label:has(> input[type="checkbox"]),
@@ -2612,13 +2612,13 @@ body.m-panel-open .chat-input-container {
         gap: 8px;
     }
 
-    /* 24.12 胶囊标签条：横向滚动，不换行、不裁切
-       _mprobe.mjs 实测 `.hitl-page-tabs` 在 320px 视口 clientW=292 / scrollW=371，
-       且 overflow-x 是 visible —— 第 4 个页签右边缘 385 > 视口 320，被祖先
-       `.page-content{overflow-x:hidden}` 直接切掉，**手指也滑不出来**：一个点不到
-       的页签。390px 下也已溢出 9px。这里沿用文件里既有的"横向滚动 + nowrap"惯例
-       （见 6.x 终端工具条、19.3 宽表），把溢出交还给标签条自己滚动。
-       只列真正单行排布的胶囊条，工作流工具条这类靠换行展示全部的容器不动。 */
+    /* 24.12 Pill tag strip: horizontal scrolling, no wrapping, no clipping
+       _mprobe.mjs measured `.hitl-page-tabs` at a 320px viewport with clientW=292 / scrollW=371,
+       and overflow-x is visible - the right edge of the 4th tab at 385 > viewport 320 is cut off directly by the ancestor
+       `.page-content{overflow-x:hidden}`, and **a finger cannot swipe it into view either**: a tab that cannot be reached.
+       It also overflows by 9px at 390px. Here we follow the existing "horizontal scrolling + nowrap" convention in the file
+       (see the 6.x terminal toolbar and the 19.3 wide table), handing the overflow back to the tag strip to scroll itself.
+       Only pill strips that are truly laid out on a single row are listed; containers such as the workflow toolbar that rely on wrapping to show everything are left alone. */
     :is(.hitl-page-tabs, .projects-tabs, .dashboard-feed-tabs, .rbac-tabs,
         .rbac-workspace-tabs, .c2-tasks-time-presets) {
         flex-wrap: nowrap !important;
@@ -2635,20 +2635,20 @@ body.m-panel-open .chat-input-container {
         display: none;
     }
 
-    /* 条目不许被压扁（否则"横向滚动"会退化成"每个页签都被挤成省略号"） */
+    /* Items must not be squashed (otherwise "horizontal scrolling" degrades into "every tab squeezed into an ellipsis") */
     :is(.hitl-page-tabs, .projects-tabs, .dashboard-feed-tabs, .rbac-tabs,
         .rbac-workspace-tabs, .c2-tasks-time-presets) > * {
         flex: 0 0 auto !important;
         scroll-snap-align: start;
     }
 
-    /* 24.13 projects 页残留小字号已并入 18.2 的下限清单（保持单一出处） */
+    /* 24.13 The leftover small font sizes on the projects page have been merged into the 18.2 floor list (keeping a single source) */
 
-    /* 24.14 对话页「人工审批：关闭」按钮：文字不再被截断
-       实测根因（_mprobe.mjs）：按钮被 style.css 的 max-width:142px 钉死，而内衬
-       16px 在图标+间距之外只剩 69px 给标签，标签实际需要 84px → 恒显省略号
-       （iPhone SE 上只剩 49px）。原 18.7 用"字号缩 1px"绕，属于治标。
-       底部这一行总宽 368px，上传键 44 + 发送键 44 之后仍有富余，放宽即可完整显示。 */
+    /* 24.14 Chat page "Manual approval: Off" button: text is no longer truncated
+       Measured root cause (_mprobe.mjs): the button is pinned by max-width:142px in style.css, and the inner lining
+       of 16px, beyond the icon + gap, leaves only 69px for the label, while the label actually needs 84px → constant ellipsis
+       (only 49px left on an iPhone SE). The original 18.7 worked around it with "shrink the font by 1px", which only treats the symptom.
+       The total width of this bottom row is 368px, and after the upload key 44 + send key 44 there is still slack, so relaxing it shows the label in full. */
     #chat-hitl-shortcut {
         max-width: none !important;
         padding-left: var(--m-ctl-pad-x-sm) !important;
@@ -2657,9 +2657,9 @@ body.m-panel-open .chat-input-container {
         overflow: hidden !important;
     }
 
-    /* 24.9 会话快捷按钮的文本由 JS 动态写入（如「Agent 审查：关闭 · OpenAI 协议模型 · qwen3-max」），
-       实测比按钮宽 30px+。原来强制 nowrap + visible 会被按钮容器裁掉尾部；
-       改为在按钮内收缩，超出显示省略号（回到 style.css:44875 的初衷）。 */
+    /* 24.9 The text of the session shortcut buttons is written dynamically by JS (e.g. "Agent review: Off · OpenAI protocol model · qwen3-max"),
+       measured at 30px+ wider than the button. The original forced nowrap + visible would have the tail cut off by the button container;
+       changed to shrink inside the button and show an ellipsis on overflow (back to the original intent at style.css:44875). */
     #chat-hitl-shortcut-text {
         flex: 1 1 auto !important;
         min-width: 0 !important;
@@ -2670,18 +2670,18 @@ body.m-panel-open .chat-input-container {
         text-align: left;
     }
 
-    /* 24.15 自制开关：**不得**套用 24.11 的原生勾选框尺寸
-       （必须排在 24.11 之后，靠层叠接管）
-       tool-guard 页「调用拦截」把复选框做成了开关：tool-guard.css:68 定义
-       30×18 胶囊轨道 + 12px 圆形滑块（::after，left:2，选中 translateX(12)）；
-       tool-guard.js:205-218 同时还给这个 input 挂了 `.theme-checkbox` 类。
-       24.11 是 `input[type=checkbox]{width/height:24px !important}`——特异性
-       (0,1,1) 低于 `.tool-guard-page .tool-guard-switch input[type=checkbox]`
-       (0,2,1)，但一加 !important 就反超，于是：
-         · 轨道被压成 24×24 方块（本该是 30×18 的胶囊）
-         · 滑块仍是 left2 + 12 + 位移12 = 右缘 26，**越出轨道**
-         · 未选中态：24 宽轨道里左侧一个 12px 圆点、右侧空 10px → 坏掉的控件
-       这里按原设计还原轨道与滑块，并用更高特异性接管两态位移。 */
+    /* 24.15 Custom switch: **must not** adopt the native checkbox size of 24.11
+       (must be placed after 24.11 and take over via the cascade)
+       On the tool-guard page "Call interception" the checkbox is built as a switch: tool-guard.css:68 defines a
+       30×18 pill track + 12px circular thumb (::after, left:2, translateX(12) when checked);
+       tool-guard.js:205-218 also attaches the `.theme-checkbox` class to this input.
+       24.11 is `input[type=checkbox]{width/height:24px !important}` - its specificity
+       (0,1,1) is lower than `.tool-guard-page .tool-guard-switch input[type=checkbox]`
+       (0,2,1), but adding !important overtakes it, so:
+         · The track is squashed into a 24×24 square (it should be a 30×18 pill)
+         · The thumb is still left2 + 12 + shift 12 = right edge 26, **overflowing the track**
+         · Unchecked state: in a 24-wide track a 12px dot on the left and 10px empty on the right → a broken control
+       Here the track and thumb are restored to the original design, and a higher specificity takes over the shift of both states. */
     .tool-guard-page .tool-guard-switch input[type="checkbox"] {
         width: 30px !important;
         height: 18px !important;
@@ -2692,8 +2692,8 @@ body.m-panel-open .chat-input-container {
         position: relative !important;
     }
 
-    /* 未选中态：滑块归位。transform 必须显式声明，否则会从 24.16 的命中区
-       规则里继承 `translate(-50%,-50%)`，把滑块挪到轨道外 */
+    /* Unchecked state: the thumb returns to its place. transform must be declared explicitly, otherwise it would inherit
+       `translate(-50%,-50%)` from the 24.16 hit-area rule and move the thumb outside the track */
     .tool-guard-page .tool-guard-switch input[type="checkbox"]::after {
         content: '' !important;
         position: absolute !important;
@@ -2706,32 +2706,32 @@ body.m-panel-open .chat-input-container {
         transform: none !important;
     }
 
-    /* 选中态：left2 + 滑块12 + 位移12 = 右缘 26，轨道内宽 28（30 减 1px 边框），
-       右侧留 2px —— 与未选中态左侧留 2px 对称 */
+    /* Checked state: left2 + thumb 12 + shift 12 = right edge 26, track inner width 28 (30 minus 1px border),
+       leaving 2px on the right - symmetric with the 2px left of the unchecked state */
     .tool-guard-page .tool-guard-switch input[type="checkbox"]:checked::after {
         transform: translateX(12px) !important;
     }
 
-    /* 裸开关：label 内只有 input、没有文字时宽度只有 24px，给它 44 命中面。
-       `justify-content` 在 auto 宽度下无副作用（内容即容器），所以对带文字的
-       「启用调用拦截」那行（104×44）不产生影响。 */
+    /* Bare switch: when a label contains only an input and no text, its width is only 24px; give it a 44 hit area.
+       `justify-content` has no side effect at auto width (the content is the container), so it does not affect
+       the row with text "Enable call interception" (104×44). */
     .tool-guard-page .tool-guard-switch {
         min-height: var(--m-touch);
         min-width: var(--m-touch);
         justify-content: center;
     }
 
-    /* 24.16 勾选框（.theme-checkbox）：等比圆角 + 44px 命中面
-       (a) 等比圆角：24.11 把本体放大到 24px，但 `.theme-checkbox` 自己的
-           border-radius 是 4px（为默认 16px 设计），24px 下显得方。按钮体系是
-           10px/44px ≈ 23%，这里取 6px/24px = 25%——**按尺寸等比**才叫协调。
-       (b) 44px 命中面：24.11 的注释写着"命中面交给整行 label"，但全站有 22 个
-           勾选框并没有可点的 label（mcp-management 工具列表 20 个、
-           asset-library 表头全选、info-collect 全选），本体 24×24 在手机上
-           很难点中。`.theme-checkbox` 是 appearance:none 的，此时 input 会渲染
-           伪元素、**且伪元素参与命中测试**；原生外观下则被 UA 样式表锁死——
-           这正是 24.11 里"padding 撑不开"的原因，两者是同一个机制的两面。
-           所以用一个透明 44×44 ::after 撑开命中面：不占布局、不改视觉。 */
+    /* 24.16 Checkbox (.theme-checkbox): proportional border radius + 44px hit area
+       (a) Proportional radius: 24.11 enlarges the element to 24px, but `.theme-checkbox`'s own
+           border-radius is 4px (designed for the default 16px), which looks square at 24px. The button system uses
+           10px/44px ≈ 23%; here we take 6px/24px = 25% - **proportional to size** is what counts as harmonious.
+       (b) 44px hit area: the comment of 24.11 says "hand the hit area to the whole-row label", but 22 checkboxes site-wide
+           have no clickable label (20 in the mcp-management tool list,
+           select-all in the asset-library table header, select-all in info-collect), and the element at 24×24 on phones is
+           hard to hit. `.theme-checkbox` is appearance:none, in which case the input renders a
+           pseudo-element, **and the pseudo-element takes part in hit testing**; under the native appearance it is locked by the UA stylesheet -
+           this is exactly the reason for "padding cannot stretch it" in 24.11; the two are two sides of the same mechanism.
+           So a transparent 44×44 ::after stretches the hit area: it takes no layout space and changes nothing visually. */
     .theme-checkbox {
         position: relative !important;
         border-radius: 6px !important;
@@ -2748,19 +2748,19 @@ body.m-panel-open .chat-input-container {
         background: transparent !important;
     }
 
-    /* 24.17 开关型隐形 input 必须排除在 24.11 之外
-       项目里其实有**三套**勾选/开关机制，24.11 只能套第一套：
-         1. `.theme-checkbox`（style.css:43032）——真·勾选框，appearance:none、
-            可见可点，24.16 已给它等比圆角与 44px 命中面；
-         2. `.modern-checkbox` + `.checkbox-custom`（style.css:11011）——开关，
-            input 本体是 `position:absolute; opacity:0; width:0; height:0;
-            pointer-events:none`，**根本不接收点击**，点击由外层 `.checkbox-label`
-            代收，视觉交给兄弟元素 `.checkbox-custom`（44×24 胶囊 + 16px 滑块，
-            选中 translateX(20)：2+16+20 = 38 ≤ 40，左右各留 2px，设计本身正确）；
-         3. `.tool-guard-page .tool-guard-switch input`——30×18 开关，见 24.15。
-       24.11 给第 2 套的 input 强推 24×24，等于在页面上多出一层 24×24 的隐形盒子
-       （因为 pointer-events:none 所以不拦点击，但没有任何存在理由，也会让
-       审计脚本把它误判成"点不中的勾选框"）。这里恢复它的 0×0。 */
+    /* 24.17 Hidden switch-type inputs must be excluded from 24.11
+       The project actually has **three** checkbox/switch mechanisms, and 24.11 can only be applied to the first:
+         1. `.theme-checkbox` (style.css:43032) - a real checkbox, appearance:none,
+            visible and clickable; 24.16 already gave it proportional radius and a 44px hit area;
+         2. `.modern-checkbox` + `.checkbox-custom` (style.css:11011) - a switch,
+            the input itself is `position:absolute; opacity:0; width:0; height:0;
+            pointer-events:none`, **it does not receive clicks at all**; clicks are received by the outer `.checkbox-label`
+            on its behalf, and the visuals are left to the sibling element `.checkbox-custom` (44×24 pill + 16px thumb,
+            when checked translateX(20): 2+16+20 = 38 ≤ 40, 2px left on each side, the design itself is correct);
+         3. `.tool-guard-page .tool-guard-switch input` - a 30×18 switch, see 24.15.
+       24.11 forcibly pushes 24×24 onto the input of the 2nd kind, which adds an invisible 24×24 box to the page
+       (it does not block clicks because of pointer-events:none, but has no reason to exist, and would also make
+       the audit script misjudge it as a "checkbox that cannot be hit"). Here we restore its 0×0. */
     input.modern-checkbox {
         width: 0 !important;
         height: 0 !important;
@@ -2768,49 +2768,49 @@ body.m-panel-open .chat-input-container {
         min-height: 0 !important;
     }
 
-    /* 第 2 套开关的真实点击接收者是 `.checkbox-label`（实测 150×40，差 4px）。
-       这才是"点不中"的正确修复点——修 label，而不是修那个不可见的 input。
-       必须 !important：info-collect 有一条
-       `#info-collect-full-option .checkbox-label{min-height:40px}`（特异性 1,2,0）
-       压着这里的 (0,1,0)；基础规则那边的 40px 则是 `padding:8px 0` + 24px 内容得来的。 */
+    /* The real click receiver of the 2nd kind of switch is `.checkbox-label` (measured 150×40, 4px short).
+       This is the correct fix point for "cannot be hit" - fix the label, not the invisible input.
+       !important is required: info-collect has a rule
+       `#info-collect-full-option .checkbox-label{min-height:40px}` (specificity 1,2,0)
+       that overrides the (0,1,0) here; the 40px of the base rule comes from `padding:8px 0` + 24px content. */
     .checkbox-label {
         min-height: var(--m-touch) !important;
     }
 }
 
 /* ==========================================================================
-   区块 25：审计覆盖被修正后（假 14 页 → 真实 29 页）新暴露的问题收口
+   Section 25: Cleanup of the problems newly exposed after the audit coverage was corrected (fake 14 pages → real 29 pages)
    --------------------------------------------------------------------------
-   起因：`_mtouch.mjs` / `_mdark.mjs` 的页表里有 6 个并不存在的页面 id，而
-   `switchPage()` 对无效 id 是静默 no-op —— 那 6 页一直在重复测上一页，
-   于是「14 页全 0」是假覆盖。修好页表（共用 `_pages.mjs` 的 29 个真实 id，
-   切换后回读 `.page.active` 断言）再测，下面这些问题才第一次被看见。
+   Cause: the page table of `_mtouch.mjs` / `_mdark.mjs` had 6 page ids that do not exist, and
+   `switchPage()` is a silent no-op for invalid ids - those 6 pages kept re-testing the previous page,
+   so "14 pages all 0" was fake coverage. After fixing the page table (sharing the 29 real ids of `_pages.mjs`,
+   reading back `.page.active` after switching to assert), only then were the problems below seen for the first time.
    ========================================================================== */
 @media (max-width: 767.98px) {
 
-    /* 25.1 info-collect 表单在手机上仍是 4 列栅格。
-       基础规则（style.css:30644）的
-           grid-template-columns: minmax(160px,.7fr) 同 ×2
+    /* 25.1 The info-collect form is still a 4-column grid on phones.
+       The base rule (style.css:30644)
+           grid-template-columns: minmax(160px,.7fr) same ×2
                                  + minmax(150px,.45fr) + minmax(280px,1fr)
-       最小合计 750px，390px 屏上第 3/4 列被直接推出视口；而
-       `@media (max-width:980px)` 里改为单列的那条（style.css:30627）被写在
-       **它之后**且特异性同为 (0,1,0) —— 顺序错误让这个覆盖永久失效。
-       实测「完整模式」选项 left=390 right=540（vw=390），整块不在屏内。 */
+       has a minimum total of 750px, so the 3rd/4th columns are pushed straight out of the viewport on a 390px screen; and
+       the rule that switches to a single column inside `@media (max-width:980px)` (style.css:30627) is written
+       **after it** with the same specificity (0,1,0) - the wrong order makes that override permanently ineffective.
+       Measured: the "full mode" option left=390 right=540 (vw=390), the whole block is not on screen. */
     .info-collect-form-row {
         grid-template-columns: 1fr !important;
     }
 
-    /* 25.2 mcp-management 统计条用 flex-wrap:nowrap，
-       「📌 常驻: 49」right=409、「🔗 已连接: 0」right=468，都越过屏幕右缘。 */
+    /* 25.2 The mcp-management stats bar uses flex-wrap:nowrap,
+       "📌 Pinned: 49" right=409 and "🔗 Connected: 0" right=468 both cross the right edge of the screen. */
     #tools-stats,
     .external-mcp-stats {
         flex-wrap: wrap !important;
     }
 
-    /* 25.3 语义色文字：沿用 18.10b 的同一套体系（一个语义一个色，只压亮度、
-       冻结色相与饱和度，目标 ≥4.5:1），限定亮色主题。注释里是修复前的实测值。 */
+    /* 25.3 Semantic-color text: follows the same system as 18.10b (one semantic one color, only lowering lightness,
+       freezing hue and saturation, target ≥4.5:1), limited to the light theme. The comments are the measured values before the fix. */
 
-    /* 中性灰 —— 与 .projects-fact-filter-label 取同值，全站灰标签一色到底 */
+    /* Neutral gray - same value as .projects-fact-filter-label, so gray labels are one color site-wide */
     .c2-tasks-stat-label,                 /* 2.56 on #fff */
     .c2-events-stat-label,
     .c2-tasks-time-preset-btn,            /* 2.45 on #f8fafc */
@@ -2818,84 +2818,84 @@ body.m-panel-open .chat-input-container {
         color: #5d718c !important;
     }
 
-    /* 信息蓝 */
+    /* Info blue */
     #c2-events-stat-info,                 /* 3.68 */
     .c2-tasks-time-preset-btn.is-active,  /* 3.36 on #eff5fe */
     .c2-events-time-preset-btn.is-active,
     .agent-role-badge--orchestrator,      /* 4.36 on #e0edff */
-    #rbac-metric-users,                   /* 4.34 on #e5ecf9，strong 是本体的 id */
+    #rbac-metric-users,                   /* 4.34 on #e5ecf9, strong is the element's id */
     .rbac-metric-users,
     .rbac-metric-users span {
         color: #1557e7 !important;
     }
 
-    /* 待处理琥珀 */
+    /* Pending amber */
     #c2-tasks-stat-pending,               /* 2.15 */
     #c2-events-stat-warn {
         color: #986206 !important;
     }
 
-    /* 失败 / 严重 红 */
+    /* Failure / severe red */
     #c2-tasks-stat-failed,                /* 3.76 */
     #c2-events-stat-critical {
         color: #d81212 !important;
     }
 
-    /* 成功绿（.monitor-stat-value 是 28.8px 大字号，标准线是 3.0，实测 2.97 差 0.03） */
+    /* Success green (.monitor-stat-value is 28.8px large text, the standard line is 3.0, measured 2.97, short by 0.03) */
     #c2-tasks-stat-success,               /* 2.54 */
     .monitor-stat-value.is-success {
         color: #167e3c !important;
     }
 
-    /* 授权橙 */
-    #rbac-metric-assignments,             /* 3.00 on #f7e9e2，strong 是本体的 id */
+    /* Authorization orange */
+    #rbac-metric-assignments,             /* 3.00 on #f7e9e2, strong is the element's id */
     .rbac-metric-assignments,
     .rbac-metric-assignments span {
         color: #ad4109 !important;
     }
 
-    /* 浅粉底上的危险按钮文字：同属危险语义，但底色 #f6e9ec 比 dashboard 那处的
-       #fef8f8 更深，沿用同一个 #d81212 只有 4.42:1，所以按底色单独压暗。 */
+    /* Danger button text on a light pink background: the same danger semantic, but the background #f6e9ec is darker than the one
+       #fef8f8 at the dashboard, and reusing the same #d81212 gives only 4.42:1, so it is darkened individually per background. */
     #c2-tasks-batch-delete span,          /* 3.84 */
     #c2-events-batch-delete span {
         color: #c22231 !important;
     }
 
-    /* 25.4 c2 的主行动按钮：c2.css 拿 --c2-accent(#3b82f6)（c2.css:8）当按钮底色，
-       白字只有 3.68:1。同一个 #3b82f6 作正文色时已在 18.x 处理过，作按钮底色这条漏了。
-       压深到 #2563eb → 5.17:1。
-       **必须限定亮色主题**：深色主题下 `--c2-accent` 会变成浅蓝，按钮是"浅底+深字"，
-       在深色里改背景会直接把文字对比度打下来（实测 3.64:1）。 */
+    /* 25.4 c2 primary action button: c2.css uses --c2-accent(#3b82f6) (c2.css:8) as the button background,
+       giving white text only 3.68:1. The same #3b82f6 as body text color was already handled in 18.x; this one was missed as a button background.
+       Darkened to #2563eb → 5.17:1.
+       **Must be limited to the light theme**: in the dark theme `--c2-accent` becomes light blue and the button is "light background + dark text";
+       changing the background in dark mode would directly drop the text contrast (measured 3.64:1). */
     html:not([data-theme="dark"]) .c2-payload-card .btn-primary,
     html:not([data-theme="dark"]) #c2-build-btn {
         background: #2563eb !important;
         border-color: #2563eb !important;
     }
 
-    /* 25.5 第九轮第二遍：新暴露页面里剩下的文本类小字也纳入 12px 下限。
-       `.tool-expand-icon` 的 ▶（10px）是图标字符、`svg text`（9px）是图表内标注，
-       两者属图形元素，不受文本字号下限约束，保持原尺寸。 */
-    .skill-card-tags span,        /* 11.52px 技能标签 */
-    .c2-tasks-field span,         /* 11px 筛选字段标题 */
+    /* 25.5 Round 9, second pass: the remaining text-type small fonts on the newly exposed pages are also brought under the 12px floor.
+       The ▶ (10px) of `.tool-expand-icon` is an icon character and `svg text` (9px) is an in-chart annotation;
+       both are graphic elements, not bound by the text font size floor, and keep their original size. */
+    .skill-card-tags span,        /* 11.52px skill tags */
+    .c2-tasks-field span,         /* 11px filter field titles */
     .c2-events-field span,
-    #tools-stats strong,          /* 11.2px 工具统计数字 */
-    .asset-protocol-empty p,      /* 11px「暂无数据」 */
-    .asset-recent-badge,          /* 10px「7 天」 */
-    .asset-recent-caption {       /* 11px「占当前资产总量的 0%」 */
+    #tools-stats strong,          /* 11.2px tool stat numbers */
+    .asset-protocol-empty p,      /* 11px"No data" */
+    .asset-recent-badge,          /* 10px"7 days" */
+    .asset-recent-caption {       /* 11px"0% of the current asset total" */
         font-size: 12px !important;
     }
 
-    /* 25.6 iPhone SE（320px 视口）下 info-collect 的结果工具栏被推出屏幕：
-       「列 / 导出 CSV / 导出 JSON」right=386 > 320。让它换行而不是溢出。
-       （同屏 `span.rbac-context-stat` 的 right=326 也越界 6px，但它的父容器
-        尚未定位，属边缘情况，先记录不动。） */
+    /* 25.6 At iPhone SE (320px viewport) the info-collect result toolbar is pushed off screen:
+       "Columns / Export CSV / Export JSON" right=386 > 320. Make it wrap instead of overflow.
+       (`span.rbac-context-stat` on the same screen also has right=326, overflowing by 6px, but its parent container
+        is not yet positioned; an edge case, recorded for now and left alone.) */
     .info-collect-results-toolbar,
     #fofa-selected-meta {
         flex-wrap: wrap !important;
     }
 
-    /* 25.6b header 是单行 space-between，左栏 min-width:240px 仍会把工具栏挤出；
-       改为上下两行：左栏占满一行，工具栏换到下一行右对齐。 */
+    /* 25.6b The header is a single-row space-between, and the left column min-width:240px still pushes the toolbar out;
+       changed into two rows: the left column fills one row, and the toolbar wraps to the next row, right-aligned. */
     .info-collect-results-header {
         flex-wrap: wrap !important;
     }
@@ -2904,23 +2904,23 @@ body.m-panel-open .chat-input-container {
         flex: 1 1 100% !important;
     }
 
-    /* 25.6c rbac context 胶囊：max-width:min(25%,360px) 在 320px 下只有 80px，
-       两个统计（"1个角色·3项授权"）放不下，第二个 right=326 越界 6px。
-       窄屏放行换行且取消 25% 上限。 */
+    /* 25.6c rbac context pill: max-width:min(25%,360px) is only 80px at 320px,
+       two stats ("1 role · 3 grants") do not fit, and the second one right=326 overflows by 6px.
+       On narrow screens allow wrapping and cancel the 25% cap. */
     .rbac-metric-context {
         max-width: none !important;
         flex-wrap: wrap !important;
     }
 
-    /* 25.7 输入控件高度兜底：区块 7 的 input/select{min-height:var(--m-touch)}
-       特异性 (0,1,1) 不够，被专项规则覆盖成 36/38/40/42px。
-       - c2.css `#page-c2-events .c2-events-field .form-control`(1,2,1) 锁 36px
-       - knowledge 的 `.knowledge-filters .search-box`(0,2,0) -> 38px
-       - rbac 的 `.rbac-search .form-input` -> 40px
-       - settings 的 `.form-group input`(settings 页) -> 42px
-       这里用 `#page-*` 前缀 + !important 压过，同时保留原 box-sizing/padding。
-       （form-control 设 height+min-height 都要改；.search-box input 与裸 input
-         走 min-height 即可。） */
+    /* 25.7 Input control height fallback: the input/select{min-height:var(--m-touch)} of section 7
+       has insufficient specificity (0,1,1) and is overridden by dedicated rules to 36/38/40/42px.
+       - c2.css `#page-c2-events .c2-events-field .form-control`(1,2,1) locks 36px
+       - knowledge `.knowledge-filters .search-box`(0,2,0) -> 38px
+       - rbac `.rbac-search .form-input` -> 40px
+       - settings `.form-group input` (settings page) -> 42px
+       Here the `#page-*` prefix + !important overrides them while keeping the original box-sizing/padding.
+       (form-control needs both height+min-height changed; .search-box input and bare input
+         only need min-height.) */
     #page-c2-tasks .c2-tasks-field .form-control,
     #page-c2-events .c2-events-field .form-control,
     #page-knowledge-management .knowledge-search-field input,
@@ -2935,41 +2935,41 @@ body.m-panel-open .chat-input-container {
 }
 
 /* ==========================================================================
-   区块 26：深色主题（html[data-theme="dark"]）
+   Section 26: Dark theme (html[data-theme="dark"])
    --------------------------------------------------------------------------
-   这批违规同样是"审计覆盖修正后才被看见"的：`_mdark.mjs` 的页表此前含 6 个
-   不存在的页面 id，14 页里那 6 页一直在重复测上一页，所以"深色 0 违规"是假覆盖。
+   These violations were likewise only seen "after the audit coverage fix": the page table of `_mdark.mjs` previously contained 6
+   nonexistent page ids, and among the 14 pages those 6 kept re-testing the previous page, so "0 dark violations" was fake coverage.
 
-   39 处的推荐色用 `_mcontrast.mjs` 的新 OFFLINE 模式离线求出 —— 它刻意复用与
-   在页面里跑时**同一份 solveFor()**，避免"离线一套算法、在线一套算法"分叉。
-   方向与亮色相反：深色下要**提亮**前景（搜索方向由前景/背景的明暗关系自动决定，
-   无须人工指定）。取值同样遵循"一个语义一个色"，括号内是修复前的实测比值。
+   The recommended colors at 39 places were solved offline with the new OFFLINE mode of `_mcontrast.mjs` - it deliberately reuses the
+   **same solveFor()** as when running in the page, avoiding a fork into "one algorithm offline, another online".
+   The direction is the opposite of light: in dark, the foreground must be **brightened** (the search direction is determined automatically by the light/dark relationship of foreground/background,
+   no manual specification needed). Values likewise follow "one semantic one color"; the value in parentheses is the measured ratio before the fix.
 
-   两处结论经**像素裁决**（`_mpixel.mjs` + THEME=dark）确认可信：CSS 计算的
-   `.mcp-stats-kpi__chip.is-ok` = #166534 与像素真值完全吻合（2.04:1），
-   `.role-card-badge.enabled` = #157347 同样吻合（2.43:1）——不是建模误差。
+   Two conclusions were confirmed trustworthy by **pixel adjudication** (`_mpixel.mjs` + THEME=dark): the CSS-computed
+   `.mcp-stats-kpi__chip.is-ok` = #166534 matches the pixel truth exactly (2.04:1),
+   and `.role-card-badge.enabled` = #157347 likewise matches (2.43:1) - not a modeling error.
    ========================================================================== */
 html[data-theme="dark"] {
 
-    /* 26.1 【已回滚的误判，留作记录】深色主题下 `.btn-primary` 的常规形态是
-       "浅蓝底 #60a5fa + 深墨蓝文字"，实测 9.4:1 —— 与亮色主题的"深蓝底 + 白字"
-       互为反色，这是**有意设计**（正是 23.1 区块处理过的那套写法）。
-       我最初把它误判成"深字压蓝底"，统一改成浅色文字，结果把 18 个页面里
-       可见的主按钮从 9.4:1 一次性压到 2.21:1 —— `_mdark.mjs` 重测后立刻暴露。
-       结论：**不要动 `.btn-primary` 的文字色**。
+    /* 26.1 [A misjudgment that was rolled back, kept as a record] In the dark theme the regular form of `.btn-primary` is
+       "light blue background #60a5fa + deep ink blue text", measured 9.4:1 - the inverse of the light theme's "deep blue background + white text",
+       which is **by design** (exactly the pattern handled in section 23.1).
+       I first misjudged it as "dark text on a blue background" and changed it uniformly to light text, which dropped the primary buttons visible on 18 pages
+       from 9.4:1 to 2.21:1 all at once - `_mdark.mjs` exposed it immediately upon re-testing.
+       Conclusion: **do not touch the text color of `.btn-primary`**.
 
-       真正有问题的是登录按钮：`#login-overlay .btn-primary.login-submit` 上叠了
-       background-image: linear-gradient(135deg,#2563eb,#1d4ed8) 的深蓝渐变，
-       把浅蓝底盖掉了，文字仍是深墨蓝 → 实测 1:1 ~ 3.64:1。只修这一处。 */
+       What is really problematic is the login button: `#login-overlay .btn-primary.login-submit` has a deep blue gradient
+       background-image: linear-gradient(135deg,#2563eb,#1d4ed8) layered on it,
+       which covers the light blue background while the text is still deep ink blue → measured 1:1 ~ 3.64:1. Fix only this one. */
     #login-overlay .btn-primary,
     #login-overlay .login-submit {
         color: #eceff8 !important;
     }
 
-    /* 26.2 中性灰 —— 深色下一律提亮到同一色：取各元素解里最亮的一档
-       （#848fa0 是"筛选按钮 / #1f2937 底"的解，对更暗的底只会比值更高）。
-       `.btn-secondary` 的分页按钮这里必须带上 `*`：按钮自身的文字其实是
-       子元素承载的，只改按钮本体会看不到任何变化（实测过）。 */
+    /* 26.2 Neutral gray - in dark it is uniformly brightened to the same color: take the brightest tier among the element solutions
+       (#848fa0 is the solution for "filter button / #1f2937 background"; on darker backgrounds the ratio will only be higher).
+       The pagination buttons of `.btn-secondary` must carry `*` here: the button's own text is actually
+       carried by child elements, so changing only the button itself shows no change (verified by measurement). */
     .c2-tasks-stat-label,                 /* 3.49 on #131a27 */
     .c2-events-stat-label,
     .c2-tasks-time-preset-btn,            /* 3.75 on #0c1220 */
@@ -2980,7 +2980,7 @@ html[data-theme="dark"] {
         color: #8c97a8 !important;
     }
 
-    /* 26.3 信息蓝 */
+    /* 26.3 Info blue */
     #c2-events-stat-info,                 /* 2.95 */
     .c2-tasks-time-preset-btn.is-active,  /* 2.33 on #1e2d45 */
     .c2-events-time-preset-btn.is-active,
@@ -2990,25 +2990,25 @@ html[data-theme="dark"] {
         color: #6591f1 !important;
     }
 
-    /* 26.4 紫 */
+    /* 26.4 Purple */
     .rbac-metric-roles,
     .rbac-metric-roles span {             /* 2.90 */
         color: #9c6af1 !important;
     }
 
-    /* 26.5 绿 —— #24a655 是"启用徽章 / #142f2c 底"的解（对更暗的 chip 底只会更高） */
+    /* 26.5 Green - #24a655 is the solution for "enabled badge / #142f2c background" (for darker chip backgrounds it will only be higher) */
     #c2-tasks-stat-success,               /* 3.39 */
-    .mcp-stats-kpi__chip.is-ok,           /* 2.04 ← 像素裁决过 */
+    .mcp-stats-kpi__chip.is-ok,           /* 2.04 ← pixel-adjudicated */
     .rbac-pill.is-ok,                     /* 2.27 */
-    .role-card-badge.enabled {            /* 2.42 ← 像素裁决过 */
+    .role-card-badge.enabled {            /* 2.42 ← pixel-adjudicated */
         color: #24a655 !important;
     }
-    /* dashboard 的「安全」徽章底色更亮（#163a36），需要更亮的绿 */
+    /* The dashboard "Safe" badge background is brighter (#163a36) and needs a brighter green */
     #dashboard-severity-risk-level {
         color: #18b351 !important;        /* 3.77 */
     }
 
-    /* 26.6 红 —— #f04a4a 是"失败 chip / #271c2a 底"的解（#ef3e3e 对 #211a29 只有 4.35:1） */
+    /* 26.6 Red - #f04a4a is the solution for "failure chip / #271c2a background" (#ef3e3e is only 4.35:1 against #211a29) */
     #c2-tasks-stat-failed,                /* 3.33 */
     #c2-events-stat-critical,
     #c2-tasks-batch-delete span,          /* 2.86 */
@@ -3018,53 +3018,53 @@ html[data-theme="dark"] {
         color: #f25858 !important;
     }
     #dashboard-status-open {
-        color: #ef4646 !important;        /* 4.45，差 0.05，单独按解取值 */
+        color: #ef4646 !important;        /* 4.45, short by 0.05, value taken individually from the solution */
     }
 
-    /* 26.7 琥珀 */
+    /* 26.7 Amber */
     #c2-tasks-stat-pending,               /* 3.39 */
     #c2-events-stat-warn {
         color: #b47407 !important;
     }
 
-    /* 26.8 橙 */
+    /* 26.8 Orange */
     .rbac-metric-assignments,
     .rbac-metric-assignments span {       /* 2.72 */
         color: #e9580c !important;
     }
 
-    /* 26.9 知识库「未启用」提示（rgb(102,102,102) 在深底上只有 3.28:1） */
+    /* 26.9 Knowledge base "Not enabled" hint (rgb(102,102,102) is only 3.28:1 on a dark background) */
     #page-knowledge-management h3 {
         color: #7c7c7c !important;
     }
 
-    /* 26.10 mcp-management 的「全部」筛选按钮是白字压在浅蓝 #60a5fa 上：
-       冻结色相与饱和度后**无解**（白色没有可提亮的余量，求解器原样返回 #ffffff），
-       所以只能压深底色。 */
+    /* 26.10 The mcp-management "All" filter button is white text on light blue #60a5fa:
+       after freezing hue and saturation there is **no solution** (white has no headroom to brighten, and the solver returns #ffffff as is),
+       so the only option is to darken the background. */
     .btn-filter.active {
         background: #2563eb !important;
         border-color: #2563eb !important;
     }
 
-    /* 26.11 c2 会话工具栏的文字型按钮：18.12 给的 #1d4ed8 在深底上只有 2.84:1。
-       那条规则的特异性是 (1,4,1)——四个 `:not()` 里的类与属性**都要计入**特异性，
-       所以这里必须原样带上同一个选择器才压得住（4 个 `:not()` 里的类与属性都要计入特异性）。
+    /* 26.11 Text-style buttons of the c2 session toolbar: the #1d4ed8 given by 18.12 is only 2.84:1 on a dark background.
+       The specificity of that rule is (1,4,1) - the classes and attributes inside the four `:not()` **all count** toward specificity,
+       so the same selector must be carried over as is here to override it (the classes and attributes inside the 4 `:not()` all count toward specificity).
 
-       **踩过的坑**：这条规则原先我写成了 `html[data-theme="dark"][data-theme="dark"] #page-...`，
-       而它所在的位置是本文件末尾 `html[data-theme="dark"] { ... }` 块的**内部** ——
-       CSS 嵌套会把它解释成 `html[data-theme="dark"] html[data-theme="dark"][data-theme="dark"] #page-...`，
-       也就是"`html` 是 `html` 的后代"，**结构性永不匹配**。表现为"改了毫无反应"，
-       而且**连把特异性翻倍都毫无反应**——因为根本没有参与匹配。
-       块内规则已经自带 `html[data-theme="dark"]` 前缀，这里反而不能再写。 */
+       **A pitfall hit**: I originally wrote this rule as `html[data-theme="dark"][data-theme="dark"] #page-...`,
+       and its location is **inside** the `html[data-theme="dark"] { ... }` block at the end of this file -
+       CSS nesting interprets it as `html[data-theme="dark"] html[data-theme="dark"][data-theme="dark"] #page-...`,
+       that is, "`html` is a descendant of `html`", **structurally never matching**. The symptom was "changes have no effect at all",
+       and **even doubling the specificity had no effect** - because it never took part in matching at all.
+       The in-block rules already carry the `html[data-theme="dark"]` prefix, so it must not be written again here. */
     #page-c2-sessions button:not(.btn-primary):not(.btn-secondary):not(.btn-danger):not([style*="background"]) {
         color: #6591f1 !important;
     }
 
-    /* 26.12 空状态行动按钮：18.13 给它们铺了实心 #2563eb 底，
-       23.1 又按"浅蓝底(#60a5fa)"的假设把文字改成深墨蓝 —— 两轮修复前提不一致，
-       结果成了"深蓝底上的深蓝字"（实测 3.64:1）。底色既然固定是 #2563eb，
-       深色下文字就必须回转浅色（5.17:1）。前缀由所属的 `html[data-theme="dark"]` 块提供，
-       这里**不能**再手写一遍（原因见 26.11 的注释）。 */
+    /* 26.12 Empty-state action buttons: 18.13 laid a solid #2563eb background on them,
+       and 23.1 changed the text to deep ink blue on the assumption of a "light blue background (#60a5fa)" - the two rounds of fixes had inconsistent premises,
+       resulting in "deep blue text on a deep blue background" (measured 3.64:1). Since the background is fixed at #2563eb,
+       in dark the text must go back to light (5.17:1). The prefix is provided by the enclosing `html[data-theme="dark"]` block,
+       and **must not** be hand-written again here (see the comment of 26.11 for the reason). */
     .dashboard-empty-action,
     #page-knowledge-management .empty-state button,
     #page-knowledge-management .empty-state .btn,
@@ -3072,25 +3072,25 @@ html[data-theme="dark"] {
         color: #eceff8 !important;
     }
 
-    /* 26.13 未修项：asset-library 分页的「首页/上一页/下一页/尾页」在首页时是
-       `:disabled` 态，取 #475569 浅灰属有意设计 —— WCAG 1.4.3 明确豁免禁用控件，
-       不计入对比度要求。`_mdark.mjs` 会照报，属工具侧尚未过滤 `:disabled`。 */
+    /* 26.13 Unfixed item: the asset-library pagination "First/Previous/Next/Last" are in the
+       `:disabled` state on the first page, and taking light gray #475569 is by design - WCAG 1.4.3 explicitly exempts disabled controls,
+       which do not count toward contrast requirements. `_mdark.mjs` will still report them, because the tool side does not yet filter `:disabled`. */
 }
 
 /* --------------------------------------------------------------------------
-   27. C2 会话管理页移动端布局修正（第十轮）
-   实测（390x664 视口，登录 mtester）：
-   - c2.css:4371 的 @media (max-width:768px) 给 .c2-session-layout 设
-     min-height:calc(100vh - 140px) —— 移动端该页可用内容区实测只有 445px 高，
-     而 100vh-140px = 524px，硬撑出 81px 垂直溢出 → .page-content 出现滚动条，
-     布局底部 B676 伸到 #m-tabbar(顶 T606) 之下 70px，内容被底部标签栏盖住；
-   - c2.css:4473 的 @media (max-width:1100px) 在样式表里位于 768px 断点**之后**，
-     同特异性下后声明胜 → .c2-session-sidebar-wrap 被卡回 width:280px，
-     390px 视口下会话列表只占 72% 宽，右侧直接露出深色背景；
-   - 会话主区 .c2-session-main 被 layout 的 auto 高度压到 266px，空态卡片
-     底部越界，下端内容被切。
-   修复方向：高度交给内容区实际算（flex:1 + min-height:0），侧栏手机占满全宽、
-   最高 260px 内部滚动，主区接管剩余空间并内部滚动。只作用于 ≤767.98px。
+   27. C2 session management page mobile layout fix (round 10)
+   Measured (390x664 viewport, logged in as mtester):
+   - The @media (max-width:768px) at c2.css:4371 sets .c2-session-layout to
+     min-height:calc(100vh - 140px) - the usable content area of this page on mobile is measured at only 445px tall,
+     while 100vh-140px = 524px, forcing 81px of vertical overflow → .page-content shows a scrollbar,
+     the layout bottom B676 extends 70px below #m-tabbar (top T606), and the content is covered by the bottom tab bar;
+   - The @media (max-width:1100px) at c2.css:4473 sits **after** the 768px breakpoint in the stylesheet,
+     and with equal specificity the later declaration wins → .c2-session-sidebar-wrap is pinned back to width:280px,
+     so at a 390px viewport the session list takes only 72% of the width and the dark background shows directly on the right;
+   - The session main area .c2-session-main is squeezed to 266px by the layout's auto height, the empty-state card
+     overflows at the bottom, and the content at the lower end is cut off.
+   Fix direction: leave the height to the content area to compute (flex:1 + min-height:0), the sidebar fills the full width on phones with
+   a maximum of 260px and scrolls internally, and the main area takes over the remaining space and scrolls internally. Only applies at ≤767.98px.
    -------------------------------------------------------------------------- */
 @media (max-width: 767.98px) {
     #page-c2-sessions .c2-session-layout {
@@ -3128,18 +3128,18 @@ html[data-theme="dark"] {
 }
 
 /* --------------------------------------------------------------------------
-   25. iOS 观感修订：材质 / 圆角 / 按压反馈
+   25. iOS look-and-feel revision: material / corner radius / press feedback
    --------------------------------------------------------------------------
-   口径：
-   - 材质一律用 color-mix 从主题自己的 --bg-primary / --border-color 派生，
-     浅色与暗色自动跟随；写死 rgba 会在暗色下糊成一块白雾。
-   - backdrop-filter 只在浏览器支持时启用，不支持就退回实心背景（观感一致，
-     只是没有透出）。固定栏的模糊是软件渲染掉帧主因（见 5 节），所以全站只给
-     顶栏与底栏各一层 blur(20px)，抽屉/面板用不透明材质不再加模糊。
-   - 圆角收成一个阶梯：控件胶囊、图标按钮正圆、卡片 18、面板顶角 22。
-     本层原有的 10/12/14/18 四种混用在手机上读起来是"没对齐"，不是"设计过"。
-   - 按压反馈用 scale，且在 prefers-reduced-motion 下整体关掉。
-   - 所有改动只碰观感：44px 触控下限、层级、滚动容器一概不动。
+   Conventions:
+   - Materials are always derived with color-mix from the theme's own --bg-primary / --border-color,
+     so light and dark follow automatically; hard-coded rgba would blur into a white fog in dark.
+   - backdrop-filter is only enabled when the browser supports it, and falls back to a solid background otherwise (same look,
+     just without see-through). The blur of fixed bars is the main cause of dropped frames from software rendering (see section 5), so site-wide only
+     the top bar and bottom bar get one layer of blur(20px) each, and the drawer/panel use opaque materials with no more blur.
+   - Corner radii are collected into one ladder: control pill, icon button perfect circle, card 18, panel top corners 22.
+     The 10/12/14/18 four-way mix originally in this layer reads as "not aligned" on phones, not as "designed".
+   - Press feedback uses scale, and is turned off entirely under prefers-reduced-motion.
+   - All changes only touch look and feel: the 44px touch floor, stacking and scroll containers are left untouched.
    -------------------------------------------------------------------------- */
 :root {
     --m-r-card: 18px;
@@ -3155,9 +3155,9 @@ html[data-theme="dark"] {
 }
 
 @media (max-width: 767.98px) {
-    /* 25.1 顶栏 / 底栏：透出材质 + 发丝分隔线。
-       顶栏必须带 html[data-theme]：style.css 用主题选择器给暗色塞了
-       不透明渐变，只写 header 会在暗色下丢掉材质（实测 background 被压成渐变）。 */
+    /* 25.1 Top bar / bottom bar: see-through material + hairline divider.
+       The top bar must carry html[data-theme]: style.css uses a theme selector to put an
+       opaque gradient on dark, so writing only header would lose the material in dark (measured: the background is overridden by the gradient). */
     .container > header,
     html[data-theme] .container > header {
         background: var(--m-material-solid);
@@ -3186,7 +3186,7 @@ html[data-theme="dark"] {
         }
     }
 
-    /* 25.2 圆角阶梯：卡片、面板、控件、图标按钮 */
+    /* 25.2 Corner radius ladder: cards, panels, controls, icon buttons */
     .card,
     .stat-card,
     .metric-card,
@@ -3224,15 +3224,15 @@ html[data-theme="dark"] {
         border-radius: var(--m-r-pill);
     }
 
-    /* 图标按钮去底去框：桌面用的是 .header-actions button（类+元素）两条特异性，
-       本层只写类名会被压住（实测 border 仍是 1px），所以这里必须同形写 */
+    /* Icon buttons lose background and border: desktop uses .header-actions button (class + element), two specificity levels,
+       and writing only the class name in this layer would be overridden (measured: border still 1px), so it must be written in the same form here */
     .header-actions :is(.m-more-btn, .m-close-btn, .notification-btn, .user-avatar-btn, .btn-icon),
     .m-menu-btn {
         border: none;
         background: transparent;
     }
 
-    /* 次要按钮：iOS 的"填充"样式，去掉描边不再和主按钮抢层次 */
+    /* Secondary buttons: the iOS "filled" style, with the outline removed so they no longer compete with the primary button for hierarchy */
     .btn-secondary,
     .btn-small,
     .btn-sm {
@@ -3240,7 +3240,7 @@ html[data-theme="dark"] {
         border-color: transparent;
     }
 
-    /* 25.3 发丝线：抽屉 / 面板 / 会话条的内部分隔 */
+    /* 25.3 Hairline: internal dividers of the drawer / panel / session bar */
     .m-drawer-head,
     .m-drawer-search,
     .m-sheet-head,
@@ -3259,7 +3259,7 @@ html[data-theme="dark"] {
         background: color-mix(in srgb, var(--text-muted) 45%, transparent);
     }
 
-    /* 25.4 按压反馈：可见的"点到了"，不改变布局尺寸 */
+    /* 25.4 Press feedback: a visible "you hit it", without changing layout size */
     .m-tab,
     .m-sheet-item,
     .m-chat-bar-btn,
@@ -3289,11 +3289,11 @@ html[data-theme="dark"] {
     }
 
     .btn-primary:active {
-        /* 主按钮按压时保持强调色，只压暗，不变成灰底 */
+        /* The primary button keeps the accent color while pressed, only darkening, not turning into a gray background */
         background-color: color-mix(in srgb, var(--accent-color) 88%, #000);
     }
 
-    /* 当前标签：图标后面一枚圆形底色，比整格变色更接近系统底栏 */
+    /* Current tab: a round background color behind the icon, closer to the system tab bar than changing the color of the whole cell */
     .m-tab.m-active {
         color: var(--accent-color);
         background: transparent;
@@ -3306,7 +3306,7 @@ html[data-theme="dark"] {
         box-sizing: content-box;
     }
 
-    /* 25.5 焦点环：从 2px 硬描边换成 3px 柔光环，键盘可达性不降级 */
+    /* 25.5 Focus ring: changed from a 2px hard outline to a 3px soft glow ring, with no downgrade of keyboard accessibility */
     a:focus-visible,
     button:focus-visible,
     input:focus-visible,
@@ -3321,7 +3321,7 @@ html[data-theme="dark"] {
         border-color: color-mix(in srgb, var(--accent-color) 55%, transparent);
     }
 
-    /* 强制高对比下柔光环会被抹掉，这里把硬描边还给它 */
+    /* Under forced high contrast the soft glow ring is wiped out, so the hard outline is given back here */
     @media (forced-colors: active) {
         a:focus-visible,
         button:focus-visible,
@@ -3334,9 +3334,9 @@ html[data-theme="dark"] {
         }
     }
 
-    /* 工具条里的 <a> 按钮（查看全部 / 拉取模型列表 / 视觉测试）：它们是操作控件而不是
-       正文链接，桌面写成 21-29px 高的行内块，手指点不中。给到本层的触控下限，
-       字号与颜色不动。正文里的链接（.markdown-body 内）不在这些容器里，不受影响。 */
+    /* <a> buttons in toolbars (View all / Fetch model list / Vision test): they are action controls rather than
+       body links, written on desktop as 21-29px tall inline blocks that fingers cannot hit. Give them this layer's touch floor,
+       leaving font size and color untouched. Links inside body text (within .markdown-body) are not in these containers and are unaffected. */
     :is(.page-header-actions, .dashboard-section-actions, .dashboard-section-header,
          .model-pick-row, .asset-toolbar, .settings-toolbar, .settings-form,
          .form-group, .info-collect-toolbar, .settings-advanced-block > div)
@@ -3348,8 +3348,8 @@ html[data-theme="dark"] {
         box-sizing: border-box;
     }
 
-    /* 会话抽屉：本层把它做成全屏抽屉，里面的行就必须按 44 触控口径来
-       （实测搜索框 42、分组按钮 24 宽、项目行 38、"最近对话"折叠头 30） */
+    /* Session drawer: this layer makes it a full-screen drawer, so the rows inside must follow the 44 touch convention
+       (measured: search box 42, group button 24 wide, project row 38, "Recent chats" collapse header 30) */
     :is(#conversation-sidebar .conversation-search-box input,
         #conversation-sidebar .add-group-btn,
         #conversation-sidebar .project-folder-item,
@@ -3362,8 +3362,8 @@ html[data-theme="dark"] {
         min-width: var(--m-touch);
     }
 
-    /* 调用拦截的开关：input 是 30x18 的滑块，命中区其实是包着它的 label。
-       把 label 撑到触控下限，手指点的就是整块开关而不是那条 18px 的芯。 */
+    /* Call-interception switch: the input is a 30x18 slider, and the hit area is actually the label wrapping it.
+       Stretch the label to the touch floor, so the finger hits the whole switch rather than that 18px core. */
     .tool-guard-toggle {
         display: inline-flex;
         align-items: center;
@@ -3372,33 +3372,33 @@ html[data-theme="dark"] {
         min-height: var(--m-touch);
     }
 
-    /* RBAC 概览里的计数胶囊：20px 宽点不中，补足到下限（文字居中，不改视觉密度） */
+    /* The count pill in the RBAC overview: 20px wide cannot be hit, bring it up to the floor (text centered, visual density unchanged) */
     .rbac-summary-count {
         min-width: var(--m-touch);
     }
 
-    /* 桌面把 .ai-channel-manager 设成 overflow:hidden（style.css:4796，靠固定高度自截），
-       手机上它的内容比盒子高，超出的一截被裁掉——实测 4 个通道选择按钮 scrollIntoView
-       也拉不进视口，属于「看得见点不到」。这里交还给页面滚动容器。 */
+    /* Desktop sets .ai-channel-manager to overflow:hidden (style.css:4796, self-clipping via fixed height),
+       on phones its content is taller than the box and the overflowing part is clipped - measured: the 4 channel selection buttons cannot be
+       pulled into the viewport even by scrollIntoView, a case of "visible but not clickable". Here it is handed back to the page scroll container. */
     .ai-channel-manager {
         overflow: visible;
     }
 
-    /* 25.6 遮罩与轻提示：遮罩不加模糊（全屏模糊是掉帧主因），提示条用材质 */
+    /* 25.6 Scrim and toast: the scrim gets no blur (full-screen blur is the main cause of dropped frames), the toast uses material */
     .m-scrim {
         background: color-mix(in srgb, var(--m-scrim) 88%, transparent);
     }
 
-    /* 提示条保持基底的深色 HUD 胶囊（1023 行）：这里曾把它改成浅色材质，
-       但字色仍是 #fff，结果白底白字——用户看到的就是"屏幕中间一块白的"。
-       只补一层投影，底色与字色不动。 */
+    /* The toast keeps the base dark HUD pill (line 1023): it was once changed to a light material here,
+       but the text color was still #fff, resulting in white text on a white background - what users saw was "a white patch in the middle of the screen".
+       Only a drop shadow layer is added; background and text colors are untouched. */
     #m-toast {
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
     }
 }
 
 @media (max-width: 767.98px) and (prefers-reduced-motion: reduce) {
-    /* 关掉按压缩放，只保留颜色反馈 */
+    /* Turn off press scaling, keeping only color feedback */
     .m-tab,
     .m-sheet-item,
     .m-chat-bar-btn,
@@ -3427,21 +3427,21 @@ html[data-theme="dark"] {
 }
 
 /* --------------------------------------------------------------------------
-   26. 密度与表面：对齐 new-api 的卡片体系 + iOS 的分组列表与填充式表单
+   26. Density and surface: align with new-api's card system + iOS grouped lists and filled forms
    --------------------------------------------------------------------------
-   这一节只管"看起来挤不挤、齐不齐"，不改配色语言：KPI 卡那套按 nth-child 分的
-   淡彩渐变是产品自己的身份（style.css:23789-23793），不跟它抢。
+   This section only deals with "is it cramped, is it aligned" and does not change the color language: the pale gradients divided by nth-child on the KPI cards
+   are the product's own identity (style.css:23789-23793), so we do not compete with them.
    -------------------------------------------------------------------------- */
 @media (max-width: 767.98px) {
-    /* 26.1 KPI：桌面在 ≤480px 把 5 张卡拍成一列 116px 高的长条，手机上要滚
-       两屏才看完四个数字。改成两列紧凑网格，数字才是主角。 */
+    /* 26.1 KPI: on desktop at ≤480px the 5 cards are flattened into one column of 116px tall strips, and on phones you must scroll
+       two screens to see four numbers. Changed to a two-column compact grid so the numbers are the stars. */
     .dashboard-kpi-row {
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
         gap: 10px;
         margin-bottom: 16px;
     }
 
-    /* 奇数张时末卡通栏，右下角不留空洞 */
+    /* With an odd count the last card spans the full row, leaving no hole in the bottom right */
     .dashboard-kpi-row > .dashboard-kpi-card:last-child:nth-child(odd) {
         grid-column: 1 / -1;
     }
@@ -3491,8 +3491,8 @@ html[data-theme="dark"] {
         gap: 10px;
     }
 
-    /* 26.2 卡片表面统一：发丝边 + 16 圆角 + 几乎看不见的投影。
-       桌面的 0 2px 8px 双层阴影在小屏上会把每张卡都"抬起来"，一屏四张就散了。 */
+    /* 26.2 Unified card surface: hairline border + 16 radius + an almost invisible shadow.
+       The desktop 0 2px 8px two-layer shadow on small screens "lifts" every card, and four on one screen falls apart. */
     :is(.card, .stat-card, .metric-card, .dashboard-card, .panel,
          .settings-section, .info-card) {
         border: 1px solid var(--m-hairline);
@@ -3500,7 +3500,7 @@ html[data-theme="dark"] {
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
     }
 
-    /* 26.3 页面头：标题与操作行收成一组，不再各占一段空白 */
+    /* 26.3 Page header: the title and action row are collected into one group, no longer each taking a blank band */
     .page-header h2,
     .page-header h1 {
         font-size: 20px;
@@ -3513,21 +3513,21 @@ html[data-theme="dark"] {
         margin-bottom: 12px;
     }
 
-    /* 26.4 填充式表单（iOS 的写法：字段靠底色区分，不靠一圈灰边框） */
+    /* 26.4 Filled form (the iOS way: fields are distinguished by background color, not by a ring of gray border) */
     :is(.form-group, .settings-form, .modal-body, .m-drawer-search) :is(input, select, textarea) {
         background: var(--m-fill-quaternary);
         border-color: transparent;
         border-radius: 12px;
     }
 
-    /* 聚焦：只留一圈柔光环。再改 border 颜色会与 25.5 的环叠成两圈（登录框实测如此）*/
+    /* Focus: leave only one soft glow ring. Changing the border color again would stack two rings with the one in 25.5 (measured so on the login box) */
     :is(.form-group, .settings-form, .modal-body, .m-drawer-search) :is(input, select, textarea):focus {
         background: var(--bg-primary);
         border-color: transparent;
         box-shadow: 0 0 0 3px var(--m-ring);
     }
 
-    /* 26.5 登录卡：满宽卡片 + 填充式字段 + 胶囊主按钮 */
+    /* 26.5 Login card: full-width card + filled fields + pill primary button */
     .login-card {
         border-radius: 20px;
         box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
@@ -3539,41 +3539,41 @@ html[data-theme="dark"] {
         border-radius: var(--m-r-pill);
     }
 
-    /* 26.6 分组列表：卡片内的行之间只留发丝线，行高按触控下限走 */
+    /* 26.6 Grouped list: only hairlines between rows inside a card, and row height follows the touch floor */
     :is(.settings-section, .card, .panel, .info-card) :is(.form-group, .settings-row, .list-row) + :is(.form-group, .settings-row, .list-row) {
         border-top: 1px solid var(--m-hairline);
     }
 }
 
 /* --------------------------------------------------------------------------
-   28. 玻璃质感：环境光画布 + 玻璃表面 + 顶缘高光
+   28. Glass look: ambient canvas + glass surfaces + top-edge highlight
    --------------------------------------------------------------------------
-   目标：把手机端从"平面灰底 + 分隔线"推进到 Apple 的玻璃材质语言。
-   玻璃要读得出来，前提是材料后面有东西可透，所以这一节先做两件事：
+   Goal: push mobile from "flat gray background + dividers" to Apple's glass material language.
+   For glass to be legible there must be something behind the material to see through, so this section first does two things:
 
-   - 画布：.container 铺一层极淡的环境光（浅色 = 近白底 + 右上 accent / 左下紫的
-     柔光；暗色 = 深底 + 同色更亮的柔光），再把 .content-area / .chat-messages 的
-     实心底色交还给这层画布。此后所有半透明表面都有色可透，各页面自身的内容背景
-     一律不动。
-   - 表面分三档：模糊（backdrop-filter）只给"小面积或瞬时"的件 —— 顶栏、底栏
-     （25 节已有）、底部面板、抽屉、登录卡、弹窗；它们要么面积小，要么只在被打开
-     时才绘制，不挂在常驻滚动内容上。常驻卡片（.card/.stat-card/... 一列）只做
-     半透明 + 发丝边 + 顶缘高光，不挂模糊 —— 固定栏的大面积模糊是移动端掉帧
-     主因（25 节实测），这条口径不动。
-   - 浅色与暗色全部经 color-mix 从主题令牌派生；只有"顶缘高光"必须换向
-     （浅色 = 白线，暗色 = 极淡白线），单独覆写。
-   - prefers-reduced-transparency: reduce 时不问浏览器支持与否，全部退回实心。
+   - Canvas: .container gets a very faint ambient light (light = near-white background + a soft glow of top-right accent / bottom-left purple;
+     dark = dark background + a brighter soft glow of the same colors), and then the solid background colors of .content-area / .chat-messages
+     are handed back to this canvas. After that, all translucent surfaces have color to show through, and the content backgrounds of the individual pages
+     are left untouched.
+   - Surfaces come in three tiers: blur (backdrop-filter) is given only to pieces that are "small in area or transient" - top bar, bottom bar
+     (already in section 25), bottom panel, drawer, login card, dialog; they are either small in area, or only drawn when opened,
+     and are not attached to permanently scrolling content. Resident cards (.card/.stat-card/... a column) only get
+     translucency + hairline border + top-edge highlight, with no blur - the large-area blur of fixed bars is the main cause of dropped frames on mobile
+     (measured in section 25), and this convention does not change.
+   - Light and dark are all derived from theme tokens via color-mix; only the "top-edge highlight" must flip direction
+     (light = white line, dark = very faint white line), overridden separately.
+   - Under prefers-reduced-transparency: reduce, everything falls back to solid regardless of browser support.
    -------------------------------------------------------------------------- */
 @media (max-width: 767.98px) {
     :root {
-        /* 栏体材质从 82% 提到 62%：有模糊托底，透出的是画布而不是一块灰板 */
+        /* Bar material raised from 82% to 62%: with blur underneath, what shows through is the canvas rather than a gray slab */
         --m-material: color-mix(in srgb, var(--bg-primary) 62%, transparent);
-        /* 玻璃卡（常驻，不挂模糊）：透出画布的一点色 */
+        /* Glass card (resident, no blur): lets a little color of the canvas show through */
         --m-glass-card: color-mix(in srgb, var(--card-bg) 66%, transparent);
-        /* 玻璃面板（瞬时件，配模糊）：抽屉 / 底部面板 / 登录卡 / 弹窗 */
+        /* Glass panel (transient piece, with blur): drawer / bottom panel / login card / dialog */
         --m-glass-panel: color-mix(in srgb, var(--bg-primary) 72%, transparent);
         --m-glass-blur: saturate(180%) blur(20px);
-        /* 顶缘高光：玻璃的"口沿"。浅色下是白线，暗色下换极淡白（见下方覆写） */
+        /* Top-edge highlight: the "rim" of the glass. A white line under light, and swapped for a very faint white under dark (see the override below) */
         --m-bevel: inset 0 1px 0 rgba(255, 255, 255, 0.55);
     }
 
@@ -3581,7 +3581,7 @@ html[data-theme="dark"] {
         --m-bevel: inset 0 1px 0 rgba(255, 255, 255, 0.07);
     }
 
-    /* 28.1 环境光画布：整块 app 换底，卡片与栏体从这层透色 */
+    /* 28.1 Ambient canvas: the whole app gets a new base, and cards and bars show color through this layer */
     .container {
         background:
             radial-gradient(120% 88% at 88% -12%,
@@ -3600,19 +3600,19 @@ html[data-theme="dark"] {
             var(--bg-secondary);
     }
 
-    /* 交还底色：画布负责"底"，卡片负责"面" */
+    /* Hand back the background color: the canvas is responsible for the "base", the cards for the "surface" */
     .content-area,
     .chat-messages {
         background: transparent;
     }
 
-    /* 28.2 底栏补一道顶缘高光，顶栏保持 25 节的发丝线 */
+    /* 28.2 The bottom bar gets an extra top-edge highlight, and the top bar keeps the hairline of section 25 */
     #m-tabbar {
         border-top-color: var(--m-hairline);
         box-shadow: var(--m-bevel);
     }
 
-    /* 28.3 卡片玻璃：半透明表面 + 发丝边 + 顶缘高光；投影保持 26 节的"几乎看不见" */
+    /* 28.3 Card glass: translucent surface + hairline border + top-edge highlight; the shadow stays "almost invisible" as in section 26 */
     :is(.card, .stat-card, .metric-card, .dashboard-card, .panel,
          .settings-section, .info-card) {
         background: var(--m-glass-card);
@@ -3620,16 +3620,16 @@ html[data-theme="dark"] {
         box-shadow: var(--m-bevel), 0 1px 2px rgba(0, 0, 0, 0.03);
     }
 
-    /* 28.4 底部面板：真玻璃（透色 + 模糊），只在打开时绘制 */
+    /* 28.4 Bottom panel: real glass (color show-through + blur), only drawn when opened */
     #m-sheet {
         background: var(--m-glass-panel);
         border-color: color-mix(in srgb, var(--border-color) 50%, transparent);
         box-shadow: var(--m-bevel), var(--m-shadow-panel);
     }
 
-    /* 28.5 抽屉（主导航 / 会话列表）：同面板材质的真玻璃。
-       两套选择器：不带属性的管浅色与初始绘制，html[data-theme] 的管暗色
-       （style.css 的暗色抽屉是 (0,2,0) 特异性的不透明渐变，必须同形压回）。 */
+    /* 28.5 Drawer (main navigation / session list): real glass of the same material as the panel.
+       Two sets of selectors: the one without attributes handles light and initial painting, the html[data-theme] one handles dark
+       (the dark drawer in style.css is an opaque gradient of (0,2,0) specificity, and must be pressed back in the same form). */
     .main-sidebar,
     .conversation-sidebar,
     html[data-theme] .main-sidebar,
@@ -3645,19 +3645,19 @@ html[data-theme="dark"] {
         background: color-mix(in srgb, var(--input-bg) 78%, transparent);
     }
 
-    /* 对话页顶部工具条：在流内、滚动内容不会跑到它后面，纯透色不挂模糊 */
+    /* Chat page top toolbar: in flow, scrolling content does not run behind it, pure color show-through with no blur */
     #m-chat-bar {
         background: color-mix(in srgb, var(--bg-primary) 66%, transparent);
         border-bottom-color: var(--m-hairline);
     }
 
-    /* 28.6 弹窗：与面板同档的玻璃 */
+    /* 28.6 Dialog: glass of the same tier as the panel */
     .modal-content {
         background-color: var(--m-glass-panel);
         border: 1px solid var(--m-hairline);
     }
 
-    /* 28.7 登录：遮罩本身得先有"画布"（否则卡片后面只有一块灰），卡片是真玻璃 */
+    /* 28.7 Login: the scrim itself must first have a "canvas" (otherwise there is only a gray block behind the card), and the card is real glass */
     .login-overlay {
         background:
             radial-gradient(120% 88% at 85% -10%,
@@ -3682,7 +3682,7 @@ html[data-theme="dark"] {
         box-shadow: var(--m-bevel), 0 18px 44px rgba(0, 0, 0, 0.14);
     }
 
-    /* 28.8 模糊：只给上述瞬时件。@supports 兜底逻辑与 25 节一致 */
+    /* 28.8 Blur: only for the transient pieces above. The @supports fallback logic is the same as section 25 */
     @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
         #m-sheet,
         html[data-theme] .main-sidebar,
@@ -3694,7 +3694,7 @@ html[data-theme="dark"] {
         }
     }
 
-    /* 28.9 降低透明度环境：退回实心材质（含画布） */
+    /* 28.9 Reduced-transparency environment: fall back to solid material (including the canvas) */
     @media (prefers-reduced-transparency: reduce) {
         .container,
         .content-area,

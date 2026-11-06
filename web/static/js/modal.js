@@ -1,5 +1,5 @@
 /**
- * 统一弹窗：先显示遮罩、下一帧再填大段内容，避免与 backdrop 绘制抢主线程。
+ * Unified modal: show the overlay first, then fill in the large content on the next frame to avoid competing with backdrop painting for the main thread.
  */
 (function () {
     const BODY_LOCK = 'app-modal-open';
@@ -81,7 +81,7 @@
         return isElVisible(resolveEl(idOrEl));
     }
 
-    /** 双 rAF：等遮罩绘制完成后再写入大段 DOM / 表单 */
+    /** Double rAF: write the large DOM / form only after the overlay has finished painting */
     function deferModalContent(fn) {
         requestAnimationFrame(function () {
             requestAnimationFrame(fn);

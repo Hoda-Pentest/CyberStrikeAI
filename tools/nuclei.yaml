@@ -5,22 +5,22 @@ short_description: "快速漏洞扫描器，使用YAML模板进行漏洞检测"
 description: |
   Nuclei是一个基于模板的快速漏洞扫描器，使用社区维护的YAML模板进行漏洞检测。
 
-  **主要功能：**
+  **Key Features:**
   - 快速漏洞扫描
   - 基于模板的检测
   - 支持多种协议（HTTP, TCP, DNS等）
   - 实时结果输出
   - 支持自定义模板
 
-  **使用场景：**
-  - 漏洞扫描和发现
-  - 安全评估
-  - 渗透测试
-  - 漏洞验证
+  **Use Cases:**
+  - Vulnerability scanning and discovery
+  - Security assessment
+  - Penetration testing
+  - Vulnerability verification
 parameters:
   - name: "target"
     type: "string"
-    description: "目标URL或IP"
+    description: "Target URL or IP"
     required: true
     flag: "-u"
     format: "flag"

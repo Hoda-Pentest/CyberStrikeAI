@@ -11,16 +11,16 @@ args:
     # ==================== Quake配置 ====================
     # 请在此处配置您的Quake API Token
     # 您也可以在环境变量中设置：QUAKE_API_KEY
-    # enable 默认为 false，需开启才能调用该MCP
+    # enable defaults to false; must be turned on to call this MCP
     QUAKE_API_KEY = ""  # 请填写您的Quake API Token
     # ==================================================
 
     # Quake API基础URL
     base_url = "https://quake.360.net/api/v3/search/quake_service"
 
-    # 解析参数（从JSON字符串或命令行参数）
+    # Parse parameters (from a JSON string or command-line arguments)
     def parse_args():
-        # 尝试从第一个参数读取JSON配置
+        # Try to read JSON configuration from the first argument
         if len(sys.argv) > 1:
             try:
                 arg1 = str(sys.argv[1])
@@ -30,7 +30,7 @@ args:
             except (json.JSONDecodeError, TypeError, ValueError):
                 pass
 
-        # 传统位置参数方式（向后兼容）
+        # Legacy positional-argument style (for backward compatibility)
         # 参数位置：query=1, size=2, start=3, fields=4, latest=5
         config = {}
         if len(sys.argv) > 1:
@@ -82,7 +82,7 @@ args:
         if not isinstance(config, dict):
             error_result = {
                 "status": "error",
-                "message": f"参数解析错误: 期望字典类型，但得到 {type(config).__name__}",
+                "message": f"Parameter parsing error: expected a dict, got {type(config).__name__}",
                 "type": "TypeError"
             }
             print(json.dumps(error_result, ensure_ascii=False, indent=2))
@@ -104,7 +104,7 @@ args:
         if not query:
             error_result = {
                 "status": "error",
-                "message": "缺少必需参数: query（搜索查询语句）",
+                "message": "Missing required parameter: query (search query string)",
                 "required_params": ["query"],
                 "examples": [
                     'domain:"example.com"',
@@ -122,7 +122,7 @@ args:
             "query": query
         }
 
-        # 可选参数 size（通常最大100）
+        # Optional parameters size（通常最大100）
         if "size" in config and config["size"] is not None:
             try:
                 size = int(config["size"])
@@ -131,7 +131,7 @@ args:
             except (ValueError, TypeError):
                 pass
 
-        # 可选参数 start（分页偏移，默认0）
+        # Optional parameters start（分页偏移，默认0）
         if "start" in config and config["start"] is not None:
             try:
                 start = int(config["start"])
@@ -208,7 +208,7 @@ args:
         except requests.exceptions.RequestException as e:
             error_result = {
                 "status": "error",
-                "message": f"请求失败: {str(e)}",
+                "message": f"Request failed: {str(e)}",
                 "suggestion": "请检查网络连通性或Quake API服务状态"
             }
             print(json.dumps(error_result, ensure_ascii=False, indent=2))
@@ -217,7 +217,7 @@ args:
     except Exception as e:
         error_result = {
             "status": "error",
-            "message": f"执行出错: {str(e)}",
+            "message": f"Execution error: {str(e)}",
             "type": type(e).__name__
         }
         print(json.dumps(error_result, ensure_ascii=False, indent=2))
@@ -227,23 +227,23 @@ short_description: "Quake网络空间搜索接口，支持自定义query、size�
 description: |
   Quake（360 网络空间测绘）资产搜索工具，调用 Quake API v3 实时检索互联网资产。
 
-  **主要功能：**
+  **Key Features:**
   - 支持 Quake DSL 查询语法（query）
   - 支持返回数量控制（size）
   - 支持字段裁剪（fields，对应 Quake include）
   - 支持分页偏移（start）
 
-  **鉴权方式：**
+  **Authentication:**
   - Header 使用 `X-QuakeToken`
   - 可在本文件中填写 `QUAKE_API_KEY`，或通过环境变量 `QUAKE_API_KEY` 注入
 
-  **常见查询示例：**
+  **常见查询Example:**
   - `domain:"example.com"`
   - `ip:"1.1.1.1"`
   - `port:443`
   - `service.name:"http" AND country_cn:"中国"`
 
-  **注意事项：**
+  **Notes:**
   - API 调用会消耗积分，请按需控制 `size`
   - `fields` 会映射到请求体 `include` 字段，多个字段用英文逗号分隔
   - 如遇语法报错，请先在 Quake 控制台验证 DSL
@@ -253,7 +253,7 @@ parameters:
     description: |
       Quake DSL 查询语句（必需）。
 
-      **示例：**
+      **Example:**
       - `domain:"example.com"`
       - `ip:"1.1.1.1"`
       - `port:443`
@@ -285,7 +285,7 @@ parameters:
       返回字段（可选），多个字段用英文逗号分隔。
 
       该参数会映射到 Quake 请求体中的 `include` 字段。
-      **示例：**
+      **Example:**
       - `ip,port`
       - `ip,port,service.name,service.http.title,location.country_cn`
     required: false
@@ -296,7 +296,7 @@ parameters:
     type: "bool"
     description: |
       是否优先返回最新索引结果（可选）。
-      默认 `true`。
+      Default `true`.
     required: false
     position: 5
     format: "positional"

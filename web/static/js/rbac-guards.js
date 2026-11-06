@@ -1,12 +1,12 @@
 /**
- * 全局写操作权限守卫：为各页面 onclick 绑定的 window/C2 方法统一包一层 requirePermission。
- * 在全部业务脚本加载完成后执行（见 index.html 引用顺序）。
+ * Global write-operation permission guard: wraps the window/C2 methods bound to each page's onclick with a unified requirePermission layer.
+ * Runs after all business scripts have finished loading (see the reference order in index.html).
  */
 (function () {
     'use strict';
 
     const GLOBAL_WRITE_HANDLER_PERMISSIONS = {
-        // 对话
+        // Conversations
         sendMessage: 'chat:write',
         startNewConversation: 'chat:write',
         deleteConversation: 'chat:delete',
@@ -17,7 +17,7 @@
         renameConversation: 'chat:write',
         pinConversation: 'chat:write',
 
-        // 人机协同
+        // Human-in-the-loop
         applyHitlSidebarConfig: 'hitl:write',
         saveHitlPageWhitelist: 'hitl:write',
         saveHitlAuditStrategy: 'hitl:write',
@@ -30,7 +30,7 @@
         batchDeleteHitlLogs: 'hitl:write',
         clearHitlLogs: 'hitl:write',
 
-        // 项目
+        // Projects
         showNewProjectModal: 'project:write',
         showNewProjectModalFromChat: 'project:write',
         showNewProjectModalFromChatSidebar: 'project:write',
@@ -57,7 +57,7 @@
         createVulnerabilityFromCurrentFact: 'vulnerability:write',
         unbindConversationFromProject: 'project:write',
 
-        // 漏洞
+        // Vulnerabilities
         showAddVulnerabilityModal: 'vulnerability:write',
         saveVulnerability: 'vulnerability:write',
         deleteVulnerability: 'vulnerability:delete',
@@ -66,7 +66,7 @@
         changeVulnerabilityStatus: 'vulnerability:write',
         bindVulnerabilityProject: 'vulnerability:write',
 
-        // 角色 / Skills / Agents
+        // Roles / Skills / Agents
         showAddRoleModal: 'roles:write',
         saveRole: 'roles:write',
         deleteRole: 'roles:delete',
@@ -77,7 +77,7 @@
         saveMarkdownAgent: 'agents:write',
         deleteMarkdownAgent: 'agents:delete',
 
-        // 知识库
+        // Knowledge base
         buildKnowledgeIndex: 'knowledge:write',
         rebuildKnowledgeIndexFull: 'knowledge:write',
         showAddKnowledgeItemModal: 'knowledge:write',
@@ -86,7 +86,7 @@
         deleteKnowledgeItem: 'knowledge:delete',
         deleteRetrievalLog: 'knowledge:delete',
 
-        // 设置 / MCP
+        // Settings / MCP
         saveToolGuardConfig: 'config:write',
         addToolGuardRule: 'config:write',
         resetToolGuardConfig: 'config:write',
@@ -104,7 +104,7 @@
         submitMcpToolAbortModal: 'monitor:write',
         cancelMCPToolExecution: 'monitor:write',
 
-        // FOFA / 信息收集
+        // FOFA / Information gathering
         submitFofaSearch: 'fofa:execute',
         scanFofaRow: 'fofa:execute',
         batchScanSelectedFofaRows: 'fofa:execute',
@@ -116,7 +116,7 @@
         saveAsset: 'asset:write',
         deleteAsset: 'asset:delete',
 
-        // 任务队列
+        // Task queue
         showBatchImportModal: 'tasks:write',
         deleteBatchQueue: 'tasks:delete',
         deleteBatchQueueFromList: 'tasks:delete',
@@ -140,7 +140,7 @@
         cancelActiveTask: 'tasks:write',
         cancelProgressTask: 'tasks:write',
 
-        // 工作流
+        // Workflows
         saveWorkflowDraft: 'workflow:write',
         applyWorkflowMetaModal: 'workflow:write',
         deleteCurrentWorkflow: 'workflow:delete',
@@ -151,7 +151,7 @@
         toggleWorkflowConnectMode: 'workflow:write',
         addWorkflowCustomField: 'workflow:write',
 
-        // 文件管理
+        // File management
         saveChatFilesEdit: 'files:write',
         deleteChatFile: 'files:delete',
         deleteChatFileIdx: 'files:delete',
@@ -164,15 +164,15 @@
         chatFilesUploadToFolderClick: 'files:write',
         chatFilesDeleteFolderFromBtn: 'files:delete',
 
-        // 监控
+        // Monitoring
         deleteExecution: 'monitor:delete',
         batchDeleteExecutions: 'monitor:delete',
 
-        // 攻击链
+        // Attack chain
         regenerateAttackChain: 'attackchain:write',
         exportAttackChain: 'attackchain:read',
 
-        // 通知
+        // Notifications
         markAllNotificationsSeen: 'notification:write',
 
         // RBAC
@@ -191,22 +191,22 @@
         deleteWebshell: 'webshell:delete',
         testWebshellConnection: 'webshell:write',
 
-        // 机器人
+        // Robots
         openRobotCreateModal: 'robot:write',
         openRobotEditor: 'robot:write',
         startWechatRobotBind: 'robot:write',
         submitWechatVerifyCode: 'robot:write',
 
-        // 审计
+        // Audit
         exportAuditLogs: 'audit:read',
         exportAuditLogsCsv: 'audit:read',
         runAuditExport: 'audit:read',
 
-        // Agent 中断
+        // Agent interruption
         submitUserInterruptContinue: 'agent:execute',
         submitUserInterruptHardCancel: 'agent:execute',
 
-        // 终端（多会话）
+        // Terminal (multiple sessions)
         addTerminalTab: 'terminal:execute',
         removeTerminalTab: 'terminal:execute',
     };

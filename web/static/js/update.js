@@ -1,15 +1,15 @@
-// 控制台「一键更新」：这一页动的就是当前正在应答请求的那套安装树本身。
-// 三条硬规矩，每一条都是这个仓库已经踩过一次的坑：
-//   1) 查不了必须说查不了。checkError 非空时页面写出原因，绝不渲染成「已是最新」——
-//      把"没查成"画成"没更新"，操作员要等到下一次故障才发现树早就没动了。
-//   2) 提示只念真实 HTTP 结果，而且只用平台确实存在的 showNotification；没有就什么都不做。
-//   3) 服务端来的字符串进 HTML 一律 escapeHtml，进属性一律 escapeAttr。
+// Console "One-Click Update": this page operates on the very installation tree that is currently answering the request.
+// Three hard rules, each one a pitfall this repository has already fallen into once:
+//   1) If the check cannot be done, say so. When checkError is non-empty the page writes out the reason and never renders "up to date" -
+//      drawing "the check failed" as "nothing to update" means the operator only finds out the tree has not moved at the next incident.
+//   2) Notifications only report the real HTTP result, and only use showNotification if the platform actually has it; if it does not, do nothing.
+//   3) Strings coming from the server go through escapeHtml when put into HTML, and through escapeAttr when put into attributes.
 const UPDATE_POLL_INTERVAL_MS = 1500;
-// 重启守侧：进程退出到新进程接客之间的间隙，页面试探的节奏与放弃前的耐心。
+// Restart guard: the cadence of the page's probing, and its patience before giving up, in the gap between the process exiting and the new process taking over.
 const UPDATE_WATCHDOG_INTERVAL_MS = 2000;
 const UPDATE_WATCHDOG_TIMEOUT_MS = 90000;
 
-// withUpdateBusy 按动作挑错误文案的前缀，所有 key 都必须在三份语言里存在。
+// withUpdateBusy picks the error message prefix by action; every key must exist in all three languages.
 const UPDATE_FAILURE_KEYS = {
     check: 'checkFailed',
     apply: 'applyFailed',
@@ -20,29 +20,29 @@ const UPDATE_FAILURE_KEYS = {
     restart: 'restartFailed',
 };
 
-let updateConsoleState = null;   // GET /api/system/update 的整包：{status, job, canRestart, supervised, needsRestart}
+let updateConsoleState = null;   // The whole payload of GET /api/system/update: {status, job, canRestart, supervised, needsRestart}
 let updateCheck = { done: false, error: '' };
-let updateBusy = false;          // 页面自己发着的动作请求（检查 / 启动更新 / 回滚 / 重启）
-let updateChecking = false;      // 只影响「检查更新」按钮的措辞
+let updateBusy = false;          // Action request the page itself has in flight (check / start update / rollback / restart)
+let updateChecking = false;      // Only affects the wording of the "Check for updates" button
 let updatePollTimer = null;
-let updateRestartChoice = true;  // 勾选框要在轮询重绘之后仍然是勾着的；默认值跟随 supervised
-let updateRestartChoiceSet = false; // 操作员本次会话手动改过之后，默认值不再顶掉他的选择
-let updateRestartPending = false;   // 已请求重启：进程退出/新进程接客就在眼前
-let updateWatchdogTimer = null;     // 重启守侧自己的定时器，跟任务进度轮询互不干扰
+let updateRestartChoice = true;  // The checkbox must still be checked after a polling redraw; its default follows supervised
+let updateRestartChoiceSet = false; // Once the operator has changed it manually in this session, the default no longer overrides their choice
+let updateRestartPending = false;   // Restart requested: the process exiting / the new process taking over is imminent
+let updateWatchdogTimer = null;     // The restart guard's own timer, independent of the job progress polling
 let updateWatchdogDeadline = 0;
-let updateWatchdogSlow = null;      // null=还没超时；'running'=仍由旧进程应答；'down'=服务没回来
-let updateAutoCheckDone = false; // 每个会话只自动查一次远端，不每次重绘都去打扰
-let updateSourceDraft = null;    // 编辑中的更新源仓库地址；null=还贴着服务端保存的值
-let updateSourceError = '';      // 最近一次保存/接入失败的原因，画在区块里
-let updateActionError = '';      // 最近一次动作（检查/更新/回滚/重启）失败的原因，画在控制台顶部
-let updateAdoptPlan = null;      // 预览回来的接入计划；确认后清掉
+let updateWatchdogSlow = null;      // null = not timed out yet; 'running' = still answered by the old process; 'down' = the service did not come back
+let updateAutoCheckDone = false; // Auto-check the remote only once per session, instead of bothering it on every redraw
+let updateSourceDraft = null;    // Update source repository address being edited; null = still showing the value saved on the server
+let updateSourceError = '';      // Reason for the most recent save/adopt failure, drawn inside the section
+let updateActionError = '';      // Reason for the most recent action (check/update/rollback/restart) failure, drawn at the top of the console
+let updateAdoptPlan = null;      // Adoption plan returned by the preview; cleared once confirmed
 
 function updateT(key, opts) {
     const k = 'update.' + key;
     if (typeof window.t !== 'function') return k;
-    // i18next 默认把插值里的 / " ' 也转成 HTML 实体；控制台的结果要么进 escapeHtml（渲染），
-    // 要么进 confirm（纯文本），两种去向都不需要它先转义——开着反而会把日期、分支名里的 /
-    // 显示成 &#x2F;（实测：devtree/deploy/... 在确认框里就是这么显示的）。
+    // By default i18next also converts / " ' in interpolations into HTML entities; the console's results either go into escapeHtml (rendered)
+    // or into confirm (plain text), and neither destination needs them escaped first - leaving it on would instead turn the / in dates and branch names
+    // into &#x2F; (observed: devtree/deploy/... displays exactly like that in the confirm dialog).
     const merged = Object.assign({ interpolation: { escapeValue: false } }, opts || {});
     return window.t(k, merged);
 }
@@ -51,7 +51,7 @@ function updateSourceOf() {
     return (updateConsoleState && updateConsoleState.source) || { repo: '', configured: false, defaultRepo: '' };
 }
 
-// 草稿优先：轮询重绘不许把正在输入的地址冲掉；保存成功后草稿丢弃、回到服务端的值。
+// Draft first: a polling redraw must not wash away an address being typed; after a successful save the draft is discarded and the server's value takes over again.
 function updateSourceRepo() {
     if (typeof updateSourceDraft === 'string') return updateSourceDraft;
     return updateSourceOf().repo || '';
@@ -67,7 +67,7 @@ function updateSourceRepoChanged(value) {
 // The constraints are what keep it polite: one check per session, only for a tree that is
 // actually a git installation, never while a job is already running, and always after the
 // first paint - the page's own claim has to reach the screen before the network does. A
-// failure is not retried here: the page says so plainly, and the operator presses 检查更新
+// failure is not retried here: the page says so plainly, and the operator presses Check for updates
 // when they want to ask again.
 function scheduleUpdateAutoCheck() {
     if (updateAutoCheckDone) return false;
@@ -82,7 +82,7 @@ function scheduleUpdateAutoCheck() {
 }
 
 function isUpdateConsoleActive() {
-    // 控制台住在系统设置页的「一键更新」分区里：页面激活还不够，分区也得是当前选中的那个。
+    // The console lives in the "One-Click Update" section of the system settings page: the page being active is not enough, the section must also be the currently selected one.
     const page = document.getElementById('page-settings');
     const section = document.getElementById('settings-section-update');
     return !!(page && page.classList.contains('active') &&
@@ -108,20 +108,20 @@ function isUpdateJobRunning() {
 }
 
 function resetUpdateCheck() {
-    // 一次 GET 拿不到 behind/updateAvailable（它不联网），留着上一次的 done=true
-    // 就会把"没查"画成"已是最新"。
+    // A single GET cannot obtain behind/updateAvailable (it does not touch the network); keeping the previous done=true
+    // would draw "not checked" as "already up to date".
     updateCheck = { done: false, error: '' };
 }
 
 // ---------------------------------------------------------------------------
-// 请求层
+// Request layer
 // ---------------------------------------------------------------------------
 
-// 每个调用都要拿到状态码和解析后的体：apply/rollback 的 409 里带着那个正在跑的任务，
-// 直接 throw 掉就等于把"已经有一次在跑了，这是它的进度"扔了。
-// ok 不等于状态码：rollback 在"源码回了、二进制没回"这种半途情况下是按 202 回答并带着
-// error 字段的（handler 里的 statusForError 把 no_toolchain 归到 202），只信 resp.ok
-// 就会对着一次没做完的回滚播报成功。
+// Every call must obtain the status code and the parsed body: the 409 from apply/rollback carries the job that is already running,
+// and throwing it away directly would discard "an update is already running, here is its progress".
+// ok is not the same as the status code: in the halfway case where rollback restored the source but not the binary, it answers with 202 and carries
+// an error field (statusForError in the handler maps no_toolchain to 202); trusting resp.ok alone
+// would announce success for a rollback that was not finished.
 async function runUpdateRequest(method, url, body) {
     const resp = await apiFetch(url, {
         method: method,
@@ -154,15 +154,15 @@ async function fetchUpdateStatus() {
     return updateConsoleState;
 }
 
-// 勾选框的默认值：有守护（launchd/systemd 的启动标记）才默认勾上——没人守护时默认勾上
-// 等于"一键把服务点停"。操作员自己动过勾选框之后，服务端的值不再覆盖他的选择。
+// Default of the checkbox: it is checked by default only when there is a supervisor (launchd/systemd start marker) - checking it by default when nobody supervises
+// amounts to "one click to stop the service". Once the operator has touched the checkbox themselves, the server's value no longer overrides their choice.
 function noteRestartDefault() {
     if (updateRestartChoiceSet) return;
     updateRestartChoice = !!(updateConsoleState && updateConsoleState.supervised);
 }
 
-// notify 只在平台真的载了 showNotification 时才动。它绝不能成为"操作看起来失败"的原因：
-// 请求已经成功了，为了播报一句去调一个页面上不存在的函数，会把成功炸成失败。
+// notify only acts when the platform really loaded showNotification. It must never become the reason an "operation looks failed":
+// the request has already succeeded, and calling a function that does not exist on the page just to announce it would blow success up into failure.
 function notify(message, type) {
     if (typeof showNotification === 'function') {
         try {
@@ -173,12 +173,12 @@ function notify(message, type) {
     }
 }
 
-// 动作期的重绘必须头尾对称。忙时要画"占用中"（按钮带 disabled），闲时要再画回来——
-// 这个页面的检查流程（包括打开页面后的自动检查）会在忙期里重绘，若结束时不再重绘，
-// 那份 disabled 就留在 DOM 上把按钮永久冻死：实测打开页面自动检查一次后，「保存更新源」
-// 带 disabled + data-state-disabled 留在页面上，再点永远没有反应，连请求都发不出去。
-// 横幅改成状态（updateActionError）由 renderUpdateConsole 渲染，退出重绘就不会把它擦掉；
-// 重启守侧接管画面时（updateRestartPending）一律不重绘，别把自恢复视图盖回控制台。
+// The redraw around an action must be symmetric at both ends. While busy it draws "in use" (buttons carry disabled), and when idle it must draw them back -
+// this page's check flow (including the automatic check after the page opens) redraws during the busy period; if it does not redraw at the end,
+// that disabled stays on the DOM and freezes the button for good: observed after opening the page and auto-checking once, "Save update source"
+// stayed on the page with disabled + data-state-disabled, and clicking it again did nothing at all, not even sending a request.
+// The banner is now state (updateActionError) rendered by renderUpdateConsole, so leaving the redraw does not wipe it;
+// while the restart guard has taken over the screen (updateRestartPending), never redraw, so the self-recovering view is not painted over by the console again.
 async function withUpdateBusy(fn, label) {
     if (updateBusy) return;
     updateBusy = true;
@@ -188,11 +188,11 @@ async function withUpdateBusy(fn, label) {
         await fn();
     } catch (err) {
         const reason = err && err.message ? err.message : String(err);
-        // 请求炸在半路上时，画面还停在"正在检查更新源…"这种已经不再成立的状态上，
-        // 光加一条红字没用：横幅跟随状态重绘，画面本身也要按当前状态画一遍。
+        // When a request blows up halfway, the screen is still stuck in a state that no longer holds, such as "Checking the update source...",
+        // and adding a line of red text is not enough: the banner redraws with the state, and the screen itself must also be redrawn for the current state.
         updateActionError = updateT(UPDATE_FAILURE_KEYS[label] || 'loadFailed', { reason: reason });
         if (!updateRestartPending) renderUpdateConsole();
-        // 内联横幅会被下一次动作开始时的重绘冲掉，toast 才是留得住的那一份。
+        // The inline banner gets wiped by the redraw at the start of the next action; the toast is the one that sticks around.
         notify(updateActionError, 'error');
     } finally {
         updateBusy = false;
@@ -201,20 +201,20 @@ async function withUpdateBusy(fn, label) {
 }
 
 // ---------------------------------------------------------------------------
-// 入口与轮询
+// Entry and polling
 // ---------------------------------------------------------------------------
 
 async function loadUpdateConsole() {
     stopUpdatePolling();
-    // 重启已经发起：控制台让位给自恢复视图，不再去读一个正在退出的服务。
+    // Restart already initiated: the console yields to the self-recovering view and stops reading a service that is exiting.
     if (updateRestartPending) {
         startUpdateWatchdog();
         return;
     }
     resetUpdateCheck();
     updateRestartChoiceSet = false;
-    updateRestartChoice = true; // 之后由 noteRestartDefault 按 supervised 修正
-    updateActionError = '';     // 重新进页 = 干净画面，上一次动作的红字不跟过来
+    updateRestartChoice = true; // Afterwards noteRestartDefault corrects it according to supervised
+    updateActionError = '';     // Re-entering the page = a clean screen; the red text from the previous action does not follow
     const el = document.getElementById('update-console');
     if (!el) return;
     el.innerHTML = '<div class="empty-state">' + escapeHtml(updateT('loading')) + '</div>';
@@ -226,12 +226,12 @@ async function loadUpdateConsole() {
         return;
     }
     renderUpdateConsole();
-    // 开页就有一次在跑的更新（比如另开一个标签页点的），接着看它，别让人以为没在动。
+    // An update is already running when the page opens (for example one clicked in another tab): keep watching it, so nobody thinks nothing is happening.
     if (isUpdateJobRunning()) startUpdatePolling();
     scheduleUpdateAutoCheck();
 }
 
-// 只有一个定时器：不清就重新 arm，是"页面开两次之后两条轮询往同一份日志里写"的来路。
+// There is only one timer: re-arming without clearing is how "after opening the page twice, two pollers write into the same log" comes about.
 function startUpdatePolling() {
     stopUpdatePolling();
     updatePollTimer = setInterval(pollUpdateJob, UPDATE_POLL_INTERVAL_MS);
@@ -243,12 +243,12 @@ function stopUpdatePolling() {
 }
 
 // ---------------------------------------------------------------------------
-// 重启守侧：请求重启之后，盯着"新进程是否已经接客"，接上了就整页刷新
+// Restart guard: after a restart is requested, watch "whether the new process has taken over yet", and refresh the whole page once it has
 // ---------------------------------------------------------------------------
 
-// 只认一个新进程已经应答的事实：会话只活在旧进程内存里，新进程对旧令牌只会回 401。
-// 200 说明还在跟旧进程说话（还没退出），连不上/502 说明正在退出或还没起来——都继续等。
-// 离开控制台就静默停表：不把已经走开的用户从别的页面拽回更新页。
+// Only trust the fact that a new process has answered: the session lives only in the old process's memory, and the new process answers 401 to the old token.
+// A 200 means we are still talking to the old process (it has not exited yet); unreachable / 502 means it is exiting or has not started yet - keep waiting in both cases.
+// Stop the timer silently once the user leaves the console: do not drag a user who has already moved on back to the update page from another page.
 let updateWatchdogProbing = false;
 
 async function watchdogProbe() {
@@ -273,8 +273,8 @@ async function watchdogProbe() {
         updateWatchdogProbing = false;
     }
     if (status === 401) {
-        // 新进程已经接客、且不认我们的会话：整页刷新落到新版本，带 hash 回到本页。
-        // 先停表：页面马上要整体换掉，定时器不该再有第二次动作。
+        // The new process has taken over and does not recognize our session: refresh the whole page to land on the new version, returning to this page via the hash.
+        // Stop the timer first: the page is about to be replaced wholesale, and the timer must not act a second time.
         stopUpdateWatchdog();
         location.replace(location.pathname + '?restarted=' + Date.now() + '#system-update');
         return;
@@ -301,13 +301,13 @@ function stopUpdateWatchdog() {
 
 async function pollUpdateJob() {
     if (!isUpdateConsoleActive()) {
-        // 页面已经切走了。router.js 只在进入时调 initPage，离开时没人喊，
-        // 所以这里自己停，不留野定时器。
+        // The page has already switched away. router.js only calls initPage on entry and nobody calls out on leaving,
+        // so it stops itself here and leaves no stray timer behind.
         stopUpdatePolling();
         return;
     }
-    // 传输层死亡（连接被拒、进程已经退出）是 reject 而不是带状态码的回应：两者在这里
-    // 归一——重启进行中它就是"进程退了"，否则才是要播报的读取失败。
+    // Transport-layer death (connection refused, process already exited) is a reject rather than a response with a status code: here the two are
+    // unified - while a restart is in progress it means "the process exited", otherwise it is a read failure that must be announced.
     let r;
     try {
         r = await runUpdateRequest('GET', '/api/system/update/job');
@@ -317,7 +317,7 @@ async function pollUpdateJob() {
     if (!r.ok) {
         stopUpdatePolling();
         if (updateRestartPending) {
-            // 进程按请求退了：这不是"读进度失败"，是重启进入了下一幕。
+            // The process exited as requested: this is not a "failed to read progress", the restart has moved on to the next act.
             startUpdateWatchdog();
             return;
         }
@@ -330,8 +330,8 @@ async function pollUpdateJob() {
     if (job && job.state !== 'running') {
         stopUpdatePolling();
         if (job.state === 'succeeded' && job.restartRequested) {
-            // 进程马上要让位给新二进制：先把结论播报掉，再进自恢复视图；不再回头
-            // 去读一个即将消失的服务（reportFinishedJob 会去读，这里跳过它）。
+            // The process is about to yield to the new binary: announce the conclusion first, then enter the self-recovering view; do not look back
+            // to read a service that is about to disappear (reportFinishedJob would read it, so it is skipped here).
             notify(updateDoneToast(job.result || null), 'success');
             startUpdateWatchdog();
             return;
@@ -341,8 +341,8 @@ async function pollUpdateJob() {
     }
 }
 
-// 完成时的这一句只念服务端写下来的结论，但补编译与普通更新是两种完成：commits=0 却换了
-// 二进制时念"a1b2c3d → a1b2c3d"等于没说，得说"补编译完成"。
+// This completion message only reads out the conclusion the server wrote down, but a rebuild-only run and a normal update are two kinds of completion: with commits=0 yet a replaced
+// binary, saying "a1b2c3d -> a1b2c3d" amounts to saying nothing; it has to say "rebuild completed".
 function updateDoneToast(result) {
     if (result && result.binaryBuilt && result.fromCommit && result.fromCommit === result.toCommit) {
         return updateT('buildDoneToast');
@@ -351,8 +351,8 @@ function updateDoneToast(result) {
     return updateT('jobDoneToast') + tail;
 }
 
-// 播报只念服务端写下来的结论：成功念 result 的两个提交号，失败念 failure.message，
-// 页面自己不在这里编"更新完成"。
+// The announcement only reads out the conclusion the server wrote down: on success the two commit ids of result, on failure failure.message,
+// the page does not make up "update completed" itself here.
 function reportFinishedJob(job) {
     const result = job.result || null;
     if (job.state === 'succeeded') {
@@ -363,14 +363,14 @@ function reportFinishedJob(job) {
         notify(updateT('jobFailedToast') + ': ' + reason, 'error');
     }
     resetUpdateCheck();
-    // 二进制换过了，本机状态得重读一遍；读不到就照实说读不到。
+    // The binary has been replaced, so the local state must be re-read; if it cannot be read, say plainly that it cannot be read.
     fetchUpdateStatus().then(renderUpdateConsole).catch(err => {
         notify(updateT(UPDATE_FAILURE_KEYS.load, { reason: err.message }), 'error');
     });
 }
 
 // ---------------------------------------------------------------------------
-// 动作
+// Actions
 // ---------------------------------------------------------------------------
 
 async function checkForUpdates() {
@@ -381,11 +381,11 @@ async function checkForUpdates() {
         try {
             r = await runUpdateRequest('POST', '/api/system/update/check');
         } finally {
-            // 请求本身炸掉（401、网络断了）也必须把"正在检查"放下来，否则按钮永远灰着。
+            // Even if the request itself blows up (401, network down), "checking" must be put down, otherwise the button stays greyed out forever.
             updateChecking = false;
         }
         if (!r.ok) {
-            // HTTP 层的失败同样是"查不了"，不能留下一个看起来像"没有更新"的页面。
+            // A failure at the HTTP layer is likewise "cannot check" and must not leave a page that looks like "no updates".
             updateCheck = { done: false, error: r.error };
             renderUpdateConsole();
             notify(updateT(UPDATE_FAILURE_KEYS.check, { reason: r.error }), 'error');
@@ -411,7 +411,7 @@ function updateBehindCount(status) {
     return total > 0 ? total : listed;
 }
 
-// 按钮为什么点不动，得说得出原因；"灰着"不算解释。
+// Why a button cannot be clicked must be stated; "greyed out" does not count as an explanation.
 function updateApplyBlockers(status, job) {
     const blockers = [];
     if (status.rollbackPending) blockers.push(updateT('rollbackPendingHint'));
@@ -432,11 +432,11 @@ function updateApplyBlockers(status, job) {
 
 function updateRestartChoiceChanged(checked) {
     updateRestartChoice = !!checked;
-    updateRestartChoiceSet = true; // 操作员自己决定过之后，服务端的默认值不再覆盖他
+    updateRestartChoiceSet = true; // Once the operator has decided themselves, the server's default no longer overrides it
     renderUpdateConsole();
 }
 
-// 勾选框是唯一的真相来源；模块里那份只是给轮询重绘用的记忆。
+// The checkbox is the only source of truth; the copy in the module is just a memory for polling redraws.
 function updateRestartRequested() {
     const box = document.getElementById('update-restart-choice');
     if (box && typeof box.checked === 'boolean') return box.checked;
@@ -444,7 +444,7 @@ function updateRestartRequested() {
 }
 
 function updateConfirmText(status, restart) {
-    // 补编译和"更新 N 个提交"是两件事：一句说"0 个新提交"的确认框会让人以为白点。
+    // A rebuild-only run and "update N commits" are two different things: a confirm dialog saying "0 new commits" would make people think they clicked in vain.
     const base = (!status.updateAvailable && status.buildPending)
         ? updateT('confirmBuildPending', { commit: status.commit || '-' })
         : updateT('confirmApply', {
@@ -461,8 +461,8 @@ async function startUpdateApply() {
     const status = updateStatusOf();
     const blockers = updateApplyBlockers(status, updateJobOf());
     if (blockers.length) {
-        // 浏览器不会把 disabled 按钮的点击送到这里，走到这儿说明状态已经和画面不一致了，
-        // 那就照实说为什么不能点，一声不吭更像坏了。
+        // The browser never delivers a click on a disabled button here, so reaching this point means the state no longer matches the screen,
+        // so state plainly why it cannot be clicked; staying silent looks more like it is broken.
         notify(blockers[0], 'error');
         return;
     }
@@ -472,7 +472,7 @@ async function startUpdateApply() {
     await withUpdateBusy(async () => {
         const r = await runUpdateRequest('POST', '/api/system/update/apply', { restart: restart });
         if (r.status === 409 && r.data.job) {
-            // 另一次更新真的在跑：把它的进度接下来并接着看，这才是"当前状态"。
+            // Another update is really running: pick up its progress and keep watching it, which is the "current state".
             if (updateConsoleState) updateConsoleState.job = r.data.job;
             renderUpdateConsole();
             startUpdatePolling();
@@ -486,8 +486,8 @@ async function startUpdateApply() {
     }, 'apply');
 }
 
-// 「立即重启服务」：把磁盘上已经换好的二进制变成正在应答的那一个。服务端只允许在
-// 确实有待生效的版本时放行——没有可生效的东西就点停服务，那不叫重启。
+// "Restart service now": turn the binary already swapped in on disk into the one that is answering. The server only allows it when
+// there is really a version pending activation - stopping the service when there is nothing to take effect is not a restart.
 async function startRestartNow() {
     if (updateBusy) return;
     if (!window.confirm(updateT('restartNowConfirm'))) return;
@@ -514,7 +514,7 @@ async function rollbackUpdate() {
     await withUpdateBusy(async () => {
         const r = await runUpdateRequest('POST', '/api/system/update/rollback');
         if (!r.ok) {
-            // 服务端连"哪些文件没回滚"都给了，不能只报一句失败。
+            // The server even says "which files were not rolled back", so it cannot be reduced to a one-line failure.
             const items = r.data && r.data.items && r.data.items.length
                 ? ' · ' + updateT('rollbackItems') + ': ' + r.data.items.join(', ')
                 : '';
@@ -529,8 +529,8 @@ async function rollbackUpdate() {
     }, 'rollback');
 }
 
-// 更新源：服务端负责校验与写入（config.yaml update 段的单个 repo 字段），这里只做搬运与说明。
-// 留空提交 = 回到官方仓库，和"从没配过"是同一种状态。
+// Update source: the server validates and writes it (the single repo field of the config.yaml update section); here we only carry it over and explain.
+// Submitting it empty = back to the official repository, the same state as "never configured".
 async function saveUpdateSource() {
     if (updateBusy) return;
     const body = {
@@ -540,7 +540,7 @@ async function saveUpdateSource() {
     await withUpdateBusy(async () => {
         const r = await runUpdateRequest('POST', '/api/system/update/source', body);
         if (!r.ok) {
-            // 服务端的拒绝文案（地址不合法……）就是要展示的那句，不在这里另编。
+            // The server's rejection message (address invalid, ...) is exactly the sentence to show; do not make up another one here.
             updateSourceError = updateT('sourceSaveFailed', { reason: r.error });
             renderUpdateConsole();
             notify(updateSourceError, 'error');
@@ -555,7 +555,7 @@ async function saveUpdateSource() {
     }, 'source');
 }
 
-// 预览无副作用（服务端在临时仓库里 fetch），所以可以先点、先看清单再决定。
+// The preview has no side effects (the server fetches in a temporary repository), so it can be clicked first and the list read before deciding.
 async function previewAdoptSource() {
     if (updateBusy) return;
     updateSourceError = '';
@@ -595,7 +595,7 @@ async function confirmAdoptSource() {
 }
 
 // ---------------------------------------------------------------------------
-// 渲染
+// Rendering
 // ---------------------------------------------------------------------------
 
 function updateSection(title, body) {
@@ -603,7 +603,7 @@ function updateSection(title, body) {
         escapeHtml(title) + '</h3>' + body + '</section>';
 }
 
-// 值既进文本也进 title（长路径要靠 title 看全），所以属性那一份必须走 escapeAttr。
+// The value goes into both the text and the title (a long path needs the title to be seen in full), so the attribute copy must go through escapeAttr.
 function updateFact(label, value) {
     const text = value == null || value === '' ? '-' : String(value);
     return '<div class="update-fact"><span>' + escapeHtml(label) + '</span>' +
@@ -627,7 +627,7 @@ function renderUpdateSourceBody(status) {
     if (status.repo) {
         parts.push('<div class="update-facts">' + updateFact(updateT('sourceUrl'), status.repo) + '</div>');
     }
-    // 手输错误属于页面自己的状态，重绘（轮询）不能把它冲掉。
+    // A hand-typed error belongs to the page's own state, and a redraw (polling) must not wash it away.
     const disabled = updateBusy ? ' disabled data-state-disabled="true"' : '';
     parts.push('<div class="update-source-form">' +
         '<label>' + escapeHtml(updateT('sourceUrlLabel')) +
@@ -702,7 +702,7 @@ function renderUpdateRemoteBody(status) {
     const failure = updateCheck.error || status.checkError || '';
     const parts = [];
     if (failure) {
-        // 这条分支就是"不许说谎"的落点：有原因就只写原因，不提"已是最新"。
+        // This branch is where "never lie" lands: if there is a reason, write only the reason and do not mention "already up to date".
         parts.push('<div class="update-error update-check-failed">' +
             escapeHtml(updateT('checkFailed', { reason: failure })) + '</div>');
     } else if (!updateCheck.done) {
@@ -727,7 +727,7 @@ function renderUpdateRemoteBody(status) {
 
     const incoming = status.incoming || [];
     if (incoming.length) {
-        // incoming 是被截断过的清单，incomingTotal 才是真实数量，两个都得说。
+        // incoming is a truncated list and incomingTotal is the real count, so both have to be stated.
         const total = status.incomingTotal || incoming.length;
         parts.push('<h4 class="update-sub-title">' + escapeHtml(updateT('incomingTitle')) + '</h4>');
         if (total > incoming.length) {
@@ -743,7 +743,7 @@ function renderUpdateRemoteBody(status) {
 }
 
 function renderUpdateChangesTable(list) {
-    // 行底色就是"这个文件会不会被更新覆盖"的分区：本机内容绿、产品源码红。
+    // The row background is the partition of "will this file be overwritten by the update": local content green, product source red.
     const rows = (list || []).map(c => '<tr class="' + (c.protected ? 'update-row-kept' : 'update-row-blocking') + '">' +
         '<td><code title="' + escapeAttr(String(c.path || '')) + '">' + escapeHtml(String(c.path || '-')) + '</code></td>' +
         '<td>' + escapeHtml(String(c.status || '-')) + '</td>' +
@@ -757,7 +757,7 @@ function renderUpdateChangesTable(list) {
 
 function renderUpdateRestartChoice() {
     if (!updateCanRestart()) {
-        // 后端没给重启钩子，勾选框就不该出现：勾一个不会被兑现的选项是骗人。
+        // If the backend provides no restart hook, the checkbox should not appear: ticking an option that will not be honored is deceiving.
         return '<div class="update-hint">' + escapeHtml(updateT('restartNotWired')) + '</div>';
     }
     const preview = updateRestartChoice ? updateT('confirmRestartYes') : updateT('confirmRestartNo');
@@ -780,8 +780,8 @@ function renderUpdateApplyBody(status, job) {
     if (!status.canBuild && status.installed) {
         parts.push('<div class="update-warn">' + escapeHtml(updateT('noToolchainWarn')) + '</div>');
     }
-    // 源码已经在更新源尖端、只欠一次编译：这不是"没有可用更新"，按钮必须照常可点，而且
-    // 得说清楚点它会去补编译——否则 no_toolchain 里那句"再点一次更新"在页面上根本没有落点。
+    // The source is already at the tip of the update source and only a build is owed: this is not "no update available", the button must stay clickable as usual, and
+    // it must make clear that clicking it will do the rebuild - otherwise the "press update again" line in no_toolchain has nowhere to land on the page.
     if (status.rollbackPending) {
         parts.push('<div class="update-warn">' + escapeHtml(updateT('rollbackPendingHint')) + '</div>');
     }
@@ -792,7 +792,7 @@ function renderUpdateApplyBody(status, job) {
     // Both halves matter: `disabled` for the browser, `data-state-disabled` so the platform's
     // permission gate (which writes el.disabled for every [data-require-permission] element)
     // does not re-enable the button for a user who holds update:apply. In a real browser that
-    // write produced an enabled 一键更新 directly under "有 53 个产品源码文件被本地改过".
+    // write produced an enabled One-Click Update directly under "53 product source files have been locally modified".
     const stateDisabled = blocked ? ' disabled data-state-disabled="true"' : '';
     const checkingDisabled = updateChecking ? ' disabled data-state-disabled="true"' : '';
     parts.push('<div class="update-actions">' +
@@ -813,8 +813,8 @@ function renderUpdateApplyBody(status, job) {
 
     const local = status.localChanges || [];
     const blocking = status.blockingChanges || [];
-    // localChanges 通常是 blockingChanges 的超集，但两者万一不一致，阻塞更新的文件绝不能因此
-    // 不列出来：上面那句"有 N 个文件被本地改过"点名的就是这些得人去处理的文件名。
+    // localChanges is usually a superset of blockingChanges, but if the two ever disagree, the files blocking the update must never be left unlisted because of it:
+    // the sentence above, "N files have been locally modified", names exactly these file names that someone has to deal with.
     const seenPaths = Object.create(null);
     const listed = local.concat(blocking).filter(c => {
         const p = String((c && c.path) || '');
@@ -887,7 +887,7 @@ function renderUpdateResult(result) {
 function renderUpdateFailure(failure) {
     if (!failure) return '';
     const items = failure.items || [];
-    const reason = failure.reason ? '（' + escapeHtml(String(failure.reason)) + '）' : '';
+    const reason = failure.reason ? ' (' + escapeHtml(String(failure.reason)) + ') ' : '';
     return '<div class="update-error update-failure">' +
         '<div class="update-failure-title">' + escapeHtml(updateT('failureTitle')) + reason + '</div>' +
         '<div class="update-failure-message">' +
@@ -931,8 +931,8 @@ function renderUpdateRollbackBody(status) {
         'onclick="rollbackUpdate()">' + escapeHtml(updateT('rollbackBtn')) + '</button></div>';
 }
 
-// 待生效横幅：磁盘上的二进制已经不是这个进程了（更新/回滚跑了但没重启，或 CLI 换过），
-// 这里给出一个"现在就让它生效"的出口——否则忘勾一次就只剩命令行一条路。
+// Pending-activation banner: the binary on disk is no longer this process (an update/rollback ran without a restart, or the CLI swapped it),
+// and this offers a "make it take effect now" way out - otherwise forgetting to tick it once leaves only the command line.
 function formatBinaryBuiltAt() {
     const raw = (updateConsoleState && updateConsoleState.binaryBuiltAt) || '';
     if (!raw) return '-';
@@ -953,7 +953,7 @@ function renderRestartBanner() {
         escapeHtml(updateT('restartNowBtn')) + '</button></div>';
 }
 
-// 自恢复视图：重启请求发出后控制台画的就是它，直到新进程应答触发整页刷新。
+// Self-recovering view: after the restart request is sent, this is what the console draws, until the new process answers and triggers a full page refresh.
 function renderUpdateWatchdog() {
     const el = document.getElementById('update-console');
     if (!el) return;
@@ -983,7 +983,7 @@ function renderUpdateConsole() {
     const job = updateJobOf();
 
     const parts = [];
-    // 动作失败的红字是状态而不是一次性注入：重绘（轮询、退出忙态的那一次）都不能把它擦掉。
+    // The red text for an action failure is state rather than a one-off injection: no redraw (polling, the one that leaves the busy state) may wipe it.
     if (updateActionError) {
         parts.push('<div class="update-error">' + escapeHtml(updateActionError) + '</div>');
     }

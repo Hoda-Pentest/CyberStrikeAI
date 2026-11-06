@@ -88,7 +88,7 @@ const response = data => ({ ok: true, json: async () => data });
 
 test('summary text and snapshot paths remain inert and copying preserves the exact original', async () => {
     const h = harness();
-    const content = '关键线索\n<img src=x onerror=alert(1)>\n[证据](javascript:alert(1))\n/快照/transcript-ab123-时间.txt\nCookie: sample=fixture\n';
+    const content = 'Key clue\n<img src=x onerror=alert(1)>\n[evidence](javascript:alert(1))\n/snapshot/transcript-ab123-time.txt\nCookie: sample=fixture\n';
     h.api.render(chain(content));
     assert.equal(h.ids.get('attack-chain-context').hidden, false);
     assert.equal(h.ids.get('attack-chain-context').open, false);
@@ -98,7 +98,7 @@ test('summary text and snapshot paths remain inert and copying preserves the exa
     assert.deepEqual(h.sinks, [], 'no raw summary content ever reaches an HTML sink');
     await entry.children[2].listeners.get('click')();
     assert.deepEqual(h.copied, [content]);
-    assert.equal(entry.children[3].textContent, '已复制');
+    assert.equal(entry.children[3].textContent, '\u5df2\u590d\u5236');
 });
 
 test('only explicit provenance qualifies and empty/new context clears old bodies', () => {
@@ -118,14 +118,14 @@ test('only explicit provenance qualifies and empty/new context clears old bodies
 
 test('language changes retain expansion and original content while translating generated labels', () => {
     const h = harness();
-    h.api.render(chain('原始正文'));
+    h.api.render(chain('Original body'));
     const entry = h.entries()[0];
     entry.open = true;
     h.ids.get('attack-chain-context').open = true;
     h.changeLanguage('en-US');
     assert.equal(entry.children[0].textContent, 'Context summary 1');
     assert.equal(entry.children[2].textContent, 'Copy full summary');
-    assert.equal(entry.children[1].textContent, '原始正文');
+    assert.equal(entry.children[1].textContent, 'Original body');
     assert.equal(entry.open, true);
     assert.equal(h.ids.get('attack-chain-context').open, true);
 });
@@ -151,7 +151,7 @@ test('clipboard restrictions use the text fallback and failures retain selectabl
         assert.equal(h.body.children.length, 0);
         assert.equal(entry.children[2].disabled, false);
         assert.equal(entry.children[1].textContent, 'full evidence path');
-        assert.equal(entry.children[3].textContent, options.copyWorks === false ? '复制失败，可选中文本手动复制。' : '已复制');
+        assert.equal(entry.children[3].textContent, options.copyWorks === false ? '\u590d\u5236\u5931\u8d25\uff0c\u53ef\u9009\u4e2d\u6587\u672c\u624b\u52a8\u590d\u5236\u3002' : '\u5df2\u590d\u5236');
     }
 });
 
@@ -162,7 +162,7 @@ test('an empty graph still displays its context without changing nodes or statis
     h.runtime.renderAttackChain(data);
     h.runtime.updateAttackChainStats(data);
     assert.equal(h.entries()[0].children[1].textContent, 'summary without graph nodes');
-    assert.equal(h.ids.get('attack-chain-stats').textContent, '节点: 0 | 边: 0');
+    assert.equal(h.ids.get('attack-chain-stats').textContent, '\u8282\u70b9: 0 | \u8fb9: 0');
     assert.equal(data.nodes.length, 0);
     assert.equal(h.window.attackChainOriginalData, data);
     assert.equal(destroyed, 1);
@@ -239,7 +239,7 @@ test('current errors clear context and display server text without HTML executio
 });
 
 test('failure text stays readable instead of showing i18next escape entities', async () => {
-    const upstream = '生成攻击链失败: Post "https://api.example.com/v1/chat/completions": context deadline exceeded';
+    const upstream = 'Failed to generate attack chain: Post "https://api.example.com/v1/chat/completions": context deadline exceeded';
     const h = harness({ apiFetch: async () => ({ ok: false, status: 500, json: async () => ({ error: upstream }) }) });
     await h.runtime.loadAttackChain('A');
     const shown = h.ids.get('attack-chain-container').children[0].textContent;
@@ -249,11 +249,11 @@ test('failure text stays readable instead of showing i18next escape entities', a
 });
 
 test('regenerate failure reports its own message key unescaped', async () => {
-    const upstream = 'AI生成失败: Post "https://api.example.com/v1/chat/completions": EOF';
+    const upstream = 'AI generation failed: Post "https://api.example.com/v1/chat/completions": EOF';
     const h = harness({ apiFetch: async () => ({ ok: false, status: 500, json: async () => ({ error: upstream }) }) });
     await h.runtime.regenerateAttackChain();
     const shown = h.ids.get('attack-chain-container').children[0].textContent;
-    assert.equal(shown.startsWith('重新生成失败: '), true);
+    assert.equal(shown.startsWith('\u91cd\u65b0\u751f\u6210\u5931\u8d25: '), true);
     assert.equal(shown.includes(upstream), true);
     assert.equal(h.sinks.some(html => html.includes('api.example.com')), false);
 });

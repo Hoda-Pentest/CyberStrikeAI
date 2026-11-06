@@ -15,7 +15,7 @@ func (h *AgentHandler) runSingleJSON(taskCtx, baseCtx context.Context, cancelWit
 	})
 
 	if h.config == nil {
-		respond(http.StatusInternalServerError, gin.H{"error": "服务器配置未加载"})
+		respond(http.StatusInternalServerError, gin.H{"error": "server configuration not loaded"})
 		return
 	}
 	runCfg, _, err := h.configForAIChannel(req.AIChannelID)

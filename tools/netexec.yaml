@@ -5,17 +5,17 @@ short_description: "网络枚举和利用框架（原CrackMapExec）"
 description: |
   NetExec（原CrackMapExec）是一个网络枚举和利用框架，支持多种协议。
 
-  **主要功能：**
+  **Key Features:**
   - 多协议支持（SMB, SSH, WinRM等）
-  - 凭证验证
-  - 横向移动
-  - 模块化架构
+  - Credential validation
+  - Lateral movement
+  - Modular architecture
 
-  **使用场景：**
+  **Use Cases:**
   - 网络渗透测试
   - 域环境测试
-  - 横向移动测试
-  - 凭证验证
+  - Lateral movement测试
+  - Credential validation
 parameters:
   - name: "protocol"
     type: "string"
@@ -32,13 +32,13 @@ parameters:
     format: "positional"
   - name: "username"
     type: "string"
-    description: "用户名"
+    description: "Username"
     required: false
     flag: "-u"
     format: "flag"
   - name: "password"
     type: "string"
-    description: "密码"
+    description: "Password"
     required: false
     flag: "-p"
     format: "flag"
