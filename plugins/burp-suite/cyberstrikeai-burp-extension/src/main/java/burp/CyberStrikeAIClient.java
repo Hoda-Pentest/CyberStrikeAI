@@ -20,7 +20,7 @@ final class CyberStrikeAIClient {
 
     private static final int AUTH_CONNECT_TIMEOUT_MS = 4_000;
     private static final int AUTH_READ_TIMEOUT_MS = 5_000;
-    /** login + validate 整段上限，避免两次读超时叠加拖到半分钟 */
+    /** Overall cap for the login + validate span, to avoid two read timeouts stacking up to half a minute */
     private static final int AUTH_OVERALL_TIMEOUT_MS = 10_000;
     private static final int DEFAULT_READ_TIMEOUT_MS = 15_000;
 
@@ -65,7 +65,7 @@ final class CyberStrikeAIClient {
 
         @Override
         public String toString() {
-            return label.isEmpty() ? "(无)" : label;
+            return label.isEmpty() ? "(none)" : label;
         }
     }
 
@@ -75,7 +75,7 @@ final class CyberStrikeAIClient {
 
         RoleOption(String name, String label) {
             this.name = name == null ? "" : name;
-            this.label = label == null || label.isEmpty() ? (this.name.isEmpty() ? "默认" : this.name) : label;
+            this.label = label == null || label.isEmpty() ? (this.name.isEmpty() ? "Default" : this.name) : label;
         }
 
         @Override
@@ -240,7 +240,7 @@ final class CyberStrikeAIClient {
     List<ProjectOption> fetchProjects(Config cfg, String token) throws IOException {
         String resp = authorizedGet(cfg.baseUrl, token, "/api/projects?limit=500");
         List<ProjectOption> out = new ArrayList<>();
-        out.add(new ProjectOption("", "(无)"));
+        out.add(new ProjectOption("", "(none)"));
         for (String obj : SimpleJson.extractObjectArray(resp, "projects")) {
             String id = SimpleJson.extractStringField(obj, "id");
             if (id.isEmpty()) continue;
@@ -248,7 +248,7 @@ final class CyberStrikeAIClient {
             String status = SimpleJson.extractStringField(obj, "status");
             String label = name.isEmpty() ? id : name;
             if ("archived".equalsIgnoreCase(status)) {
-                label = label + " [已归档]";
+                label = label + " [archived]";
             }
             out.add(new ProjectOption(id, label));
         }
@@ -258,7 +258,7 @@ final class CyberStrikeAIClient {
     List<RoleOption> fetchRoles(Config cfg, String token) throws IOException {
         String resp = authorizedGet(cfg.baseUrl, token, "/api/roles");
         List<RoleOption> out = new ArrayList<>();
-        out.add(new RoleOption("", "默认"));
+        out.add(new RoleOption("", "Default"));
         for (String obj : SimpleJson.extractObjectArray(resp, "roles")) {
             if (!SimpleJson.extractBooleanField(obj, "enabled", true)) {
                 continue;

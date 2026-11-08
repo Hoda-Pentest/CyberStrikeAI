@@ -1,14 +1,14 @@
 name: "john"
 command: "john"
 enabled: true
-short_description: "John the Ripper密码破解工具"
+short_description: "John the Ripper password-cracking tool"
 description: |
-  John the Ripper是一个快速的密码破解工具，支持多种哈希算法。
+  John the Ripper is a fast password-cracking tool that supports multiple hash algorithms.
 
   **Key Features:**
   - Multiple hash algorithm support
-  - 字典攻击
-  - 暴力破解
+  - Dictionary attacks
+  - Brute-forcing
   - Rule engine
 
   **Use Cases:**
@@ -32,12 +32,12 @@ parameters:
     format: "flag"
   - name: "format_type"
     type: "string"
-    description: "哈希格式类型"
+    description: "hash format type"
     required: false
     flag: "--format"
     format: "flag"
   - name: "additional_args"
     type: "string"
-    description: "额外的John参数"
+    description: "extra John arguments"
     required: false
     format: "positional"

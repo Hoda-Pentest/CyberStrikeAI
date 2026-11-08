@@ -8,7 +8,7 @@ args:
     import sys
 
     if len(sys.argv) < 2:
-        sys.stderr.write("缺少目标地址\n")
+        sys.stderr.write("Missing target address\n")
         sys.exit(1)
 
     target = sys.argv[1]
@@ -26,7 +26,7 @@ args:
             cred = f"{username}%{password}"
         cmd.extend(["-U", cred])
     elif password:
-        # 如果只提供了密码，仍然尝试以空用户名连接
+        # if only a password is provided, still try to connect with an empty username
         cmd.extend(["-U", f"%{password}"])
 
     if domain:
@@ -47,19 +47,19 @@ args:
         sys.stderr.write(proc.stderr)
     sys.exit(proc.returncode)
 enabled: true
-short_description: "RPC枚举工具"
+short_description: "RPC enumeration tool"
 description: |
-  Rpcclient是一个RPC客户端工具，用于枚举Windows/Samba系统信息。
+  Rpcclient is an RPC client tool used to enumerate Windows/Samba system information.
 
   **Key Features:**
-  - RPC枚举
+  - RPC enumeration
   - User and group enumeration
-  - 域信息查询
+  - Domain information query
   - System information gathering
 
   **Use Cases:**
   - Windows system penetration testing
-  - Samba枚举
+  - Samba enumeration
   - Domain environment reconnaissance
   - Security testing
 parameters:
@@ -92,7 +92,7 @@ parameters:
     format: "positional"
   - name: "commands"
     type: "string"
-    description: "RPC命令（分号分隔）"
+    description: "RPC commands (semicolon-separated)"
     required: false
     default: "enumdomusers;enumdomgroups;querydominfo"
     position: 4

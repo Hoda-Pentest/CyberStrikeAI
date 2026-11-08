@@ -1,14 +1,14 @@
 name: "strings"
 command: "strings"
 enabled: true
-short_description: "从二进制文件中提取字符串"
+short_description: "extract strings from binary files"
 description: |
-  Strings工具用于从二进制文件中提取可打印字符串。
+  The Strings tool is used to extract printable strings from binary files.
 
   **Key Features:**
-  - 字符串提取
-  - 可配置最小长度
-  - 支持多种文件格式
+  - String extraction
+  - Configurable minimum length
+  - Supports multiple file formats
 
   **Use Cases:**
   - Binary analysis
@@ -24,7 +24,7 @@ parameters:
     format: "positional"
   - name: "min_len"
     type: "int"
-    description: "最小字符串长度"
+    description: "minimum string length"
     required: false
     flag: "-n"
     format: "flag"

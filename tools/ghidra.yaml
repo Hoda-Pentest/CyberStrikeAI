@@ -1,15 +1,15 @@
 name: "ghidra"
 command: "analyzeHeadless"
 enabled: true
-short_description: "高级二进制分析和逆向工程工具"
+short_description: "advanced binary analysis and reverse-engineering tool"
 description: |
-  Ghidra是NSA开发的免费二进制分析和逆向工程工具。
+  Ghidra is a free binary analysis and reverse-engineering tool developed by the NSA.
 
   **Key Features:**
-  - Disassembly和反编译
-  - 高级分析
-  - 脚本支持
-  - 协作功能
+  - Disassembly and decompilation
+  - Advanced analysis
+  - Script support
+  - Collaboration features
 
   **Use Cases:**
   - Binary analysis
@@ -19,14 +19,14 @@ description: |
 parameters:
   - name: "project_dir"
     type: "string"
-    description: "Ghidra项目存放目录"
+    description: "Ghidra project storage directory"
     required: false
     default: "/tmp/ghidra_projects"
     position: 0
     format: "positional"
   - name: "project_name"
     type: "string"
-    description: "Ghidra项目名称"
+    description: "Ghidra project name"
     required: false
     default: "cyberstrike_analysis"
     position: 1
@@ -39,7 +39,7 @@ parameters:
     format: "flag"
   - name: "script_file"
     type: "string"
-    description: "可选的Ghidra脚本文件（通过 -postScript 执行）"
+    description: "optional Ghidra script file (executed via -postScript)"
     required: false
     flag: "-postScript"
     format: "flag"

@@ -1,31 +1,31 @@
 name: "dotdotpwn"
 command: "dotdotpwn"
 enabled: true
-short_description: "目录遍历漏洞测试工具"
+short_description: "directory traversal vulnerability testing tool"
 description: |
-  DotDotPwn是一个目录遍历漏洞测试工具，支持多种协议。
+  DotDotPwn is a directory traversal vulnerability testing tool that supports multiple protocols.
 
   **Key Features:**
-  - 目录遍历测试
-  - 多种协议支持（HTTP, FTP, TFTP等）
+  - Directory traversal testing
+  - Support for multiple protocols (HTTP, FTP, TFTP, etc.)
   - Automated testing
   - Report generation
 
   **Use Cases:**
-  - 目录遍历漏洞测试
+  - Directory traversal vulnerability testing
   - Web application security testing
   - Penetration testing
   - Vulnerability verification
 parameters:
   - name: "target"
     type: "string"
-    description: "目标主机名或IP"
+    description: "target hostname or IP"
     required: true
     flag: "-h"
     format: "flag"
   - name: "module"
     type: "string"
-    description: "要使用的模块（http, ftp, tftp等）"
+    description: "module to use (http, ftp, tftp, etc.)"
     required: false
     flag: "-m"
     format: "flag"

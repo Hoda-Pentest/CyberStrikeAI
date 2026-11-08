@@ -57,23 +57,23 @@ args:
     fi
   - "_"
 enabled: true
-short_description: "在指定虚拟环境中创建/激活并安装Python依赖"
+short_description: "create/activate a specified virtual environment and install Python dependencies"
 description: |
-  在虚拟环境中安装Python包。
+  Install Python packages in a virtual environment.
 
   **Key Features:**
-  - 安装Python包
+  - Install Python packages
   - Virtual environment support
-  - 依赖管理
+  - Dependency management
 
   **Use Cases:**
   - Environment configuration
-  - 依赖安装
-  - 工具安装
+  - Dependency installation
+  - Tool installation
 parameters:
   - name: "package"
     type: "string"
-    description: "要安装的Python包名"
+    description: "name of the Python package to install"
     required: true
     position: 0
     format: "positional"

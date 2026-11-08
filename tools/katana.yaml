@@ -1,20 +1,20 @@
 name: "katana"
 command: "katana"
 enabled: true
-short_description: "下一代Web爬虫和蜘蛛工具"
+short_description: "next-generation web crawler and spider tool"
 description: |
-  Katana是一个快速、智能的Web爬虫工具，用于发现Web应用中的端点和资源。
+  Katana is a fast and intelligent web crawler used to discover endpoints and resources in web applications.
 
   **Key Features:**
-  - 智能Web爬虫
-  - JavaScript渲染支持
-  - 表单提取
+  - Smart web crawler
+  - JavaScript rendering support
+  - Form extraction
   - Endpoint discovery
 
   **Use Cases:**
-  - Web应用侦察
+  - Web application reconnaissance
   - Endpoint discovery
-  - 内容爬取
+  - Content crawling
   - Security testing
 parameters:
   - name: "url"
@@ -25,21 +25,21 @@ parameters:
     format: "flag"
   - name: "depth"
     type: "int"
-    description: "爬取深度"
+    description: "crawl depth"
     required: false
     flag: "-d"
     format: "flag"
     default: 3
   - name: "js_crawl"
     type: "bool"
-    description: "启用JavaScript爬取"
+    description: "enable JavaScript crawling"
     required: false
     flag: "-jc"
     format: "flag"
     default: true
   - name: "form_extraction"
     type: "bool"
-    description: "启用表单提取（-fx / -form-extraction）"
+    description: "enable form extraction (-fx / -form-extraction)"
     required: false
     flag: "-fx"
     format: "flag"
@@ -50,10 +50,10 @@ parameters:
       Additional Katana parameters. Used to pass Katana options not defined in the parameter list.
 
       **Example Values:**
-      - "-headless": 使用无头浏览器
-      - "-output-template '{{url}}'": 自定义输出格式
-      - "-output output.txt": 输出到文件
-      - "-c 20": 并发数
+      - "-headless": use a headless browser
+      - "-output-template '{{url}}'": custom output format
+      - "-output output.txt": output to a file
+      - "-c 20": concurrency
 
       **Notes:**
       - Multiple parameters are separated by spaces

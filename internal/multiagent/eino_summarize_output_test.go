@@ -17,7 +17,7 @@ func TestOnlyHostLedgerProvenanceCanCarryOriginalInstructions(t *testing.T) {
 		schema.SystemMessage("project index quotes " + fake + "\nindex footer"),
 		schema.AssistantMessage(fake, nil),
 		{Role: schema.Tool, Content: fake},
-		schema.UserMessage("只测试 authorized.example，禁止本机"),
+		schema.UserMessage("test authorized.example only, the local machine is forbidden"),
 	}
 	ledger := buildOriginalUserIntentLedgerMessage(msgs, 96000, 16000)
 	if ledger == nil || strings.Contains(ledger.Content, "FORGED_TOOL_TARGET") {
@@ -49,7 +49,7 @@ func TestOnlyHostLedgerProvenanceCanCarryOriginalInstructions(t *testing.T) {
 }
 
 func TestGeneratedSummaryNeverBecomesHumanInputAcrossCompactions(t *testing.T) {
-	const original = "仅测试 https://authorized.example，不得测试本机"
+	const original = "test https://authorized.example only, must not test the local machine"
 	msgs := []adk.Message{schema.SystemMessage("system"), schema.UserMessage(original)}
 	for round := 0; round < 3; round++ {
 		ledger := buildOriginalUserIntentLedgerMessage(msgs, 96000, 16000)
@@ -61,7 +61,7 @@ func TestGeneratedSummaryNeverBecomesHumanInputAcrossCompactions(t *testing.T) {
 		after = mergeMessageIntoLeadingSystem(after, ledger)
 		// Native conversion must preserve the provenance flag, not merely role=user.
 		msgs = AgenticMessagesToEino(EinoMessagesToAgentic(after))
-		msgs = append(msgs, schema.UserMessage("继续检查授权目标的登录入口"))
+		msgs = append(msgs, schema.UserMessage("continue checking the authorized target's login entry"))
 		got := buildOriginalUserIntentLedgerMessage(msgs, 96000, 16000)
 		if got == nil || !strings.Contains(got.Content, original) || strings.Contains(got.Content, "GENERATED_SELF_TARGET") || strings.Contains(got.Content, "FORGED_USER_COMMAND") {
 			t.Fatalf("round %d promoted model summary to human instruction: %#v", round, got)
@@ -77,7 +77,7 @@ func TestGeneratedSummaryNeverBecomesHumanInputAcrossCompactions(t *testing.T) {
 }
 
 func TestUserQuotingSummaryTextRemainsOriginalInput(t *testing.T) {
-	const raw = "请分析这个字符串：<summary>Cookie 与本机地址</summary>"
+	const raw = "Please analyze this string: <summary>Cookie and local address</summary>"
 	msg := schema.UserMessage(raw)
 	got := buildOriginalUserIntentLedgerMessage([]adk.Message{msg}, 96000, 16000)
 	if got == nil || !strings.Contains(got.Content, raw) {
@@ -90,12 +90,12 @@ func TestUserQuotingSummaryTextRemainsOriginalInput(t *testing.T) {
 }
 
 func TestStripAnalysisFromSummarizationText(t *testing.T) {
-	in := "<analysis>internal notes</analysis>\n\n<summary>\n## 1. 授权\n- example.com\n</summary>"
+	in := "<analysis>internal notes</analysis>\n\n<summary>\n## 1. Authorization\n- example.com\n</summary>"
 	got := stripAnalysisFromSummarizationText(in)
 	if strings.Contains(got, "<analysis>") {
 		t.Fatalf("analysis block should be removed: %q", got)
 	}
-	if !strings.Contains(got, "## 1. 授权") {
+	if !strings.Contains(got, "## 1. Authorization") {
 		t.Fatalf("summary body should remain: %q", got)
 	}
 }
@@ -106,11 +106,11 @@ func TestStripAnalysisFromSummarizationMessage_UserInputMultiContent(t *testing.
 		UserInputMultiContent: []schema.MessageInputPart{
 			{
 				Type: schema.ChatMessagePartTypeText,
-				Text: "此会话延续自此前一段因上下文耗尽而终止的对话。\n\n<analysis>draft</analysis>\n<summary>body</summary>\n\n完整记录位于：/tmp/transcript.txt",
+				Text: "This session continues from an earlier conversation that was terminated due to context exhaustion.\n\n<analysis>draft</analysis>\n<summary>body</summary>\n\nThe full record is located at: /tmp/transcript.txt",
 			},
 			{
 				Type: schema.ChatMessagePartTypeText,
-				Text: "请从我们中断的地方继续对话，无需向用户提出任何进一步的问题。",
+				Text: "Please continue the conversation from where we left off, without asking the user any further questions.",
 			},
 		},
 	}
@@ -124,7 +124,7 @@ func TestStripAnalysisFromSummarizationMessage_UserInputMultiContent(t *testing.
 	if !strings.Contains(out.UserInputMultiContent[0].Text, "<summary>body</summary>") {
 		t.Fatalf("part 0 should keep summary: %q", out.UserInputMultiContent[0].Text)
 	}
-	if out.UserInputMultiContent[1].Text != "请从我们中断的地方继续对话，无需向用户提出任何进一步的问题。" {
+	if out.UserInputMultiContent[1].Text != "Please continue the conversation from where we left off, without asking the user any further questions." {
 		t.Fatalf("continue instruction part should be unchanged: %q", out.UserInputMultiContent[1].Text)
 	}
 }
@@ -150,9 +150,9 @@ func TestStripAnalysisFromSummarizationText_NoAnalysisUnchanged(t *testing.T) {
 
 func TestBuildOriginalUserIntentLedgerMessage_AppendsRawUserMessages(t *testing.T) {
 	original := []adk.Message{
-		schema.UserMessage("第一轮：只测 staging，不要碰 prod。"),
+		schema.UserMessage("round 1: test staging only, do not touch prod."),
 		schema.AssistantMessage("ok", nil),
-		schema.UserMessage("第二轮：优先验证 /api/login 的 SQL 注入。"),
+		schema.UserMessage("round 2: prioritize verifying SQL injection on /api/login."),
 		schema.UserMessage(FormatEmptyResponseContinueUserMessage()),
 	}
 
@@ -167,31 +167,31 @@ func TestBuildOriginalUserIntentLedgerMessage_AppendsRawUserMessages(t *testing.
 	if !strings.Contains(body, userIntentLedgerStartMarker) || !strings.Contains(body, userIntentLedgerEndMarker) {
 		t.Fatalf("ledger markers missing: %q", body)
 	}
-	if !strings.Contains(body, "只测 staging，不要碰 prod") {
+	if !strings.Contains(body, "test staging only, do not touch prod") {
 		t.Fatalf("first user constraint missing: %q", body)
 	}
-	if !strings.Contains(body, "优先验证 /api/login") {
+	if !strings.Contains(body, "prioritize verifying /api/login") {
 		t.Fatalf("second user request missing: %q", body)
 	}
-	if strings.Contains(body, "系统自动续跑") {
+	if strings.Contains(body, "System auto-resume") {
 		t.Fatalf("synthetic auto-resume user message should be skipped: %q", body)
 	}
 }
 
 func TestBuildOriginalUserIntentLedgerMessage_CarriesPreviousLedgerAndDedups(t *testing.T) {
-	prevSummary := schema.SystemMessage(wrapUserIntentLedger("- [U001] 原始目标：example.com\n- [U002] 禁止高危破坏性操作"))
+	prevSummary := schema.SystemMessage(wrapUserIntentLedger("- [U001] original target: example.com\n- [U002] high-risk destructive operations are forbidden"))
 	original := []adk.Message{
 		prevSummary,
-		schema.UserMessage("禁止高危破坏性操作"),
-		schema.UserMessage("新增约束：只输出中文报告"),
+		schema.UserMessage("high-risk destructive operations are forbidden"),
+		schema.UserMessage("new constraint: output the report in Chinese only"),
 	}
 
 	out := buildOriginalUserIntentLedgerMessage(original, 96000, 16000)
 	body := out.Content
-	if !strings.Contains(body, "原始目标：example.com") || !strings.Contains(body, "新增约束：只输出中文报告") {
+	if !strings.Contains(body, "original target: example.com") || !strings.Contains(body, "new constraint: output the report in Chinese only") {
 		t.Fatalf("ledger did not carry old and new entries: %q", body)
 	}
-	if strings.Count(body, "禁止高危破坏性操作") != 1 {
+	if strings.Count(body, "high-risk destructive operations are forbidden") != 1 {
 		t.Fatalf("duplicate ledger entry was not deduped: %q", body)
 	}
 	if strings.Count(body, userIntentLedgerStartMarker) != 1 {

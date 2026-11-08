@@ -23,7 +23,7 @@ func TestSoftResumePreservesHumanLedgerAndSummaryOrigin(t *testing.T) {
 			name = "native"
 		}
 		t.Run(name, func(t *testing.T) {
-			const original = "只测试 ONLY_AUTHORIZED_TARGET，禁止本机"
+			const original = "test ONLY_AUTHORIZED_TARGET only, the local machine is forbidden"
 			msgs := []adk.Message{schema.SystemMessage("OLD_SYSTEM_INSTRUCTION"), schema.UserMessage(original)}
 			for round := 0; round < 3; round++ {
 				ledger := buildOriginalUserIntentLedgerMessage(msgs, 96000, 16000)
@@ -87,7 +87,7 @@ func TestSoftResumePreservesHumanLedgerAndSummaryOrigin(t *testing.T) {
 				if !strings.Contains(joinClassicMessageContent(msgs), "GENERATED_SELF_TARGET") {
 					t.Fatal("working summary lost")
 				}
-				msgs = append(msgs, schema.UserMessage("继续检查授权目标"))
+				msgs = append(msgs, schema.UserMessage("continue checking the authorized target"))
 			}
 		})
 	}

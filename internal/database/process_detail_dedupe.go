@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// DedupeConsecutiveProcessDetails 去掉相邻且语义相同的过程详情（使用 DB 中 data 列原始 JSON 作指纹，避免 map 序列化键序不稳定）。
+// DedupeConsecutiveProcessDetails removes adjacent process details that are semantically identical (using the raw JSON in the DB data column as a fingerprint, to avoid unstable map-serialization key order).
 func DedupeConsecutiveProcessDetails(rows []ProcessDetail) []ProcessDetail {
 	if len(rows) < 2 {
 		return rows

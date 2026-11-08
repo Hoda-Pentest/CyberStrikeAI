@@ -3,53 +3,53 @@ command: "sh"
 args: ["-c"]
 enabled: true
 # Short description (used in tool listings, reduces token usage)
-short_description: "系统命令执行工具，用于执行Shell命令和系统操作（谨慎使用）"
+short_description: "system command execution tool, used to execute shell commands and system operations (use with caution)"
 # Detailed tool description
 description: |
-  系统命令执行工具，用于执行Shell命令和系统操作。
+  System command execution tool, used to execute shell commands and system operations.
 
   **Key Features:**
-  - 执行任意Shell命令
-  - 支持bash、sh等shell
-  - 可以指定工作目录
-  - 返回命令执行结果
+  - Execute arbitrary shell commands
+  - Supports shells such as bash and sh
+  - You can specify a working directory
+  - Returns the command execution result
 
   **Use Cases:**
-  - 系统管理和维护
-  - 自动化脚本执行
-  - 文件操作和处理
+  - System administration and maintenance
+  - Automated script execution
+  - File operations and processing
   - System information gathering
 
-  **安全警告：**
-  - ⚠️ 此工具可以执行任意系统命令，存在安全风险
-  - ⚠️ 仅应在受控环境中使用
-  - ⚠️ 所有命令执行都会被记录
-  - ⚠️ 建议限制可执行的命令范围
-  - ⚠️ 不要执行不可信的命令
+  **Security warning:**
+  - ⚠️ This tool can execute arbitrary system commands and poses a security risk
+  - ⚠️ Should only be used in a controlled environment
+  - ⚠️ All command executions are logged
+  - ⚠️ It is recommended to limit the range of executable commands
+  - ⚠️ Do not execute untrusted commands
 # Parameter definitions
 parameters:
   - name: "command"
     type: "string"
     description: |
-      要执行的系统命令。可以是任何有效的Shell命令。
+      The system command to execute. Can be any valid shell command.
 
       **Format Requirements:**
-      - 完整的Shell命令
-      - 可以包含管道、重定向等Shell特性
-      - 支持环境变量
+      - A complete shell command
+      - Can include shell features such as pipes and redirection
+      - Supports environment variables
 
       **Example Values:**
-      - 简单命令: "ls -la"
-      - 带管道: "ps aux | grep nginx"
-      - 文件操作: "cat /etc/passwd"
-      - 网络命令: "curl http://example.com"
-      - 系统信息: "uname -a"
-      - 查找文件: "find /var/log -name '*.log'"
+      - Simple command: "ls -la"
+      - With a pipe: "ps aux | grep nginx"
+      - File operation: "cat /etc/passwd"
+      - Network command: "curl http://example.com"
+      - System information: "uname -a"
+      - Find files: "find /var/log -name '*.log'"
 
       **Notes:**
-      - 命令会在指定的shell中执行
-      - 确保命令语法正确
-      - 注意命令的安全影响
+      - The command executes in the specified shell
+      - Ensure the command syntax is correct
+      - Pay attention to the security implications of the command
       - Required parameter, cannot be empty
     required: true
     position: 0
@@ -57,32 +57,32 @@ parameters:
   - name: "shell"
     type: "string"
     description: |
-      使用的Shell类型，默认为sh。
+      The shell type to use, defaults to sh.
 
-      **可选值：**
-      - sh: 标准Shell（默认）
+      **Possible values:**
+      - sh: standard shell (default)
       - bash: Bash Shell
       - zsh: Z Shell
-      - 其他系统可用的shell
+      - Other shells available on the system
 
       **Example Values:**
-      - "sh" (默认)
+      - "sh" (default)
       - "bash"
       - "zsh"
 
       **Notes:**
-      - 确保指定的shell在系统中可用
-      - 不同shell的命令语法可能略有差异
+      - Ensure the specified shell is available on the system
+      - Command syntax may differ slightly between shells
     required: false
     default: "sh"
   - name: "workdir"
     type: "string"
     description: |
-      命令执行的工作目录。如果不指定，使用当前工作目录。
+      The working directory for command execution. If not specified, the current working directory is used.
 
       **Format Requirements:**
-      - 绝对路径或相对路径
-      - 目录必须存在
+      - An absolute or relative path
+      - The directory must exist
 
       **Example Values:**
       - "/tmp"
@@ -91,8 +91,8 @@ parameters:
       - "/home/user/project"
 
       **Notes:**
-      - 确保目录存在且有访问权限
-      - 相对路径相对于程序运行目录
+      - Ensure the directory exists and is accessible
+      - Relative paths are relative to the program's working directory
     required: false
   - name: "additional_args"
     type: "string"

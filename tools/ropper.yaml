@@ -1,13 +1,13 @@
 name: "ropper"
 command: "ropper"
 enabled: true
-short_description: "高级ROP/JOP gadget搜索工具"
+short_description: "advanced ROP/JOP gadget search tool"
 description: |
-  Ropper是一个高级ROP/JOP gadget搜索工具，用于漏洞利用开发。
+  Ropper is an advanced ROP/JOP gadget search tool used for exploit development.
 
   **Key Features:**
-  - ROP/JOP gadget搜索
-  - Gadget质量评估
+  - ROP/JOP gadget search
+  - Gadget quality assessment
   - Multiple architecture support
   - Exploit chain generation
 
@@ -25,27 +25,27 @@ parameters:
     format: "flag"
   - name: "gadget_type"
     type: "string"
-    description: "Gadget类型（rop, jop, sys, all）"
+    description: "Gadget type (rop, jop, sys, all)"
     required: false
     flag: "--type"
     format: "flag"
     default: "rop"
   - name: "quality"
     type: "int"
-    description: "Gadget质量级别（1-5）"
+    description: "Gadget quality level (1-5)"
     required: false
     flag: "--quality"
     format: "flag"
     default: 1
   - name: "arch"
     type: "string"
-    description: "目标架构（x86, x86_64, arm等）"
+    description: "target architecture (x86, x86_64, arm, etc.)"
     required: false
     flag: "--arch"
     format: "flag"
   - name: "search_string"
     type: "string"
-    description: "要搜索的特定gadget模式"
+    description: "specific gadget pattern to search for"
     required: false
     flag: "--search"
     format: "flag"

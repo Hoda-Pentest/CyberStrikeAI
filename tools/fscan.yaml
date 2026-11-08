@@ -1,40 +1,40 @@
 name: "fscan"
 command: "fscan"
 enabled: false
-short_description: "内网综合扫描工具，支持存活探测、端口扫描、服务识别、爆破、POC检测"
+short_description: "comprehensive internal network scanning tool, supports liveness probing, port scanning, service identification, brute-forcing, and POC detection"
 description: |
-  Fscan是一款内网综合扫描工具，支持主机发现、端口扫描、服务识别、
+  Fscan is a comprehensive internal network scanning tool that supports host discovery, port scanning, service identification,
 
-  密码爆破、Web指纹识别和漏洞POC检测。
+  Password brute-forcing, web fingerprinting, and vulnerability POC detection.
 
   **Key Features:**
-  - 主机存活探测（ICMP/TCP/Ping）
-  - 端口扫描（默认1000常用端口）
-  - 服务版本识别与指纹匹配
-  - 弱口令暴力破解（SSH/SMB/Mysql/Redis等）
-  - Web应用漏洞POC扫描
-  - DNS探测与域名枚举
-  - Redis未授权利用（写入/WebShell/反弹Shell）
-  - 持久化后门生成（Linux ELF / Windows PE）
+  - Host liveness probing (ICMP/TCP/Ping)
+  - Port scanning (default 1000 common ports)
+  - Service version identification and fingerprint matching
+  - Weak-password brute-forcing (SSH/SMB/Mysql/Redis, etc.)
+  - Web application vulnerability POC scanning
+  - DNS probing and domain enumeration
+  - Redis unauthorized-access exploitation (file write / WebShell / reverse shell)
+  - Persistent backdoor generation (Linux ELF / Windows PE)
 
   **Use Cases:**
-  - 内网资产快速梳理
-  - 弱口令批量检测
-  - 常见服务漏洞验证
+  - Quick inventory of internal network assets
+  - Batch weak-password detection
+  - Common service vulnerability verification
   - Penetration testing reconnaissance
-  - 红队内网横向
+  - Red-team internal lateral movement
 parameters:
   - name: "target"
     type: "string"
-    description: "目标主机：IP地址、IP段（如192.168.1.0/24）、IP文件或域名"
+    description: "target host: IP address, IP range (e.g. 192.168.1.0/24), IP file, or domain name"
     required: true
     flag: "-h"
     format: "flag"
   - name: "ports"
     type: "string"
     description: |
-      扫描端口列表，逗号分隔。默认覆盖1000个常用端口。
-      示例: "22,80,443,3306,6379" 或 "1-1000"
+      List of ports to scan, comma-separated. Covers 1000 common ports by default.
+      Example: "22,80,443,3306,6379" or "1-1000"
     required: false
     flag: "-p"
     format: "flag"
@@ -42,91 +42,91 @@ parameters:
   - name: "mode"
     type: "string"
     description: |
-      扫描模式：
-      - all：全功能扫描（默认）
-      - icmp：仅存活探测
-      - 或指定插件名称（如 ssh, smb, mysql, redis 等）
+      Scan mode:
+      - all: full-featured scan (default)
+      - icmp: liveness probing only
+      - Or specify a plugin name (e.g. ssh, smb, mysql, redis, etc.)
     required: false
     flag: "-m"
     format: "flag"
     default: "all"
   - name: "output_file"
     type: "string"
-    description: "结果Output file path（默认 result.txt）"
+    description: "result output file path (default result.txt)"
     required: false
     flag: "-o"
     format: "flag"
     default: "result.txt"
   - name: "output_format"
     type: "string"
-    description: "输出格式：txt（默认）, json, csv"
+    description: "output format: txt (default), json, csv"
     required: false
     flag: "-f"
     format: "flag"
     default: "txt"
   - name: "threads"
     type: "int"
-    description: "端口扫描线程数"
+    description: "number of port scan threads"
     required: false
     flag: "-t"
     format: "flag"
     default: 600
   - name: "module_threads"
     type: "int"
-    description: "模块并发线程数"
+    description: "number of concurrent module threads"
     required: false
     flag: "-mt"
     format: "flag"
     default: 20
   - name: "poc_num"
     type: "int"
-    description: "POC扫描并发数"
+    description: "POC scan concurrency"
     required: false
     flag: "-num"
     format: "flag"
     default: 20
   - name: "timeout"
     type: "int"
-    description: "端口扫描超时时间（秒）"
+    description: "port scan timeout (seconds)"
     required: false
     flag: "-time"
     format: "flag"
     default: 3
   - name: "web_timeout"
     type: "int"
-    description: "Web请求超时时间（秒）"
+    description: "Web request timeout (seconds)"
     required: false
     flag: "-wt"
     format: "flag"
     default: 5
   - name: "global_timeout"
     type: "int"
-    description: "全局超时时间（秒）"
+    description: "global timeout (seconds)"
     required: false
     flag: "-gt"
     format: "flag"
     default: 180
   - name: "url"
     type: "string"
-    description: "目标URL（用于Web扫描模式）"
+    description: "target URL (for web scan mode)"
     required: false
     flag: "-u"
     format: "flag"
   - name: "proxy"
     type: "string"
-    description: "HTTP代理地址（如: http://127.0.0.1:8080）"
+    description: "HTTP proxy address (e.g.: http://127.0.0.1:8080)"
     required: false
     flag: "-proxy"
     format: "flag"
   - name: "socks5"
     type: "string"
-    description: "SOCKS5代理地址（如: 127.0.0.1:1080）"
+    description: "SOCKS5 proxy address (e.g.: 127.0.0.1:1080)"
     required: false
     flag: "-socks5"
     format: "flag"
   - name: "cookie"
     type: "string"
-    description: "HTTP Cookie值"
+    description: "HTTP Cookie value"
     required: false
     flag: "-cookie"
     format: "flag"
@@ -138,13 +138,13 @@ parameters:
     format: "flag"
   - name: "username"
     type: "string"
-    description: "暴力破解用户名"
+    description: "brute-force username"
     required: false
     flag: "-user"
     format: "flag"
   - name: "password"
     type: "string"
-    description: "暴力破解密码"
+    description: "brute-force password"
     required: false
     flag: "-pwd"
     format: "flag"
@@ -162,107 +162,107 @@ parameters:
     format: "flag"
   - name: "host_file"
     type: "string"
-    description: "目标主机文件路径（每行一个IP）"
+    description: "target host file path (one IP per line)"
     required: false
     flag: "-hf"
     format: "flag"
   - name: "port_file"
     type: "string"
-    description: "自定义端口文件路径"
+    description: "custom port file path"
     required: false
     flag: "-pf"
     format: "flag"
   - name: "url_file"
     type: "string"
-    description: "目标URL文件路径"
+    description: "target URL file path"
     required: false
     flag: "-uf"
     format: "flag"
   - name: "pocname"
     type: "string"
-    description: "指定POC名称进行单点扫描"
+    description: "specify a POC name for a single-point scan"
     required: false
     flag: "-pocname"
     format: "flag"
   - name: "pocpath"
     type: "string"
-    description: "自定义POC脚本路径"
+    description: "custom POC script path"
     required: false
     flag: "-pocpath"
     format: "flag"
   - name: "iface"
     type: "string"
-    description: "指定本地网卡IP地址（VPN场景使用）"
+    description: "specify the local NIC IP address (used in VPN scenarios)"
     required: false
     flag: "-iface"
     format: "flag"
   - name: "exclude_host"
     type: "string"
-    description: "排除的主机IP"
+    description: "excluded host IPs"
     required: false
     flag: "-eh"
     format: "flag"
   - name: "exclude_port"
     type: "string"
-    description: "排除的端口"
+    description: "excluded ports"
     required: false
     flag: "-ep"
     format: "flag"
   - name: "retry"
     type: "int"
-    description: "最大重试次数"
+    description: "maximum number of retries"
     required: false
     flag: "-retry"
     format: "flag"
     default: 3
   - name: "rate_limit"
     type: "int"
-    description: "每分钟最大发包次数（0表示不限制）"
+    description: "maximum packets per minute (0 means unlimited)"
     required: false
     flag: "-rate"
     format: "flag"
   - name: "max_redirect"
     type: "int"
-    description: "HTTP最大重定向次数"
+    description: "Maximum number of HTTP redirects"
     required: false
     flag: "-max-redirect"
     format: "flag"
     default: 10
   - name: "lang"
     type: "string"
-    description: "输出语言：zh（默认中文）, en（英文）"
+    description: "output language: zh (default Chinese), en (English)"
     required: false
     flag: "-lang"
     format: "flag"
     default: "zh"
   - name: "log_level"
     type: "string"
-    description: "日志级别（默认 base,info,success）"
+    description: "log level (default base,info,success)"
     required: false
     flag: "-log"
     format: "flag"
     default: "base,info,success"
   - name: "reverse_shell"
     type: "string"
-    description: "反弹Shell目标地址:端口（如: 192.168.1.100:4444）"
+    description: "reverse shell target address:port (e.g.: 192.168.1.100:4444)"
     required: false
     flag: "-rsh"
     format: "flag"
   - name: "sshkey_file"
     type: "string"
-    description: "SSH私钥文件路径"
+    description: "SSH private key file path"
     required: false
     flag: "-sshkey"
     format: "flag"
   - name: "download_url"
     type: "string"
-    description: "要下载的文件URL"
+    description: "URL of the file to download"
     required: false
     flag: "-download-url"
     format: "flag"
   - name: "download_path"
     type: "string"
-    description: "下载文件保存路径"
+    description: "download file save path"
     required: false
     flag: "-download-path"
     format: "flag"
@@ -272,13 +272,13 @@ parameters:
       Additional fscan parameters. Used to pass fscan options not defined in the parameter list.
 
       **Example Values:**
-      - "-nobr -nopoc" （禁用爆破和POC，仅做端口扫描）
-      - "-ao" （仅进行存活探测）
-      - "-silent -nocolor" （静默无颜色输出）
-      - "-debug" （开启调试模式）
-      - "-full" （全量POC扫描）
-      - "-no" （禁用结果保存）
-      - "-dns" （启用DNS日志记录）
+      - "-nobr -nopoc" (disable brute-forcing and POC, port scan only)
+      - "-ao" (liveness probing only)
+      - "-silent -nocolor" (silent, no-color output)
+      - "-debug" (enable debug mode)
+      - "-full" (full POC scan)
+      - "-no" (disable saving results)
+      - "-dns" (enable DNS logging)
 
       **Notes:**
       - Multiple parameters are separated by spaces

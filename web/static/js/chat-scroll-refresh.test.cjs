@@ -93,7 +93,7 @@ function createScrollRuntime() {
     };
 }
 
-test('向上滚动立即解除粘底，只有滚到真实底部才恢复', () => {
+test('scrolling up immediately releases bottom-pinning, and it only resumes once scrolled to the true bottom', () => {
     const runtime = createScrollRuntime();
     runtime.flushAnimationFrames();
 
@@ -105,52 +105,52 @@ test('向上滚动立即解除粘底，只有滚到真实底部才恢复', () =>
     runtime.chatEl.scrollHeight = 1100;
     runtime.api.scrollIfPinned(true);
     runtime.flushAnimationFrames();
-    assert.equal(runtime.chatEl.scrollTop, 480, '新输出不能抢回用户的阅读位置');
+    assert.equal(runtime.chatEl.scrollTop, 480, 'new output must not steal back the user\'s reading position');
 
     runtime.chatEl.scrollTop = 597;
     runtime.listeners.get('scroll')();
-    assert.equal(runtime.api.captureScrollPinState(), false, '距底部 2px 以上仍保持脱离');
+    assert.equal(runtime.api.captureScrollPinState(), false, 'more than 2px from the bottom still counts as detached');
 
     runtime.chatEl.scrollTop = 600;
     runtime.listeners.get('scroll')();
-    assert.equal(runtime.api.captureScrollPinState(), true, '用户滚到真实底部后立即恢复跟随');
+    assert.equal(runtime.api.captureScrollPinState(), true, 'following resumes immediately once the user scrolls to the true bottom');
 
     runtime.chatEl.scrollHeight = 1200;
     runtime.api.scrollIfPinned(true);
     runtime.flushAnimationFrames();
-    assert.equal(runtime.chatEl.scrollTop, 1200, '恢复后新增输出继续请求滚到最底部');
+    assert.equal(runtime.chatEl.scrollTop, 1200, 'after resuming, new output keeps requesting a scroll to the very bottom');
 });
 
-test('用户离开最新位置后回到底部按钮稳定显示到真实底部', () => {
+test('after the user leaves the latest position, the back-to-bottom button stays reliably shown until the true bottom', () => {
     const runtime = createScrollRuntime();
     runtime.flushAnimationFrames();
 
     runtime.listeners.get('wheel')({ deltaY: -20 });
     runtime.chatEl.scrollTop = 455;
     runtime.listeners.get('scroll')();
-    assert.equal(runtime.returnLatest.hidden, false, '120px 阈值内仍应显示回到最新入口');
+    assert.equal(runtime.returnLatest.hidden, false, 'within the 120px threshold the back-to-latest entry should still show');
 
     runtime.listeners.get('wheel')({ deltaY: 20 });
     runtime.chatEl.scrollTop = 499;
     runtime.listeners.get('scroll')();
-    assert.equal(runtime.returnLatest.hidden, true, '滚到真实底部后才隐藏');
+    assert.equal(runtime.returnLatest.hidden, true, 'it only hides once scrolled to the true bottom');
 });
 
-test('刷新重建详情引起的布局上移不会误判为用户上滑', () => {
+test('a layout shift from rebuilding details on refresh is not mistaken for the user scrolling up', () => {
     const runtime = createScrollRuntime();
     runtime.flushAnimationFrames();
 
     runtime.chatEl.scrollTop = 460;
     runtime.listeners.get('scroll')();
-    assert.equal(runtime.api.captureScrollPinState(), true, '没有用户输入的布局滚动仍应保持跟随');
+    assert.equal(runtime.api.captureScrollPinState(), true, 'a layout scroll with no user input should still keep following');
 
     runtime.chatEl.scrollHeight = 1100;
     runtime.api.scrollIfPinned(true);
     runtime.flushAnimationFrames();
-    assert.equal(runtime.chatEl.scrollTop, 1100, '刷新恢复后的后续增量应继续粘底');
+    assert.equal(runtime.chatEl.scrollTop, 1100, 'subsequent deltas after a refresh recovery should keep pinning to the bottom');
 });
 
-test('登录成功后重新加载曾因未授权失败的项目侧栏', () => {
+test('after a successful login, the project sidebar that previously failed with unauthorized is reloaded', () => {
     const refreshSource = functionSource(auth, 'refreshAppData', 'bootstrapApp');
     const conversationsIndex = refreshSource.indexOf('loadConversations()');
     const projectRetryIndex = refreshSource.indexOf('window.refreshChatProjectSelector({ reloadFolders: true })');
@@ -161,7 +161,7 @@ test('登录成功后重新加载曾因未授权失败的项目侧栏', () => {
     assert.match(html, /\/static\/js\/auth\.js\?v=[A-Za-z0-9._-]+/);
 });
 
-test('用户真正滑到底部后恢复自动跟随且不会提前强制跳底', () => {
+test('auto-follow resumes once the user actually scrolls to the bottom, without forcing an early jump to the bottom', () => {
     const resumeSource = functionSource(scroll, 'resumeFollowingIfAtBottom', 'captureScrollPinState');
     const captureSource = functionSource(scroll, 'captureScrollPinState', 'setScrollFollowing');
     const autoSource = functionSource(scroll, 'canAutoScrollNow', 'scheduleChatScrollToBottomIfFollowing');
@@ -185,7 +185,7 @@ test('用户真正滑到底部后恢复自动跟随且不会提前强制跳底',
     assert.match(scrollSource, /if \(programmaticScroll\) \{[\s\S]*?st < lastScrollTop - 1 && \(scrollMode === 'detached' \|\| hasUserScrollIntent\)[\s\S]*?setScrollDetached\(\)/);
 });
 
-test('切换对话模式引起的布局滚动不会重新开启粘底', () => {
+test('a layout scroll caused by switching conversation mode does not re-enable bottom-pinning', () => {
     const scrollSource = functionSource(scroll, 'onChatMessagesScroll', 'bindChatScrollListeners');
     const bindSource = functionSource(scroll, 'bindChatScrollListeners', 'initChatScroll');
     const selectModeSource = functionSource(chat, 'selectAgentMode', 'initChatAgentModeFromConfig');
@@ -199,16 +199,16 @@ test('切换对话模式引起的布局滚动不会重新开启粘底', () => {
     assert.doesNotMatch(selectModeSource, /setScrollFollowing|forceScrollToBottom|scrollTop/);
 });
 
-test('刷新运行中任务补齐最新详情后保持粘底但尊重用户上滑', () => {
+test('after a refresh backfills the latest details of a running task, bottom-pinning is kept but a user scroll-up is respected', () => {
     const attachSource = functionSource(monitor, 'attachRunningTaskEventStream', 'parseToolCallArgsFromData');
     const settleSource = functionSource(scroll, 'settleChatToBottomIfFollowing', 'scrollChatMessagesToBottomIfPinned');
 
     assert.match(attachSource, /window\.captureScrollPinState\(\)/);
     assert.match(attachSource, /settleToBottomIfFollowing\(12\)/);
     assert.match(attachSource, /settleToBottomIfFollowing\(18\)/);
-    assert.match(attachSource, /用户期间没有主动上滑/);
+    assert.match(attachSource, /has not actively scrolled up/);
     assert.match(attachSource, /keepFollowingFinalRender/);
-    assert.match(attachSource, /最终消息和详情重绘都会增高 DOM/);
+    assert.match(attachSource, /final message and the details redraw grow the DOM/);
     assert.match(settleSource, /scrollMode !== 'following'/);
     assert.match(settleSource, /Date\.now\(\) < detachLockUntil/);
     assert.match(settleSource, /settleFrame\(remaining - 1\)/);
@@ -223,7 +223,7 @@ test('刷新运行中任务补齐最新详情后保持粘底但尊重用户上�
     assert.match(chat, /settleConversationRestoreToBottom\(30\)/);
 });
 
-test('刷新后迭代思考区独立跟随最新内容且允许用户上滑解除', () => {
+test('after a refresh, the iteration-thinking area independently follows the latest content and lets the user release it by scrolling up', () => {
     const startSource = functionSource(monitor, 'startProcessDetailsLatestFollow', 'loadProcessDetailsPaginated');
     const loadSource = functionSource(monitor, 'loadProcessDetailsPaginated', 'shouldInitiallyOpenProcessDetailsAtLatest');
     const attachSource = functionSource(monitor, 'attachRunningTaskEventStream', 'parseToolCallArgsFromData');
@@ -261,7 +261,7 @@ test('刷新后迭代思考区独立跟随最新内容且允许用户上滑解�
     assert.doesNotMatch(returnLatestSource, /chat-return-latest/);
 });
 
-test('刷新后的工具调用恢复与实时一致的成功失败徽标', () => {
+test('a tool call restored after a refresh gets the same success/failure badge as live', () => {
     const renderSource = functionSource(chat, 'renderProcessDetails', 'finishProcessDetailsRender');
     const presentationSource = functionSource(monitor, 'getToolCallStatusPresentation', 'applyToolCallStatus');
     const applySource = functionSource(monitor, 'applyToolCallStatus', 'updateToolCallStatus');
@@ -278,7 +278,7 @@ test('刷新后的工具调用恢复与实时一致的成功失败徽标', () =>
     assert.match(monitor, /refreshProgressAndTimelineI18n\(\)[\s\S]*?applyToolCallStatus\(item, item\.dataset\.toolDisplayStatus\)/);
 });
 
-test('首次实时输出与刷新恢复都保留独立迭代滚动并跟随最新内容', () => {
+test('both the first live output and a refresh recovery keep an independent iteration scroll that follows the latest content', () => {
     const css = fs.readFileSync('web/static/css/style.css', 'utf8');
     const addSource = functionSource(monitor, 'addProgressMessage', 'toggleProgressDetails');
     const liveSource = functionSource(monitor, 'startLiveProgressLatestFollow', 'stopLiveProgressLatestFollow');
@@ -287,7 +287,7 @@ test('首次实时输出与刷新恢复都保留独立迭代滚动并跟随最�
     assert.match(css, /\.message\.progress-message \.progress-timeline\.expanded \{[\s\S]{0,260}max-height: min\(64vh, 720px\);[\s\S]{0,160}overflow-y: auto;/);
     assert.match(css, /\.process-details-return-latest \{[\s\S]{0,260}position: absolute;[\s\S]{0,260}border-radius: 50%;/);
     assert.match(css, /\.process-details-return-latest\.has-pending-new::after,/);
-    assert.doesNotMatch(css, /流式执行中[\s\S]{0,320}overflow-y: visible;/);
+    assert.doesNotMatch(css, /Streaming in progress[\s\S]{0,320}overflow-y: visible;/);
     assert.match(addSource, /startLiveProgressLatestFollow\(id\)/);
     assert.match(liveSource, /stateKey: liveProgressLatestFollowKey\(id\)/);
     assert.match(liveSource, /persistent: true/);
@@ -295,7 +295,7 @@ test('首次实时输出与刷新恢复都保留独立迭代滚动并跟随最�
     assert.match(monitor, /function finalizeProgressTask\(progressId, finalLabel\) \{[\s\S]{0,120}stopLiveProgressLatestFollow\(progressId\)/);
 });
 
-test('同一会话的其他标签页自动补流且发送前阻止重复任务', () => {
+test('another tab for the same conversation auto-replays the stream and a duplicate task is blocked before sending', () => {
     const syncSource = functionSource(monitor, 'syncVisibleConversationTaskReplay', 'getActiveTaskDisplayName');
     const sendSource = functionSource(chat, 'sendMessage', 'renderChatFileChips');
 
@@ -311,7 +311,7 @@ test('同一会话的其他标签页自动补流且发送前阻止重复任务',
     assert.match(sendSource, /window\.notifyConversationTaskStarted\(streamConversationId\)/);
 });
 
-test('刷新补流在订阅竞态或终态帧丢失时从数据库对账最终正文', () => {
+test('a refresh replay reconciles the final body from the database when a subscription race or a dropped final-state frame occurs', () => {
     const attachSource = functionSource(monitor, 'attachRunningTaskEventStream', 'parseToolCallArgsFromData');
     const reconcileSource = functionSource(monitor, 'reconcileConversationAfterTaskReplay', 'cancelRunningTaskEventStream');
 
@@ -324,7 +324,7 @@ test('刷新补流在订阅竞态或终态帧丢失时从数据库对账最终�
     assert.match(reconcileSource, /loadProcessDetailsPaginated\(assistantEl\.id, finalMessage\.id,[\s\S]*?initialLatest: true,[\s\S]*?autoLoadAll: false/);
 });
 
-test('消息气泡内部流式增高时仅在跟随模式继续粘底', () => {
+test('while a message bubble grows internally from streaming, bottom-pinning continues only in follow mode', () => {
     const bindSource = functionSource(scroll, 'bindChatScrollListeners', 'initChatScroll');
 
     assert.match(bindSource, /scrollMode === 'following'/);
@@ -332,14 +332,14 @@ test('消息气泡内部流式增高时仅在跟随模式继续粘底', () => {
     assert.match(bindSource, /\{ childList: true, subtree: true, characterData: true \}/);
     assert.match(bindSource, /new ResizeObserver/);
     assert.match(bindSource, /chatMessagesResizeObserver\.observe\(el\)/);
-    assert.match(bindSource, /改变消息区 clientHeight/);
+    assert.match(bindSource, /change the message area's clientHeight/);
     assert.match(bindSource, /Math\.abs\(e\.deltaY\) > 1/);
     assert.match(bindSource, /e\.deltaY < -1/);
     assert.match(bindSource, /e\.clientX >= rect\.right - 18/);
     assert.match(bindSource, /e\.key === 'ArrowUp'/);
 });
 
-test('页面在任务补流脚本之前加载智能滚动控制器', () => {
+test('the page loads the smart-scroll controller before the task-replay script', () => {
     const scrollIndex = html.indexOf('/static/js/chat-scroll.js?v=20260815-1');
     const monitorIndex = html.indexOf('/static/js/monitor.js?v=20261011-token-usage');
 
@@ -348,7 +348,7 @@ test('页面在任务补流脚本之前加载智能滚动控制器', () => {
     assert.ok(scrollIndex < monitorIndex);
 });
 
-test('直接点击项目对话也会写入 hash 以便刷新后恢复并补流', () => {
+test('directly clicking a project conversation also writes the hash so it can recover and replay after a refresh', () => {
     const loadSource = functionSource(chat, 'loadConversation', 'attachDeleteTurnButton');
     const syncSource = functionSource(chat, 'syncChatConversationHash', 'getConversationLiteFromCache');
     const streamSource = functionSource(monitor, 'setCurrentConversationIdFromStream', 'shouldSkipTaskEventReplayAttach');
@@ -360,7 +360,7 @@ test('直接点击项目对话也会写入 hash 以便刷新后恢复并补流',
     assert.match(streamSource, /window\.syncChatConversationHash\(cid\)/);
 });
 
-test('任务计划进度按事件唤醒，空闲时不固定轮询 plan-tasks', () => {
+test('task plan progress wakes on events and does not poll plan-tasks on a fixed interval while idle', () => {
     const planSource = fs.readFileSync('web/static/js/chat-plan-progress.js', 'utf8');
     assert.doesNotMatch(planSource, /setInterval\(fetchPlanTasks/);
     assert.match(planSource, /ACTIVE_POLL_INTERVAL_MS = 1500/);
@@ -374,7 +374,7 @@ test('任务计划进度按事件唤醒，空闲时不固定轮询 plan-tasks', 
     assert.match(html, /chat-plan-progress\.js\?v=20260815-1/);
 });
 
-test('任务计划进度事件在活跃任务列表变化和新任务开始时发出', () => {
+test('task plan progress events fire when the active task list changes and when a new task starts', () => {
     const notifySource = functionSource(monitor, 'notifyConversationTaskStarted', 'initChatTaskSyncChannel');
     const renderSource = functionSource(monitor, 'renderActiveTasks', 'reconcileHitlApprovalStateWithActiveTasks');
 
@@ -384,7 +384,7 @@ test('任务计划进度事件在活跃任务列表变化和新任务开始时�
     assert.match(renderSource, /detail: \{ tasks: normalizedTasks \}/);
 });
 
-test('活跃任务按启动时间稳定排列且无变化刷新不重建停止按钮', () => {
+test('active tasks are stably ordered by start time, and a no-change refresh does not rebuild the stop button', () => {
     const sortSource = functionSource(monitor, 'stableActiveTasksForDisplay', 'activeTasksRenderSignature');
     const sortTasks = vm.runInNewContext(`(${sortSource.trim()})`);
     const tasks = [
@@ -404,7 +404,7 @@ test('活跃任务按启动时间稳定排列且无变化刷新不重建停止�
     assert.match(renderSource, /bar\.scrollLeft = previousScrollLeft/);
 });
 
-test('新对话初始化期间切换会话后旧流事件不能把页面拉回', () => {
+test('after switching conversations during new-conversation initialization, an old stream event cannot pull the page back', () => {
     const guardSource = functionSource(chat, 'shouldIgnoreLiveChatStreamEvent', 'clearLiveChatStreamIfOwned');
     const shouldIgnore = vm.runInNewContext(`(${guardSource.trim()})`);
     const activeStream = { active: true, detached: false, navigationSeq: 7 };
@@ -454,7 +454,7 @@ test('新对话初始化期间切换会话后旧流事件不能把页面拉回',
     assert.match(monitor, /String\(window\.currentConversationId \|\| ''\) !== conversationId[\s\S]{0,300}window\.isChatConversationLoadPending\(conversationId\)/);
 });
 
-test('刷新指定对话时立即恢复且加载完成前不闪出无项目状态', () => {
+test('refreshing a specific conversation recovers immediately without flashing the no-project state before loading completes', () => {
     const scheduleSource = functionSource(router, 'scheduleChatConversationFromHash', 'navigateToConversation');
     const restoreStateSource = functionSource(router, 'setChatConversationRestorePending', 'finishChatConversationRestore');
     const loadSource = functionSource(chat, 'loadConversation', 'attachDeleteTurnButton');
@@ -472,7 +472,7 @@ test('刷新指定对话时立即恢复且加载完成前不闪出无项目状�
     assert.match(html, /chat\.js\?v=[A-Za-z0-9._-]+/);
 });
 
-test('刷新运行中回复会复用已持久化 planning 并继续追加未来增量', () => {
+test('refreshing a running reply reuses the persisted planning entry and keeps appending future deltas', () => {
     const findSource = functionSource(monitor, 'findRestoredMainResponseStreamItem', 'responseStreamStateFromRestoredItem');
     const handleSource = functionSource(monitor, 'handleStreamEvent', 'hitlApprovalTranslate');
 
@@ -483,7 +483,7 @@ test('刷新运行中回复会复用已持久化 planning 并继续追加未来�
     assert.match(monitor, /item\.dataset\.responseStreamId = String\(options\.data\.streamId\)/);
 });
 
-test('Eino 原生模型 retry/failover 事件在主聊天和 WebShell 中可见', () => {
+test('Eino native-model retry/failover events are visible in both the main chat and WebShell', () => {
     const handleSource = functionSource(monitor, 'handleStreamEvent', 'hitlApprovalTranslate');
     assert.match(handleSource, /case 'eino_model_retry'/);
     assert.match(handleSource, /formatEinoModelRetryTitle/);
@@ -495,14 +495,14 @@ test('Eino 原生模型 retry/failover 事件在主聊天和 WebShell 中可见'
     assert.match(webshell, /_et === 'eino_model_failover'/);
 });
 
-test('非仪表盘 hash 首屏在路由确定前隐藏默认仪表盘', () => {
+test('a non-dashboard hash on first paint hides the default dashboard before routing is resolved', () => {
     const css = fs.readFileSync('web/static/css/style.css', 'utf8');
     assert.match(html, /document\.documentElement\.classList\.add\('initial-route-pending'\)/);
     assert.match(router, /document\.documentElement\.classList\.remove\('initial-route-pending'\)/);
     assert.match(css, /html\.initial-route-pending \.content-area \{[\s\S]*?visibility: hidden;/);
 });
 
-test('刷新恢复运行中助手消息时隐藏处理中占位且终态正文会重新显示', () => {
+test('restoring a running assistant message on refresh hides the processing placeholder, and the final-state body reappears', () => {
     const loadSource = functionSource(chat, 'loadConversation', 'attachDeleteTurnButton');
     const updateSource = functionSource(monitor, 'updateAssistantBubbleContent', 'isConversationTaskRunning');
 
@@ -512,7 +512,7 @@ test('刷新恢复运行中助手消息时隐藏处理中占位且终态正文�
     assert.match(updateSource, /bubble\.hidden = false/);
 });
 
-test('刷新补流任务完成后强制折叠自动展开的迭代详情', () => {
+test('once a refresh-replayed task completes, the auto-expanded iteration details are force-collapsed', () => {
     const collapseSource = functionSource(monitor, 'collapseAllProgressDetails', 'getAssistantId');
     const attachSource = functionSource(monitor, 'attachRunningTaskEventStream', 'parseToolCallArgsFromData');
 
@@ -523,13 +523,13 @@ test('刷新补流任务完成后强制折叠自动展开的迭代详情', () =>
     assert.doesNotMatch(attachSource, /if \(keepExpanded\)/);
 });
 
-test('暗色模式用户气泡使用协调的深蓝灰层级', () => {
+test('dark mode uses a coordinated deep blue-gray tier for the user bubble', () => {
     const css = fs.readFileSync('web/static/css/style.css', 'utf8');
     assert.match(css, /html\[data-theme="dark"\] \.message\.user \.message-bubble \{[\s\S]*?background: #1b2638;/);
     assert.match(css, /border-color: rgba\(96, 165, 250, 0\.18\)/);
 });
 
-test('暗色模式对话三点悬浮不会触发浅色父行背景', () => {
+test("dark mode's conversation three-dot hover does not trigger the light parent row's background", () => {
     const css = fs.readFileSync('web/static/css/style.css', 'utf8');
     assert.match(css, /html\[data-theme="dark"\] \.project-conversation-row:hover \.project-conversation-item/);
     assert.match(css, /html\[data-theme="dark"\] \.project-folder-action:hover,[\s\S]*?background: rgba\(71, 85, 105, 0\.28\);[\s\S]*?box-shadow: none;/);

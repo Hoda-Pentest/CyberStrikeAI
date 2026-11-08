@@ -11,8 +11,8 @@ import (
 )
 
 func TestOriginalUserLedgerReservesEntryFormattingBudget(t *testing.T) {
-	const scope = "仅授权 ONLY_AUTHORIZED_SCOPE，禁止本机"
-	original := scope + " " + strings.Repeat("中文请求详情 ", 1000)
+	const scope = "only authorized ONLY_AUTHORIZED_SCOPE, the local machine is forbidden"
+	original := scope + " " + strings.Repeat("request details ", 1000)
 	for _, budget := range []int{64, 200, 1000} {
 		t.Run(fmt.Sprintf("budget=%d", budget), func(t *testing.T) {
 			messages := []adk.Message{schema.UserMessage(original)}
@@ -61,7 +61,7 @@ func TestOriginalUserLedgerCapsOverflowNoticesAndTinyBudgets(t *testing.T) {
 		ledger := buildOriginalUserIntentLedgerMessage(msgs, budget, 1000)
 		if ledger != nil {
 			for _, entry := range trustedUserIntentLedgerEntries(ledger) {
-				if strings.Contains(entry, "用户原始输入账本超过预算") || strings.Contains(entry, "truncated") {
+				if strings.Contains(entry, "the original user-input ledger exceeds the budget") || strings.Contains(entry, "truncated") {
 					t.Fatalf("notice becomes user input at budget %d: %q", budget, entry)
 				}
 			}
@@ -70,8 +70,8 @@ func TestOriginalUserLedgerCapsOverflowNoticesAndTinyBudgets(t *testing.T) {
 }
 
 func TestOriginalUserLedgerFormattingKeepsNormalOutput(t *testing.T) {
-	msgs := []adk.Message{schema.UserMessage("Only staging, no production."), schema.UserMessage("先验证 /api/login。")}
-	want := "- [U001] Only staging, no production.\n- [U002] 先验证 /api/login。"
+	msgs := []adk.Message{schema.UserMessage("Only staging, no production."), schema.UserMessage("first verify /api/login.")}
+	want := "- [U001] Only staging, no production.\n- [U002] first verify /api/login."
 	if got := buildOriginalUserIntentLedger(msgs, 96000, 16000); got != want {
 		t.Fatalf("normal ledger formatting changed: %q", got)
 	}

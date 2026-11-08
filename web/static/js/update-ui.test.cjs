@@ -32,7 +32,7 @@ const adoptPlan = {
     overwrittenTotal: 2,
     overwritten: ['web/static/js/a.js', 'web/static/js/b.js'],
     protectedTotal: 1,
-    protected: ['roles/我的角色.yaml'],
+    protected: ['roles/my-role.yaml'],
 };
 
 function flatKeys(obj, prefix, out) {
@@ -62,15 +62,15 @@ const baseStatus = {
     repoConfigured: false,
     targetBranch: 'main',
     commit: 'a1b2c3d',
-    subject: 'fix: 修好一个东西',
+    subject: 'fix: fixed one thing',
     committedAt: '2026-09-30 18:04:11 +0800',
     behind: 3,
     ahead: 0,
     diverged: false,
     updateAvailable: true,
     remoteCommit: 'f9e8d7c',
-    remoteSubject: 'feat: 新东西',
-    incoming: [{ commit: 'f9e8d7c', subject: 'feat: 新东西' }],
+    remoteSubject: 'feat: new thing',
+    incoming: [{ commit: 'f9e8d7c', subject: 'feat: new thing' }],
     incomingTotal: 3,
     localChanges: [],
     blockingChanges: [],
@@ -104,7 +104,7 @@ const runningJob = {
     id: 'upd-1',
     state: 'running',
     started: '2026-10-01T04:00:00+08:00',
-    steps: [{ phase: 'fetch', message: '开始拉取更新源（默认分支 main）', at: '2026-10-01T04:00:01+08:00' }],
+    steps: [{ phase: 'fetch', message: 'Starting to fetch the update source (default branch main)', at: '2026-10-01T04:00:01+08:00' }],
     restartRequested: false,
 };
 
@@ -114,17 +114,17 @@ const succeededJob = {
     started: '2026-10-01T04:00:00+08:00',
     finished: '2026-10-01T04:03:12+08:00',
     steps: [
-        { phase: 'fetch', message: officialRepo + '（默认分支 main）有 3 个新提交：a1b2c3d → f9e8d7c', at: '04:00:01' },
-        { phase: 'protect', message: '已暂存 2 个本地内容文件', at: '04:00:05' },
-        { phase: 'build', message: '开始编译二进制', at: '04:00:09' },
-        { phase: 'done', message: '已更新 3 个提交并换好二进制', at: '04:03:10' },
+        { phase: 'fetch', message: officialRepo + ' (default branch main) has 3 new commits: a1b2c3d → f9e8d7c', at: '04:00:01' },
+        { phase: 'protect', message: 'Stashed 2 local content files', at: '04:00:05' },
+        { phase: 'build', message: 'Starting to build the binary', at: '04:00:09' },
+        { phase: 'done', message: 'Updated 3 commits and swapped in the new binary', at: '04:03:10' },
     ],
     result: {
         fromCommit: 'a1b2c3d',
         toCommit: 'f9e8d7c',
         commits: 3,
         filesTouched: 27,
-        keptContent: ['roles/我的角色.md', 'tools/semgrep.yaml'],
+        keptContent: ['roles/my-role.md', 'tools/semgrep.yaml'],
         binaryPath: '/srv/csai/cyberstrike-ai',
         binaryBuilt: true,
         prevBinary: '/srv/csai/cyberstrike-ai.prev',
@@ -140,11 +140,11 @@ const failedJob = {
     state: 'failed',
     started: '2026-10-01T05:00:00+08:00',
     finished: '2026-10-01T05:00:40+08:00',
-    steps: [{ phase: 'build', message: '开始编译二进制（首次会下载依赖，可能需要几分钟）', at: '05:00:20' }],
+    steps: [{ phase: 'build', message: 'Starting to build the binary (first run downloads dependencies, which may take a few minutes)', at: '05:00:20' }],
     failure: {
         reason: 'build_failed',
-        message: '编译失败，二进制保持原版本:\ninternal/foo.go:12: undefined: bar',
-        items: ['roles/我的角色.md', 'internal/foo.go'],
+        message: 'Build failed; the binary remains on the original version:\ninternal/foo.go:12: undefined: bar',
+        items: ['roles/my-role.md', 'internal/foo.go'],
     },
     restartRequested: false,
 };
@@ -169,7 +169,7 @@ function harness(options) {
             checked: false,
             insertAdjacentHTML(_pos, html) { this.innerHTML = html + this.innerHTML; },
         };
-        // 控制台住在系统设置页的「一键更新」分区里：页面和分区都得是 active，它才算在前台。
+        // The console lives in the "One-Click Update" section of the settings page: both the page and the section must be active for it to count as in the foreground.
         let seeded = ['page'];
         if (id === 'page-settings') seeded = ['page'].concat(active ? ['active'] : []);
         if (id === 'settings-section-update') seeded = ['settings-section-content'].concat(active ? ['active'] : []);
@@ -408,33 +408,33 @@ function harness(options) {
 }
 
 test('the console lives inside the settings page as its own section', () => {
-    // The entry is no longer a page of its own: it is one section of 系统设置, so the main sidebar
+    // The entry is no longer a page of its own: it is one section of System Settings, so the main sidebar
     // must not advertise a sibling item for it any more.
     assert.doesNotMatch(template, /data-page="system-update"/,
         'the standalone sidebar entry must be gone: the console is a settings section now');
     assert.doesNotMatch(template, /id="page-system-update"/,
-        'the standalone page must be gone: its content moved into 系统设置');
+        'the standalone page must be gone: its content moved into System Settings');
 
     const settingsNavItem = template.indexOf('<div class="settings-nav-item" data-section="update" data-require-permission="update:read" onclick="switchSettingsSection(\'update\')">');
-    assert.ok(settingsNavItem > -1, 'the settings menu must carry the 一键更新 entry');
-    assert.match(template, /<span data-i18n="settings\.nav\.update">一键更新<\/span>/);
+    assert.ok(settingsNavItem > -1, 'the settings menu must carry the One-Click Update entry');
+    assert.match(template, /<span data-i18n="settings\.nav\.update">One-Click Update<\/span>/);
     const storageItem = template.indexOf('data-section="storage"');
-    assert.ok(storageItem > -1 && storageItem < settingsNavItem, 'the entry must follow 存储清理 in the settings menu');
+    assert.ok(storageItem > -1 && storageItem < settingsNavItem, 'the entry must follow Storage cleanup in the settings menu');
 
     // The console markup sits inside page-settings, wrapped in its own section.
     const pageSettings = template.indexOf('<div id="page-settings" class="page">');
     const section = template.indexOf('<div id="settings-section-update" class="settings-section-content" data-require-permission="update:read">');
-    const nextPage = template.indexOf('<!-- 平台权限页面 -->');
+    const nextPage = template.indexOf('<!-- Platform permissions page -->');
     assert.ok(pageSettings > -1 && section > pageSettings && nextPage > section,
         'settings-section-update must live inside page-settings');
-    assert.match(template, /id="settings-section-update"[\s\S]{0,700}?id="update-console"/);
+    assert.match(template, /id="settings-section-update"[\s\S]{0,900}?id="update-console"/);
     assert.match(template, /id="update-console"/);
     assert.match(template, /<script src="\/static\/js\/update\.js\?v=\{\{\.Version\}\}"><\/script>/);
     assert.match(template, /<div class="settings-section-header update-section-head">/);
     assert.match(template, /<h3 data-i18n="update\.title">/);
 
     // Both hash entry points carry the alias, and the retired page id is gone from the whitelists:
-    // #system-update has to land on 系统设置 with its update section selected.
+    // #system-update has to land on System Settings with its update section selected.
     const aliases = [...router.matchAll(/const settingsSection = pageId === 'system-update' \? 'update' : /g)];
     assert.equal(aliases.length, 2, 'both hash parsers must normalize #system-update into the settings section');
     const selects = [...router.matchAll(/if \(settingsSection && typeof switchSettingsSection === 'function'\) \{[\s\S]{0,80}?switchSettingsSection\(settingsSection\);/g)];
@@ -448,11 +448,11 @@ test('the console lives inside the settings page as its own section', () => {
     // Coming back to the settings page while the update section is still selected must re-read the
     // install state and re-arm the poller: leaving the page stopped it, and a frozen progress
     // read is exactly the "nothing is happening" picture an operator must never be shown.
-    assert.match(router, /case 'settings':[\s\S]{0,450}?getElementById\('settings-section-update'\)[\s\S]{0,250}?loadUpdateConsole\(\)/);
+    assert.match(router, /case 'settings':[\s\S]{0,650}?getElementById\('settings-section-update'\)[\s\S]{0,250}?loadUpdateConsole\(\)/);
 
     // Selecting the section runs the console; selecting anything else stops its poller.
     assert.match(settings, /if \(section === 'update'\) \{[\s\S]{0,160}?loadUpdateConsole\(\)/);
-    assert.match(settings, /else if \(typeof stopUpdatePolling === 'function'\) \{[\s\S]{0,120}?stopUpdatePolling\(\);/);
+    assert.match(settings, /else if \(typeof stopUpdatePolling === 'function'\) \{[\s\S]{0,260}?stopUpdatePolling\(\);/);
 
     // And the console's own idea of "on screen" is the settings page plus that section.
     assert.match(source, /getElementById\('page-settings'\)/);
@@ -460,7 +460,7 @@ test('the console lives inside the settings page as its own section', () => {
 });
 
 test('the update console has its own stylesheet section', () => {
-    const header = sheet.indexOf('一键更新控制台（系统设置页的 settings-section-update 分区）');
+    const header = sheet.indexOf('One-click update console (the settings-section-update section on the system settings page)');
     assert.ok(header > -1, 'style.css must carry the update console section header');
     const block = sheet.slice(header);
     assert.ok(block.includes('.update-console'), 'the .update-* section must follow its own section header');
@@ -599,7 +599,7 @@ test('a check that could not run is reported as a failure, never as "already up 
     assert.equal(h.liveTimers().length, 0, 'a check is not a job: nothing may be polling');
 });
 
-test('a transport failure of the check endpoint is still "查不了"', async () => {
+test('a transport failure of the check endpoint is still unknowable', async () => {
     const h = await harness({
         responses: { 'POST /api/system/update/check': [{ status: 500, body: { error: 'git exited 128' } }] },
     });
@@ -633,7 +633,7 @@ test('a check whose request dies mid-flight releases the button and says so', as
 
 test('behind is counted from incomingTotal and a truncated list says so', async () => {
     const many = [];
-    for (let i = 0; i < 20; i++) many.push({ commit: 'c' + i, subject: '提交 ' + i });
+    for (let i = 0; i < 20; i++) many.push({ commit: 'c' + i, subject: 'commit ' + i });
     const h = await harness({
         status: statusOf({ updateAvailable: false, behind: 0, incoming: [], incomingTotal: 0 }),
         responses: {
@@ -649,7 +649,7 @@ test('behind is counted from incomingTotal and a truncated list says so', async 
     assert.match(html, /落后 42 个提交/, 'the headline number is the total, not the length of the page');
     assert.match(html, /共 42 个新提交/);
     assert.match(html, /只列出前 20 个/);
-    assert.match(html, /提交 19/);
+    assert.match(html, /commit 19/);
 });
 
 test('local edits, a diverged tree and a clean-but-unchecked tree each block the button', async () => {
@@ -706,7 +706,7 @@ test('a tree that only owes a build still offers the button, and says it is a bu
         state: 'succeeded',
         started: '2026-10-08T10:00:00+08:00',
         finished: '2026-10-08T10:00:40+08:00',
-        steps: [{ phase: 'build', message: '开始编译二进制（首次会下载依赖，可能需要几分钟）', at: '10:00:01' }],
+        steps: [{ phase: 'build', message: 'Starting to build the binary (first run downloads dependencies, which may take a few minutes)', at: '10:00:01' }],
         result: {
             fromCommit: 'a1b2c3d', toCommit: 'a1b2c3d',
             commits: 0, filesTouched: 0, keptContent: [],
@@ -759,7 +759,7 @@ test('a pending build with no toolchain fails with the server sentence, never a 
         steps: [],
         failure: {
             reason: 'no_toolchain',
-            message: '源码已经是更新源最新（a1b2c3d），但二进制还是旧的：本机没有 Go 工具链，无法补编译。装好 go 后再点一次更新即可补上二进制。',
+            message: 'The source is already at the latest from the update source (a1b2c3d), but the binary is still old: this machine has no Go toolchain, so it cannot build. Install go, then click update again to build the binary.',
         },
         restartRequested: false,
     };
@@ -772,13 +772,13 @@ test('a pending build with no toolchain fails with the server sentence, never a 
             'GET /api/system/update/job': [{ status: 200, body: { job: failed } }],
         },
     });
-    // 按钮仍可点：缺工具链是环境事实，让操作员看到服务端那句"装好 go 再来"才是出路。
+    // The button stays clickable: a missing toolchain is a fact about the environment, and showing the operator the server's own "install go" sentence is the way out.
     assert.match(h.html(), /<button class="btn-primary update-apply-btn" data-require-permission="update:apply" onclick="startUpdateApply\(\)">/);
     await h.api.startUpdateApply();
     await h.flush();
     assert.deepEqual(h.toasts.filter(t => t.type === 'success' && /更新完成|补编译完成/.test(t.msg)), [],
         'a build that did not happen must never be announced as done: ' + JSON.stringify(h.toasts));
-    assert.ok(h.toasts.some(t => t.type === 'error' && /Go 工具链/.test(t.msg)),
+    assert.ok(h.toasts.some(t => t.type === 'error' && /Go toolchain/.test(t.msg)),
         'the server sentence must be shown: ' + JSON.stringify(h.toasts));
 });
 
@@ -826,7 +826,7 @@ test('applying posts {"restart":false} and then reads the job every 1.5 seconds'
     await h.tick();
     await h.flush();
     assert.deepEqual(h.calls.map(c => c.method + ' ' + c.url), ['GET /api/system/update/job']);
-    assert.match(h.html(), /开始拉取更新源/, 'each step line must be rendered as it arrives');
+    assert.match(h.html(), /Starting to fetch the update source/, 'each step line must be rendered as it arrives');
     assert.match(h.html(), /进行中/);
     assert.equal(h.liveTimers().length, 1);
 
@@ -844,7 +844,7 @@ test('applying posts {"restart":false} and then reads the job every 1.5 seconds'
     assert.match(html, /f9e8d7c/);
     assert.match(html, /并入提交数[\s\S]{0,160}?>3</);
     assert.match(html, /改动文件数[\s\S]{0,160}?>27</);
-    assert.match(html, /roles\/我的角色\.md/, 'keptContent must be listed by name');
+    assert.match(html, /roles\/my-role\.md/, 'keptContent must be listed by name');
     assert.match(html, /tools\/semgrep\.yaml/);
     assert.match(html, /二进制已换新/);
     assert.match(html, /需要重启才会运行新版本/);
@@ -870,13 +870,13 @@ test('a failing job shows the server message with its item list, and never claim
     await h.flush();
 
     const html = h.html();
-    assert.match(html, /编译失败，二进制保持原版本/);
+    assert.match(html, /Build failed; the binary remains on the original version/);
     assert.match(html, /build_failed/);
     assert.match(html, /internal\/foo\.go/, 'the failure item list must be shown');
     assert.equal(h.liveTimers().length, 0, 'a finished job must not keep polling');
     assert.deepEqual(h.toasts.filter(t => t.type === 'success' && /更新完成/.test(t.msg)), [],
         'a failed update must not be announced as finished: ' + JSON.stringify(h.toasts));
-    assert.match(h.toasts[h.toasts.length - 1].msg, /编译失败/);
+    assert.match(h.toasts[h.toasts.length - 1].msg, /Build failed/);
     assert.equal(h.toasts[h.toasts.length - 1].type, 'error');
 });
 
@@ -954,8 +954,8 @@ test('a second apply is refused with 409 and the running job is adopted', async 
             'POST /api/system/update/apply': [{
                 status: 409,
                 body: {
-                    error: '已有一次更新在进行中',
-                    job: { id: 'upd-7', state: 'running', started: 'now', steps: [{ phase: 'build', message: '正在编译二进制', at: 'now' }] },
+                    error: 'An update is already in progress',
+                    job: { id: 'upd-7', state: 'running', started: 'now', steps: [{ phase: 'build', message: 'Building the binary', at: 'now' }] },
                 },
             }],
         },
@@ -965,9 +965,9 @@ test('a second apply is refused with 409 and the running job is adopted', async 
     const apply = h.calls.find(c => c.url === '/api/system/update/apply');
     assert.equal(apply.method, 'POST');
     assert.deepEqual(JSON.parse(apply.body), { restart: false });
-    assert.match(h.html(), /正在编译二进制/, 'the job the server named must be shown, not swallowed');
+    assert.match(h.html(), /Building the binary/, 'the job the server named must be shown, not swallowed');
     assert.match(h.html(), /upd-7/);
-    assert.match(h.toasts[h.toasts.length - 1].msg, /已有一次更新在进行中/);
+    assert.match(h.toasts[h.toasts.length - 1].msg, /An update is already in progress/);
     assert.equal(h.toasts[h.toasts.length - 1].type, 'error');
     assert.deepEqual(h.toasts.filter(t => t.type === 'success'), [], 'a refusal must not toast success');
     assert.equal(h.liveTimers().length, 1, 'the adopted job must be watched');
@@ -1010,29 +1010,29 @@ test('a refused rollback repeats the server reason and its file list', async () 
         responses: {
             'POST /api/system/update/rollback': [{
                 status: 409,
-                body: { error: 'HEAD 已经移动，不是那次更新留下的位置', reason: 'moved_since_update', items: ['roles/我的角色.md'] },
+                body: { error: 'HEAD has moved; this is not where that update left it', reason: 'moved_since_update', items: ['roles/my-role.md'] },
             }],
         },
     });
     await h.api.rollbackUpdate();
     await h.flush();
     assert.match(h.html(), /回滚失败/);
-    assert.match(h.html(), /HEAD 已经移动/);
-    assert.match(h.html(), /roles\/我的角色\.md/);
+    assert.match(h.html(), /HEAD has moved/);
+    assert.match(h.html(), /roles\/my-role\.md/);
     assert.equal(h.toasts[h.toasts.length - 1].type, 'error');
-    assert.match(h.toasts[h.toasts.length - 1].msg, /HEAD 已经移动/);
+    assert.match(h.toasts[h.toasts.length - 1].msg, /HEAD has moved/);
     assert.deepEqual(h.toasts.filter(t => t.type === 'success'), []);
 });
 
 test('a 202 that carries an error is not mistaken for success', async () => {
     // The handler answers "the source went back but the binary could not be rebuilt" with HTTP
     // 202 plus an error body (statusForError maps no_toolchain onto 202). Trusting resp.ok alone
-    // toasts 已回滚 over a rollback that only half happened.
+    // would show a rollback-succeeded toast over a rollback that only half happened.
     const h = await harness({
         responses: {
             'POST /api/system/update/rollback': [{
                 status: 202,
-                body: { error: '源码已回到更新前，但本机没有 Go 工具链，二进制没换', reason: 'no_toolchain' },
+                body: { error: 'The source has reverted to before the update, but this machine has no Go toolchain, so the binary was not swapped', reason: 'no_toolchain' },
             }],
         },
     });
@@ -1041,11 +1041,11 @@ test('a 202 that carries an error is not mistaken for success', async () => {
     await h.api.rollbackUpdate();
     await h.flush();
     assert.match(h.html(), /回滚失败/);
-    assert.match(h.html(), /二进制没换/);
+    assert.match(h.html(), /the binary was not swapped/);
     assert.deepEqual(h.toasts.filter(t => t.type === 'success'), [],
         'a 2xx carrying an error must never be toasted as success: ' + JSON.stringify(h.toasts));
     assert.equal(h.toasts[h.toasts.length - 1].type, 'error');
-    assert.match(h.toasts[h.toasts.length - 1].msg, /二进制没换/);
+    assert.match(h.toasts[h.toasts.length - 1].msg, /the binary was not swapped/);
     assert.deepEqual(h.calls.map(c => c.method + ' ' + c.url), ['POST /api/system/update/rollback'],
         'a half-finished rollback must not be followed by a victory lap through the status endpoint');
 });
@@ -1083,7 +1083,7 @@ test('nothing invented: the only toast channel this page may use is showNotifica
 });
 
 test('server strings cannot become markup, in text or in an attribute', async () => {
-    const hostile = '危险 <script>alert(1)</script> "quoted" &more';
+    const hostile = 'Dangerous <script>alert(1)</script> "quoted" &more';
     const h = await harness({
         status: statusOf({
             root: '/srv/"><img src=x onerror=alert(1)>/x',
@@ -1099,7 +1099,7 @@ test('server strings cannot become markup, in text or in an attribute', async ()
     const html = h.html();
     assert.doesNotMatch(html, /<script/, 'a commit subject became a script tag');
     assert.doesNotMatch(html, /<img\b|<svg\b|<b>/, 'markup from server data reached the DOM');
-    assert.match(html, /危险 &lt;script&gt;alert\(1\)&lt;\/script&gt; "quoted"/,
+    assert.match(html, /Dangerous &lt;script&gt;alert\(1\)&lt;\/script&gt; "quoted"/,
         'escapeHtml leaves quotes alone inside text, which is correct and must not be double escaped');
     assert.match(html, /&amp;more/, 'the ampersand must be escaped exactly once');
 
@@ -1224,12 +1224,12 @@ test('the source section shows what is in effect, and saving posts the one addre
 });
 
 test('a finished check must not leave the source form frozen (the button stays clickable)', async () => {
-    // 线上实测过的形态：打开页面 → 自动检查在忙期里重绘 → 检查结束后不再重绘，
-    // 「保存更新源」带着 disabled + data-state-disabled 留在 DOM 上——之后点击永远没有反应，
-    // 服务端连请求都收不到。这里把用户的整条动作链原样跑一遍。
+    // The shape actually seen in production: open the page → the automatic check repaints while busy → it stops repainting once the check ends,
+    // and "Save update source" is left in the DOM with disabled + data-state-disabled -- clicking it afterwards never does anything,
+    // the server never even receives the request. This replays the user's whole action chain exactly as it happened.
     const h = await harness({ status: statusOf({ installed: true }), source: configuredSource });
 
-    h.fireDeferred(); // 打开页面 1.2 秒后的那次自动检查
+    h.fireDeferred(); // the automatic check 1.2 seconds after opening the page
     assert.match(h.html(), /update-source-save-btn" disabled/,
         'the form must visibly lock while a check is in flight');
     await h.flush();
@@ -1237,7 +1237,7 @@ test('a finished check must not leave the source form frozen (the button stays c
     assert.doesNotMatch(h.html(), /update-source-save-btn" disabled/,
         'a finished check must re-render the form with the button enabled again');
 
-    // 用户的下一步：清空地址 → 点保存 → 请求必须真的发出去
+    // The user's next step: clear the address → click save → the request must actually be sent
     h.runHandler("updateSourceRepoChanged('')");
     await h.fire('saveUpdateSource');
     await h.flush();
@@ -1270,7 +1270,7 @@ test('clearing the address is the way back to the official repository', async ()
 });
 
 test('a refused save shows the server reason instead of a generic failure', async () => {
-    const refusal = '仓库地址不合法（只允许 https/http/ssh/git/file:// 或本机绝对路径）';
+    const refusal = 'Invalid repository address (only https/http/ssh/git/file:// or a local absolute path is allowed)';
     const h = await harness({
         status: statusOf({ installed: true }),
         source: configuredSource,
@@ -1281,8 +1281,8 @@ test('a refused save shows the server reason instead of a generic failure', asyn
     h.runHandler("updateSourceRepoChanged('ext::sh -c true')");
     await h.fire('saveUpdateSource');
     await h.flush();
-    assert.match(h.html(), /不合法/, 'the refusal must be on screen');
-    assert.ok(h.toasts.some(t => t.type === 'error' && t.msg.includes('不合法')), 'and in a toast');
+    assert.match(h.html(), /Invalid/, 'the refusal must be on screen');
+    assert.ok(h.toasts.some(t => t.type === 'error' && t.msg.includes('Invalid')), 'and in a toast');
     assert.match(h.html(), /ext::sh -c true/, 'the typed value must survive the failed save');
 });
 
@@ -1302,7 +1302,7 @@ test('adopt previews first, and confirming carries the counts into the dialog', 
     await h.flush();
     assert.match(h.html(), /abc1234/, 'the target commit must be on screen');
     assert.match(h.html(), /web\/static\/js\/a\.js/, 'the files to be replaced must be listed');
-    assert.match(h.html(), /roles\/我的角色\.yaml/, 'and the operator content that is kept');
+    assert.match(h.html(), /roles\/my-role\.yaml/, 'and the operator content that is kept');
 
     await h.fire('confirmAdoptSource');
     await h.flush();
@@ -1315,8 +1315,10 @@ test('adopt previews first, and confirming carries the counts into the dialog', 
 });
 
 // ---------------------------------------------------------------------------
-// 待生效的二进制：常驻横幅 + 立即重启 + 守侧重连。这一组是"忘勾重启也有救、重启后页面
-// 自己回来"的直接门禁——任何一处退化成"界面没反应"或"要手动刷新"，这里都会红。
+// A pending binary: persistent banner + restart now + watchdog reconnect. This group is the
+// direct gate for "forgetting to check restart is still recoverable, and the page comes back by
+// itself after a restart" -- any regression into "the UI does not react" or "needs a manual
+// refresh" turns this red.
 // ---------------------------------------------------------------------------
 
 test('a binary swap that never got a restart is announced with a way to activate it', async () => {
@@ -1374,14 +1376,14 @@ test('restart now asks first, posts once, and hands the page to the watchdog', a
 });
 
 test('a refused restart is reported with the server sentence and arms nothing', async () => {
-    const refusal = '磁盘上的二进制与当前进程一致，没有待生效的版本';
+    const refusal = 'The on-disk binary matches the running process; there is no pending version';
     const h = await harness({
         flags: { needsRestart: true },
         responses: { 'POST /api/system/update/restart': [{ status: 409, body: { error: refusal } }] },
     });
     await h.api.startRestartNow();
     await h.flush();
-    assert.match(h.toasts[h.toasts.length - 1].msg, /没有待生效的版本/, 'the server sentence is the one to show');
+    assert.match(h.toasts[h.toasts.length - 1].msg, /no pending version/, 'the server sentence is the one to show');
     assert.equal(h.toasts[h.toasts.length - 1].type, 'error');
     assert.equal(h.vars.getWatchdogTimer(), null, 'a refusal must not start watching for a boot that is not coming');
     assert.equal(h.location.replaced.length, 0);

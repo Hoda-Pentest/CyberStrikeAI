@@ -1,21 +1,21 @@
 name: "objdump"
 command: "objdump"
 enabled: true
-short_description: "二进制文件反汇编工具"
+short_description: "binary file disassembly tool"
 description: |
-  Objdump是GNU binutils的一部分，用于反汇编二进制文件。
+  Objdump is part of GNU binutils, used to disassemble binary files.
 
   **Key Features:**
   - Disassembly
-  - 符号表显示
-  - 节信息显示
+  - Symbol table display
+  - Section information display
   - Multiple architecture support
 
   **Use Cases:**
   - Binary analysis
   - Reverse engineering
-  - 程序理解
-  - 调试辅助
+  - Program comprehension
+  - Debugging assistance
 parameters:
   - name: "binary"
     type: "string"
@@ -25,7 +25,7 @@ parameters:
     format: "positional"
   - name: "disassemble"
     type: "bool"
-    description: "反汇编二进制文件"
+    description: "disassemble a binary file"
     required: false
     flag: "-d"
     format: "flag"

@@ -1,14 +1,14 @@
 name: "ropgadget"
 command: "ROPgadget"
 enabled: true
-short_description: "ROP gadget搜索工具"
+short_description: "ROP gadget search tool"
 description: |
-  ROPgadget是一个用于在二进制文件中搜索ROP gadget的工具。
+  ROPgadget is a tool for searching ROP gadgets in binary files.
 
   **Key Features:**
-  - ROP gadget搜索
+  - ROP gadget search
   - Multiple architecture support
-  - Gadget分类
+  - Gadget classification
   - Exploit chain generation
 
   **Use Cases:**

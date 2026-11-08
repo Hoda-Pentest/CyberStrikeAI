@@ -13,7 +13,7 @@ import (
 	"github.com/cloudwego/eino/schema"
 )
 
-const userContextSupplementHeader = "\n\n## 用户历史输入（原文，子代理必读）\n"
+const userContextSupplementHeader = "\n\n## User history input (verbatim, required reading for sub-agents)\n"
 
 // taskContextEnrichMiddleware intercepts "task" tool calls on the orchestrator
 // and appends the user's original conversation messages to the task description.
@@ -32,7 +32,7 @@ type taskContextEnrichMiddleware struct {
 // newTaskContextEnrichMiddleware returns a middleware that enriches task
 // descriptions with user conversation context. Returns nil if disabled
 // (maxRunes < 0) or no user messages exist.
-// projectBlackboard 仅传项目黑板索引块（BuildFactIndexBlock）；勿传完整 systemPromptExtra。
+// projectBlackboard passes only the project blackboard index block (BuildFactIndexBlock); do not pass the full systemPromptExtra.
 func newTaskContextEnrichMiddleware(userMessage string, history []agent.ChatMessage, maxRunes int, projectBlackboard string) adk.ChatModelAgentMiddleware {
 	supplement := buildUserContextSupplement(userMessage, history, maxRunes)
 	if bb := strings.TrimSpace(projectBlackboard); bb != "" {
@@ -161,7 +161,7 @@ func buildUserContextSupplement(userMessage string, history []agent.ChatMessage,
 
 	lines := make([]string, 0, len(userMsgs))
 	for i, msg := range userMsgs {
-		lines = append(lines, fmt.Sprintf("[第%d轮] %s", i+1, msg))
+		lines = append(lines, fmt.Sprintf("[round %d] %s", i+1, msg))
 	}
 	joined := strings.Join(lines, "\n")
 	if maxRunes > 0 && len([]rune(joined)) > maxRunes {
@@ -181,7 +181,7 @@ func truncateKeepFirstLast(msgs []string, maxRunes int) string {
 
 	first := msgs[0]
 	last := msgs[len(msgs)-1]
-	sep := "\n---\n...(中间对话省略)...\n---\n"
+	sep := "\n---\n...(middle of the conversation omitted)...\n---\n"
 	sepLen := len([]rune(sep))
 
 	budget := maxRunes - sepLen

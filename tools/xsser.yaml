@@ -1,13 +1,13 @@
 name: "xsser"
 command: "xsser"
 enabled: true
-short_description: "XSS漏洞测试工具"
+short_description: "XSS vulnerability testing tool"
 description: |
-  XSSer是一个自动化XSS漏洞测试工具。
+  XSSer is an automated XSS vulnerability testing tool.
 
   **Key Features:**
   - XSS vulnerability detection
-  - 多种XSS技术
+  - Multiple XSS techniques
   - Automated testing
   - Report generation
 
@@ -25,7 +25,7 @@ parameters:
     format: "flag"
   - name: "params"
     type: "string"
-    description: "要测试的参数"
+    description: "parameter to test"
     required: false
     flag: "--Fp"
     format: "flag"

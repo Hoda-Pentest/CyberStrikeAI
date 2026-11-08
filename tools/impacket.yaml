@@ -9,7 +9,7 @@ args:
     import sys
 
     if len(sys.argv) < 2:
-        sys.stderr.write("缺少Impacket脚本路径\n")
+        sys.stderr.write("Missing Impacket script path\n")
         sys.exit(1)
 
     script_path = sys.argv[1]
@@ -40,24 +40,24 @@ args:
         sys.stderr.write(proc.stderr)
     sys.exit(proc.returncode)
 enabled: true
-short_description: "Impacket 网络协议工具集，用于网络协议攻击和横向移动"
+short_description: "Impacket network protocol toolkit, used for network protocol attacks and lateral movement"
 description: |
-  Impacket 是一个 Python 工具集，用于处理网络协议，常用于渗透测试和横向移动。
+  Impacket is a Python toolkit for working with network protocols, commonly used in penetration testing and lateral movement.
 
   **Key Features:**
-  - SMB 协议攻击
-  - Kerberos 协议攻击
-  - RPC 协议攻击
+  - SMB protocol attacks
+  - Kerberos protocol attacks
+  - RPC protocol attacks
   - Remote command execution
   - Credential dumping
-  - 票据传递攻击
+  - Pass-the-ticket attacks
 
-  **常用工具：**
-  - psexec: 远程命令执行
-  - smbexec: SMB 远程执行
-  - wmiexec: WMI 远程执行
-  - secretsdump: 凭证转储
-  - getTGT: Kerberos 票据获取
+  **Common tools:**
+  - psexec: remote command execution
+  - smbexec: SMB remote execution
+  - wmiexec: WMI remote execution
+  - secretsdump: credential dumping
+  - getTGT: Kerberos ticket acquisition
 
   **Use Cases:**
   - Lateral movement
@@ -66,20 +66,20 @@ description: |
   - Post-exploitation testing
 
   **Notes:**
-  - 需要 Python 环境
-  - 需要相应的凭据
+  - Requires a Python environment
+  - Requires the corresponding credentials
   - For authorized security testing only
-  - 工具路径通常在 /usr/share/doc/python3-impacket/examples/ 或通过 pip 安装
+  - The tool path is usually in /usr/share/doc/python3-impacket/examples/ or installed via pip
 parameters:
   - name: "script"
     type: "string"
-    description: "Impacket 脚本路径，例如 '/usr/share/doc/python3-impacket/examples/psexec.py'"
+    description: "Impacket script path, e.g. '/usr/share/doc/python3-impacket/examples/psexec.py'"
     required: true
     position: 0
     format: "positional"
   - name: "args"
     type: "string"
-    description: "脚本参数（JSON数组或空格分隔字符串）"
+    description: "script arguments (JSON array or space-separated string)"
     required: false
     default: ""
     position: 1

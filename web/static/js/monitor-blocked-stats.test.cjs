@@ -60,7 +60,7 @@ test('工具统计独立展示安全拦截，拦截不降低工具成功率', ()
         const mixed = render([{ toolName: 'safe-tool', totalCalls: 10, successCalls: 3, failedCalls: 1, blockedCalls: 6 }], { total: 10 });
         assert.match(mixed, /75\.0%/);
         assert.match(mixed, /安全拦截 6/);
-        assert.match(mixed, /失败 1/);
+        assert.match(mixed, /Failed 1/);
     }
 });
 

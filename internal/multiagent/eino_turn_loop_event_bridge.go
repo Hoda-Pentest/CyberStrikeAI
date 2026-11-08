@@ -76,7 +76,7 @@ func (b *einoTurnLoopEventBridge) emitPreempted() {
 	if b == nil || b.progress == nil {
 		return
 	}
-	b.progress("progress", "Eino TurnLoop 已在安全点切换到用户补充后的下一轮。", map[string]interface{}{
+	b.progress("progress", "The Eino TurnLoop has switched at a safe point to the next round after the user's addition.", map[string]interface{}{
 		"conversationId": b.conversationID,
 		"source":         "eino",
 		"orchestration":  b.orchestration,
@@ -99,7 +99,7 @@ func isEinoTurnLoopPreemptCancel(tc *adk.TurnContext[EinoTurnLoopItem, *schema.M
 func einoTurnLoopInterruptTimelineSummary(note string) string {
 	note = strings.TrimSpace(note)
 	if note == "" {
-		return "用户选择「中断并继续」，未填写说明；已推入 Eino TurnLoop 并等待安全点续跑。"
+		return "The user chose \"interrupt and continue\" without a note; it has been pushed into the Eino TurnLoop and is waiting for a safe-point resumption."
 	}
-	return "用户中断说明（Eino TurnLoop 原生续跑）：\n\n" + note
+	return "User interrupt note (Eino TurnLoop native resumption):\n\n" + note
 }

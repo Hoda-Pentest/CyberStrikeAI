@@ -1,42 +1,42 @@
 name: "zsteg"
 command: "zsteg"
 enabled: true
-short_description: "LSB 隐写检测工具，用于检测 PNG/BMP 图片中的隐写数据"
+short_description: "LSB steganography detection tool, used to detect steganographic data in PNG/BMP images"
 description: |
-  zsteg 是一个用于检测 PNG 和 BMP 图片中 LSB (Least Significant Bit) 隐写的工具。
+  zsteg is a tool for detecting LSB (Least Significant Bit) steganography in PNG and BMP images.
 
   **Key Features:**
-  - LSB 隐写检测
-  - 多种隐写算法支持
-  - 自动提取隐写数据
-  - 支持多种图片格式
+  - LSB steganography detection
+  - Support for multiple steganography algorithms
+  - Automatically extract steganographic data
+  - Supports multiple image formats
 
   **Use Cases:**
-  - CTF 隐写题目
-  - 图片隐写分析
+  - CTF steganography challenges
+  - Image steganography analysis
   - Digital forensics
   - Security research
 
   **Notes:**
-  - 需要 Ruby 环境
-  - 支持 PNG 和 BMP 格式
-  - 可以检测多种隐写算法
+  - Requires a Ruby environment
+  - Supports PNG and BMP formats
+  - Can detect multiple steganography algorithms
 parameters:
   - name: "file"
     type: "string"
-    description: "要分析的图片文件路径"
+    description: "path of the image file to analyze"
     required: true
     position: 0
     format: "positional"
   - name: "all"
     type: "bool"
-    description: "检测所有可能的隐写方法"
+    description: "detect all possible steganography methods"
     required: false
     flag: "--all"
     format: "flag"
   - name: "lsb"
     type: "bool"
-    description: "只检测 LSB 隐写"
+    description: "detect only LSB steganography"
     required: false
     flag: "--lsb"
     format: "flag"

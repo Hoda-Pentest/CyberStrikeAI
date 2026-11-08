@@ -15,7 +15,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// 回归：StartListener 返回的 rec 被 handler 脱敏清空 ImplantToken 后，运行中的 HTTP listener 仍能鉴权。
+// Regression: after the rec returned by StartListener has its ImplantToken redacted by the handler, the running HTTP listener can still authenticate.
 func TestStartListener_ImplantTokenSurvivesHandlerRedaction(t *testing.T) {
 	tmp := t.TempDir()
 	db, err := database.NewDB(filepath.Join(tmp, "c2.sqlite"), zap.NewNop())
@@ -48,7 +48,7 @@ func TestStartListener_ImplantTokenSurvivesHandlerRedaction(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	// 模拟 internal/handler/c2.go StartListener 在 JSON 响应前的脱敏
+	// Simulate the redaction that internal/handler/c2.go StartListener does before the JSON response
 	rec.ImplantToken = ""
 	rec.EncryptionKey = ""
 

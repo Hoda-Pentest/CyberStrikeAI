@@ -5,9 +5,9 @@ import (
 	"os"
 )
 
-// 这些薄封装存在的目的：
-//   - 让 manager.go / handler 中的逻辑更直观，避免反复 import os；
-//   - 便于将来用接口抽象（譬如改成 internal/storage 的实现）做单元测试。
+// These thin wrappers exist to:
+//   - make the logic in manager.go / handler more intuitive and avoid importing os repeatedly;
+//   - make it easy to abstract behind an interface later (e.g. switch to an internal/storage implementation) for unit testing.
 
 func osMkdirAll(path string, perm os.FileMode) error {
 	return os.MkdirAll(path, perm)

@@ -1,14 +1,14 @@
 name: "hashcat"
 command: "hashcat"
 enabled: true
-short_description: "高级密码破解工具，支持GPU加速"
+short_description: "advanced password-cracking tool, supports GPU acceleration"
 description: |
-  Hashcat是一个高级密码恢复工具，支持多种哈希算法和攻击模式。
+  Hashcat is an advanced password recovery tool that supports multiple hash algorithms and attack modes.
 
   **Key Features:**
-  - 支持多种哈希算法
-  - GPU加速
-  - 多种攻击模式（字典、组合、掩码等）
+  - Supports multiple hash algorithms
+  - GPU acceleration
+  - Multiple attack modes (dictionary, combination, mask, etc.)
   - Rule engine
 
   **Use Cases:**
@@ -25,13 +25,13 @@ parameters:
     format: "positional"
   - name: "hash_type"
     type: "string"
-    description: "哈希类型编号"
+    description: "hash type number"
     required: true
     flag: "-m"
     format: "flag"
   - name: "attack_mode"
     type: "string"
-    description: "攻击模式（0=字典, 1=组合, 3=掩码等）"
+    description: "attack mode (0=dictionary, 1=combination, 3=mask, etc.)"
     required: false
     default: "0"
     flag: "-a"
@@ -45,12 +45,12 @@ parameters:
     format: "positional"
   - name: "mask"
     type: "string"
-    description: "掩码（用于掩码攻击）"
+    description: "mask (for mask attacks)"
     required: false
     position: 2
     format: "positional"
   - name: "additional_args"
     type: "string"
-    description: "额外的Hashcat参数"
+    description: "extra Hashcat arguments"
     required: false
     format: "positional"

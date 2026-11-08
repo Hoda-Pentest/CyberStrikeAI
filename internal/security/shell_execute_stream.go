@@ -13,7 +13,7 @@ import (
 	"github.com/cloudwego/eino/schema"
 )
 
-// ConfigureShellCmdForAgentExecute 与 exec 工具一致：非交互 stdin、pager/TERM 环境、独立进程组。
+// ConfigureShellCmdForAgentExecute matches the exec tool: non-interactive stdin, pager/TERM environment, separate process group.
 func ConfigureShellCmdForAgentExecute(cmd *exec.Cmd) {
 	if cmd == nil {
 		return
@@ -23,27 +23,27 @@ func ConfigureShellCmdForAgentExecute(cmd *exec.Cmd) {
 	_ = prepareShellCmdSession(cmd)
 }
 
-// TerminateShellCmdTree 尽力终止 shell 及其子进程组（与 exec/execute 超时取消一致）。
+// TerminateShellCmdTree makes a best effort to terminate the shell and its child process group (consistent with exec/execute timeout cancellation).
 func TerminateShellCmdTree(cmd *exec.Cmd) {
 	terminateCmdTree(cmd)
 }
 
-// TerminateShellCmdSession 使用 Start 时缓存的进程组 ID 终止（shell 已退出时仍有效）。
+// TerminateShellCmdSession terminates using the process-group ID cached at Start (still valid after the shell has exited).
 func TerminateShellCmdSession(session *ShellSession) {
 	TerminateShellSession(session)
 }
 
-// EinoStreamingShell 为 Eino ADK execute 工具提供流式 shell，行为与 exec 对齐：
-// 并发读取 stdout/stderr（定长块，非按行），避免官方 local.ExecuteStreaming 先排空 stdout
-// 导致 stderr 错误（如 sudo 密码提示）长时间不可见、UI 一直显示「执行中」。
+// EinoStreamingShell provides a streaming shell for the Eino ADK execute tool, aligned with exec:
+// it reads stdout/stderr concurrently (fixed-size blocks, not line by line), avoiding the official local.ExecuteStreaming draining stdout first
+// which would keep stderr errors (such as a sudo password prompt) invisible for a long time and the UI stuck on "executing".
 type EinoStreamingShell struct{}
 
-// NewEinoStreamingShell 创建 execute 流式 shell 实现。
+// NewEinoStreamingShell creates the streaming-shell implementation for execute.
 func NewEinoStreamingShell() *EinoStreamingShell {
 	return &EinoStreamingShell{}
 }
 
-// ExecuteStreaming 实现 filesystem.StreamingShell。
+// ExecuteStreaming implements filesystem.StreamingShell.
 func (s *EinoStreamingShell) ExecuteStreaming(ctx context.Context, input *filesystem.ExecuteRequest) (*schema.StreamReader[*filesystem.ExecuteResponse], error) {
 	if input == nil || input.Command == "" {
 		return nil, fmt.Errorf("command is required")

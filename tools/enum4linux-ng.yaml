@@ -1,19 +1,19 @@
 name: "enum4linux-ng"
 command: "enum4linux-ng"
 enabled: true
-short_description: "高级SMB枚举工具（Enum4linux的下一代版本）"
+short_description: "advanced SMB enumeration tool (next-generation version of Enum4linux)"
 description: |
-  Enum4linux-ng是Enum4linux的下一代版本，提供更强大的SMB枚举功能。
+  Enum4linux-ng is the next-generation version of Enum4linux, providing more powerful SMB enumeration capabilities.
 
   **Key Features:**
   - SMB share enumeration
   - User and group enumeration
-  - 策略枚举
+  - Policy enumeration
   - System information gathering
 
   **Use Cases:**
   - Windows system penetration testing
-  - SMB安全评估
+  - SMB security assessment
   - Domain environment reconnaissance
   - Security testing
 parameters:
@@ -43,28 +43,28 @@ parameters:
     format: "flag"
   - name: "shares"
     type: "bool"
-    description: "枚举共享"
+    description: "enumerate shares"
     required: false
     flag: "-S"
     format: "flag"
     default: true
   - name: "users"
     type: "bool"
-    description: "枚举用户"
+    description: "enumerate users"
     required: false
     flag: "-U"
     format: "flag"
     default: true
   - name: "groups"
     type: "bool"
-    description: "枚举组"
+    description: "enumerate groups"
     required: false
     flag: "-G"
     format: "flag"
     default: true
   - name: "policy"
     type: "bool"
-    description: "枚举策略"
+    description: "enumerate policies"
     required: false
     flag: "-P"
     format: "flag"

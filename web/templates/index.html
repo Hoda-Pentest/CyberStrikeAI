@@ -2118,7 +2118,7 @@
                             <div id="asset-scan-targets" class="asset-scan-targets"></div>
                             <label class="asset-scan-prompt-label" for="asset-scan-prompt" data-i18n="assets.userPrompt">User prompt</label>
                             <textarea id="asset-scan-prompt" class="asset-scan-prompt" rows="7"></textarea>
-                            <p id="asset-scan-hint" class="form-hint" data-i18n="assets.promptHint">Use {{asset_id}}, {{target}}, {{host}}, {{ip}}, {{domain}}, or {{port}} placeholders. Task mode creates one task per asset.</p>
+                            <p id="asset-scan-hint" class="form-hint" data-i18n="assets.promptHint">Use &#123;&#123;asset_id&#125;&#125;, &#123;&#123;target&#125;&#125;, &#123;&#123;host&#125;&#125;, &#123;&#123;ip&#125;&#125;, &#123;&#123;domain&#125;&#125;, or &#123;&#123;port&#125;&#125; placeholders. Task mode creates one task per asset.</p>
                             <label id="asset-scan-execute-wrap" class="checkbox-label"><input id="asset-scan-execute-now" type="checkbox" checked><span data-i18n="assets.executeNow">Run immediately after creation</span></label>
                         </div>
                         <div class="modal-footer"><button class="btn-secondary" onclick="closeAssetScanModal()" data-i18n="common.cancel">Cancel</button><button id="asset-scan-submit" class="btn-primary" onclick="submitAssetScan()" data-i18n="assets.confirmSend">Send</button></div>
@@ -2627,7 +2627,7 @@
                                                         </label>
                                                     </div>
                                                     <div class="projects-form-field">
-                                                        <label for="project-edit-description" data-i18n="projects.projectDescription">描述</label>
+                                                        <label for="project-edit-description" data-i18n="projects.projectDescription">Description</label>
                                                         <textarea id="project-edit-description" class="form-input projects-description-textarea" rows="3" maxlength="4000" placeholder="Client/task notes, contacts, collaboration…" data-i18n="projects.editDescriptionPlaceholder" data-i18n-attr="placeholder"></textarea>
                                                         <small class="form-hint" data-i18n="projects.descriptionLengthHint">For team reference only — the Agent does not read this. Keep it brief (max 4000 chars). Put anything the Agent should know in the fact board.</small>
                                                     </div>
@@ -2645,8 +2645,8 @@
                                                         </div>
                                                     </div>
                                                     <div class="projects-scope-toolbar">
-                                                        <button type="button" class="btn-ghost btn-small" onclick="formatProjectScopeJson()" title="格式化 JSON" data-i18n="projects.formatJson" data-i18n-attr="title">Format</button>
-                                                        <button type="button" class="btn-ghost btn-small" onclick="insertProjectScopeExample()" title="插入示例" data-i18n="projects.example" data-i18n-attr="title">Example</button>
+                                                        <button type="button" class="btn-ghost btn-small" onclick="formatProjectScopeJson()" title="Format JSON" data-i18n="projects.formatJson" data-i18n-attr="title">Format</button>
+                                                        <button type="button" class="btn-ghost btn-small" onclick="insertProjectScopeExample()" title="Insert example" data-i18n="projects.example" data-i18n-attr="title">Example</button>
                                                     </div>
                                                 </div>
                                                 <div class="projects-settings-card-body projects-settings-card-body--fill">
@@ -2685,7 +2685,7 @@
                         </main>
                     </div>
                 </div>
-                <!-- 漏洞管理页面 -->
+                <!-- Vulnerability management page -->
                 <div id="page-vulnerabilities" class="page">
                     <div class="page-header">
                         <h2 data-i18n="vulnerability.title">Vulnerability Management</h2>
@@ -2697,9 +2697,9 @@
                         </div>
                     </div>
                     <div class="page-content">
-                        <!-- 统计看板：点击卡片筛选严重度，与下方下拉/地址栏 hash 同步 -->
+                        <!-- Stat dashboard: click a card to filter by severity, synced with the dropdown/address bar hash below -->
                         <div class="vulnerability-dashboard" id="vulnerability-dashboard">
-                            <div class="dashboard-stats" id="vulnerability-stat-cards" role="group" aria-label="漏洞严重度统计">
+                            <div class="dashboard-stats" id="vulnerability-stat-cards" role="group" aria-label="Vulnerability severity statistics">
                                 <div class="stat-card stat-card-total is-clickable is-active" data-severity="" role="button" tabindex="0"
                                      data-i18n="vulnerabilityPage.statClickAll" data-i18n-attr="title" title="View all (clear severity filter)">
                                     <div class="stat-label" data-i18n="vulnerabilityPage.statTotal">Total</div>
@@ -2745,12 +2745,12 @@
                             </div>
                         </div>
 
-                        <!-- 筛选 -->
+                        <!-- Filters -->
                         <div class="vulnerability-controls" id="vulnerability-filter-panel">
                             <div class="vulnerability-filter-toolbar">
                                 <div class="vulnerability-filter-primary">
                                     <label class="vulnerability-filter-field vulnerability-filter-field--grow vulnerability-search-wrap">
-                                        <span class="sr-only" data-i18n="vulnerabilityPage.searchKeyword">关键词搜索</span>
+                                        <span class="sr-only" data-i18n="vulnerabilityPage.searchKeyword">Keyword search</span>
                                         <svg class="vulnerability-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
                                             <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
                                             <path d="M20 20L16 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -2759,7 +2759,7 @@
                                             data-i18n="vulnerabilityPage.searchKeyword" data-i18n-attr="placeholder" placeholder="Search title, description, type, target…" />
                                     </label>
                                     <label class="vulnerability-filter-field vulnerability-filter-field--project">
-                                        <span class="sr-only" data-i18n="vulnerabilityPage.detailProject">项目</span>
+                                        <span class="sr-only" data-i18n="vulnerabilityPage.detailProject">Project</span>
                                         <select id="vulnerability-project-filter" data-i18n="vulnerabilityPage.filterByProject" data-i18n-attr="title" title="Filter by project" onchange="scheduleVulnerabilityFilterApply(true)">
                                             <option value="" data-i18n="vulnerabilityPage.allProjects">All projects</option>
                                         </select>
@@ -2767,7 +2767,7 @@
                                     <label class="vulnerability-filter-field vulnerability-filter-field--status">
                                         <span class="sr-only" data-i18n="vulnerabilityPage.status">Status</span>
                                         <select id="vulnerability-status-filter" data-i18n="vulnerabilityPage.status" data-i18n-attr="title" title="Status">
-                                            <option value="" data-i18n="knowledgePage.all">全部状态</option>
+                                            <option value="" data-i18n="knowledgePage.all">All statuses</option>
                                             <option value="open" data-i18n="vulnerabilityPage.statusOpen">Open</option>
                                             <option value="confirmed" data-i18n="vulnerabilityPage.statusConfirmed">Confirmed</option>
                                             <option value="fixed" data-i18n="vulnerabilityPage.statusFixed">Fixed</option>
@@ -2787,19 +2787,19 @@
                                                 <p class="vulnerability-more-filters-popover-title" id="vulnerability-more-filters-title" data-i18n="vulnerabilityPage.moreFilters">More filters</p>
                                                 <div class="vulnerability-more-filters-popover-body">
                                                     <label class="vulnerability-filter-field vulnerability-filter-field--full">
-                                                        <span data-i18n="vulnerabilityPage.vulnId">漏洞 ID</span>
+                                                        <span data-i18n="vulnerabilityPage.vulnId">Vulnerability ID</span>
                                                         <input type="text" id="vulnerability-exact-id-filter"
                                                             data-i18n="vulnerabilityPage.filterExactId" data-i18n-attr="placeholder" placeholder="Exact vuln ID" />
                                                     </label>
                                                     <label class="vulnerability-filter-field">
-                                                        <span data-i18n="vulnerabilityPage.conversationId">会话 ID</span>
+                                                        <span data-i18n="vulnerabilityPage.conversationId">Conversation ID</span>
                                                         <input type="text" id="vulnerability-conversation-filter" list="vulnerability-conversation-suggestions"
                                                             data-i18n="vulnerabilityPage.filterConversation" data-i18n-attr="placeholder" placeholder="Filter by conversation" />
                                                     </label>
                                                     <label class="vulnerability-filter-field">
-                                                        <span data-i18n="vulnerabilityPage.taskOrQueueId">任务 / 队列 ID</span>
+                                                        <span data-i18n="vulnerabilityPage.taskOrQueueId">Task / queue ID</span>
                                                         <input type="text" id="vulnerability-task-filter" list="vulnerability-task-suggestions"
-                                                            data-i18n="vulnerabilityPage.filterTaskOrQueue" data-i18n-attr="placeholder" placeholder="筛选任务或队列 ID" />
+                                                            data-i18n="vulnerabilityPage.filterTaskOrQueue" data-i18n-attr="placeholder" placeholder="Filter by task or queue ID" />
                                                     </label>
                                                     <label class="vulnerability-filter-field">
                                                         <span data-i18n="vulnerabilityPage.conversationTag">Conversation tag</span>
@@ -2841,17 +2841,17 @@
                             <datalist id="vulnerability-task-tag-suggestions"></datalist>
                         </div>
 
-                        <!-- 漏洞列表 -->
+                        <!-- Vulnerability list -->
                         <div id="vulnerabilities-list" class="vulnerabilities-list">
                             <div class="loading-spinner" data-i18n="vulnerabilityPage.loading">Loading...</div>
                         </div>
                         
-                        <!-- 分页控件 -->
+                        <!-- Pagination controls -->
                         <div id="vulnerability-pagination" class="pagination-container pagination-fixed"></div>
                     </div>
                 </div>
 
-                <!-- WebShell 管理页面 -->
+                <!-- WebShell management page -->
                 <div id="page-webshell" class="page">
                     <div class="page-header">
                         <h2 data-i18n="webshell.title">WebShell Management</h2>
@@ -2878,7 +2878,7 @@
                                     <div class="webshell-empty" data-i18n="webshell.noConnections">No connections. Click "Add connection" to add one.</div>
                                 </div>
                             </div>
-                            <div id="webshell-resize-handle" class="webshell-resize-handle" title="拖拽调整宽度"></div>
+                            <div id="webshell-resize-handle" class="webshell-resize-handle" title="Drag to resize"></div>
                             <div class="webshell-main">
                                 <div id="webshell-workspace" class="webshell-workspace">
                                     <div class="webshell-workspace-placeholder" data-i18n="webshell.selectOrAdd">Select a connection from the list or add a new WebShell connection.</div>
@@ -2888,7 +2888,7 @@
                     </div>
                 </div>
 
-                <!-- 对话附件 / 文件管理 -->
+                <!-- Conversation attachments / file management -->
                 <div id="page-chat-files" class="page">
                     <div class="page-header">
                         <h2 data-i18n="chatFilesPage.title">File Management</h2>
@@ -2900,7 +2900,7 @@
                         </div>
                     </div>
                     <div class="page-content">
-                        <p class="chat-files-intro" data-i18n="chatFilesPage.intro">管理在对话中上传的文件。可将文件拖拽到下方列表区域，或点击「上传文件」选择文件（支持多选）。需要让 AI 引用某文件时，在列表中点击「复制路径」，到对话里粘贴即可。</p>
+                        <p class="chat-files-intro" data-i18n="chatFilesPage.intro">Manage files uploaded in conversations. Drag files into the list area below, or click "Upload files" to pick files (multiple selection supported). To let the AI reference a file, click "Copy path" in the list and paste it into the conversation.</p>
                         <div class="tasks-filters chat-files-filters">
                             <label>
                                 <span data-i18n="chatFilesPage.conversationFilter">Conversation ID</span>
@@ -2925,13 +2925,13 @@
                                 </select>
                             </label>
                             <label>
-                                <span data-i18n="chatFilesPage.groupBy">分组</span>
+                                <span data-i18n="chatFilesPage.groupBy">Group by</span>
                                 <select id="chat-files-group-by" class="form-control chat-files-filter-select-native">
-                                    <option value="none" data-i18n="chatFilesPage.groupNone">不分组</option>
+                                    <option value="none" data-i18n="chatFilesPage.groupNone">No grouping</option>
                                     <option value="date" data-i18n="chatFilesPage.groupByDate">By date</option>
                                     <option value="conversation" data-i18n="chatFilesPage.groupByConversation">By conversation</option>
                                     <option value="project" data-i18n="chatFilesPage.groupByProject">By project</option>
-                                    <option value="folder" data-i18n="chatFilesPage.groupByFolder">按文件夹</option>
+                                    <option value="folder" data-i18n="chatFilesPage.groupByFolder">By folder</option>
                                 </select>
                             </label>
                             <button class="btn-secondary" type="button" onclick="chatFilesResetToFirstPageAndLoad()" data-i18n="common.search">Search</button>
@@ -2947,7 +2947,7 @@
                     </div>
                 </div>
 
-                <!-- 任务管理页面 -->
+                <!-- Task management page -->
                 <div id="page-tasks" class="page">
                     <div class="page-header">
                         <h2 data-i18n="tasks.title">Task Management</h2>
@@ -2961,9 +2961,9 @@
                         </div>
                     </div>
                     <div class="page-content">
-                        <!-- 批量任务队列列表 -->
+                        <!-- Batch task queue list -->
                         <div class="batch-queues-section" id="batch-queues-section" style="display: none;">
-                            <!-- 筛选控件 -->
+                            <!-- Filter controls -->
                             <div class="batch-queues-filters tasks-filters batch-queues-filters--compact">
                                 <label>
                                     <span data-i18n="tasksPage.statusFilter">Status filter</span>
@@ -2990,7 +2990,7 @@
                     </div>
                 </div>
 
-                <!-- C2 监听器管理页面 -->
+                <!-- C2 listener management page -->
                 <div id="page-c2-listeners" class="page">
                     <div class="page-header">
                         <h2 data-i18n="c2.listeners.title">Listener Management</h2>
@@ -3003,7 +3003,7 @@
                     </div>
                 </div>
 
-                <!-- C2 会话管理页面 -->
+                <!-- C2 session management page -->
                 <div id="page-c2-sessions" class="page">
                     <div class="page-header">
                         <h2 data-i18n="c2.sessions.title">Session Management</h2>
@@ -3024,7 +3024,7 @@
                     </div>
                 </div>
 
-                <!-- C2 任务管理页面 -->
+                <!-- C2 task management page -->
                 <div id="page-c2-tasks" class="page">
                     <div class="page-header">
                         <h2 data-i18n="c2.tasks.title">Task Management</h2>
@@ -3107,7 +3107,7 @@
                     </div>
                 </div>
 
-                <!-- C2 Payload 生成页面 -->
+                <!-- C2 payload generation page -->
                 <div id="page-c2-payloads" class="page">
                     <div class="page-header">
                         <h2 data-i18n="c2.payloads.title">Payload Generator</h2>
@@ -3131,8 +3131,8 @@
                                     <select id="c2-payload-kind" class="form-control c2-form-select-native"></select>
                                 </div>
                                 <div class="c2-form-group">
-                                    <label data-i18n="c2.payloads.hostOptional">回连地址 (可选)</label>
-                                    <input type="text" id="c2-payload-host" class="form-control" data-i18n="c2.payloads.placeholderListenerHost" data-i18n-attr="placeholder" placeholder="留空则使用监听器地址">
+                                    <label data-i18n="c2.payloads.hostOptional">Callback host (optional)</label>
+                                    <input type="text" id="c2-payload-host" class="form-control" data-i18n="c2.payloads.placeholderListenerHost" data-i18n-attr="placeholder" placeholder="Leave blank to use the listener address">
                                 </div>
                                 <button type="button" id="c2-generate-oneliner-btn" class="btn-primary" data-require-permission="c2:write" onclick="C2.generateOneliner()" style="width:100%;" data-i18n="c2.payloads.generateOnelinerBtn">Generate Oneliner</button>
                                 <pre id="c2-oneliner-output" class="c2-oneliner-output" style="display:none;" onclick="C2.copyOneliner()" data-i18n="c2.payloads.clickToCopyTitle" data-i18n-attr="title" data-i18n-skip-text="true" title="Click to copy"></pre>
@@ -3142,9 +3142,9 @@
                                     <span class="c2-payload-icon" style="background:rgba(16,185,129,0.08);color:#10b981;">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
                                     </span>
-                                    <span data-i18n="c2.payloads.build">编译 Beacon 二进制</span>
+                                    <span data-i18n="c2.payloads.build">Build beacon binary</span>
                                 </h3>
-                                <p class="c2-payload-desc" data-i18n="c2.payloads.buildDesc">交叉编译支持多平台的完整 Beacon 可执行文件，支持 Linux / Windows / macOS</p>
+                                <p class="c2-payload-desc" data-i18n="c2.payloads.buildDesc">Cross-compile a full beacon executable for multiple platforms: Linux / Windows / macOS</p>
                                 <div class="c2-form-group">
                                     <label data-i18n="c2.payloads.listener">Listener</label>
                                     <select id="c2-build-listener" class="form-control c2-form-select-native"></select>
@@ -3152,7 +3152,7 @@
                                 </div>
                                 <div class="c2-form-group">
                                     <label data-i18n="c2.payloads.hostOptional">Callback host (optional)</label>
-                                    <input type="text" id="c2-build-host" class="form-control" data-i18n="c2.payloads.placeholderListenerHost" data-i18n-attr="placeholder" placeholder="留空则使用监听器地址">
+                                    <input type="text" id="c2-build-host" class="form-control" data-i18n="c2.payloads.placeholderListenerHost" data-i18n-attr="placeholder" placeholder="Leave blank to use the listener address">
                                 </div>
                                 <div class="c2-form-row">
                                     <div class="c2-form-group">
@@ -3179,7 +3179,7 @@
                     </div>
                 </div>
 
-                <!-- C2 事件审计页面 -->
+                <!-- C2 event audit page -->
                 <div id="page-c2-events" class="page">
                     <div class="page-header">
                         <h2 data-i18n="c2.events.title">Event Audit</h2>
@@ -3254,7 +3254,7 @@
                     </div>
                 </div>
 
-                <!-- C2 Profile 管理页面 -->
+                <!-- C2 profile management page -->
                 <div id="page-c2-profiles" class="page">
                     <div class="page-header">
                         <h2 data-i18n="c2.profiles.title">Malleable Profile</h2>
@@ -3267,14 +3267,14 @@
                     </div>
                 </div>
 
-                <!-- C2 模态框 -->
+                <!-- C2 modal -->
                 <div id="c2-modal" class="c2-modal-overlay" style="display:none;" onclick="if(event.target===this)C2.closeModal()">
                     <div class="c2-modal">
                         <div id="c2-modal-content"></div>
                     </div>
                 </div>
 
-                <!-- 工作流页面 -->
+                <!-- Workflow page -->
                 <div id="page-workflows" class="page">
                     <div class="page-header">
                         <h2 data-i18n="workflows.title">Workflows</h2>
@@ -3292,7 +3292,7 @@
                                     <h3 data-i18n="workflows.processLibrary">Workflows</h3>
                                 </div>
                                 <div id="workflow-list" class="workflow-list">
-                                    <div class="loading-spinner" data-i18n="common.loading">加载中...</div>
+                                    <div class="loading-spinner" data-i18n="common.loading">Loading...</div>
                                 </div>
                             </div>
                             <div class="workflow-panel">
@@ -3411,7 +3411,7 @@
                     </div>
                 </div>
 
-                <!-- 角色管理页面 -->
+                <!-- Role management page -->
                 <div id="page-roles-management" class="page">
                     <div class="page-header">
                         <h2 data-i18n="roles.title">Role Management</h2>
@@ -3438,7 +3438,7 @@
                     </div>
                 </div>
 
-                <!-- Skills状态监控页面 -->
+                <!-- Skills status monitoring page -->
                 <div id="page-skills-monitor" class="page skills-monitor-page">
                     <div class="page-header">
                         <h2 data-i18n="skills.monitorTitle">Skills monitor</h2>
@@ -3471,7 +3471,7 @@
                     </div>
                 </div>
 
-                <!-- Skills管理页面 -->
+                <!-- Skills management page -->
                 <div id="page-skills-management" class="page skills-management-page">
                     <div class="page-header">
                         <h2 data-i18n="skills.title">Skills Management</h2>
@@ -3517,7 +3517,7 @@
                     </div>
                 </div>
 
-                <!-- 多代理子 Agent（Markdown）管理 -->
+                <!-- Multi-agent sub-agent (Markdown) management -->
                 <div id="page-agents-management" class="page">
                     <div class="page-header">
                         <h2 data-i18n="agentsPage.title">Agent management</h2>
@@ -3527,7 +3527,7 @@
                         </div>
                     </div>
                     <div class="page-content">
-                        <p class="agents-page-hint" data-i18n="agentsPage.hint">子 Agent 仅在 agents 目录下 .md 维护。</p>
+                        <p class="agents-page-hint" data-i18n="agentsPage.hint">Sub-agents are maintained only as .md files in the agents directory.</p>
                         <div id="agents-md-dir" class="agents-dir-label"></div>
                         <div id="agents-md-list" class="skills-grid">
                             <div class="loading-spinner" data-i18n="agentsPage.loading">Loading...</div>
@@ -3535,7 +3535,7 @@
                     </div>
                 </div>
 
-                <!-- Agent Markdown 编辑弹窗 -->
+                <!-- Agent Markdown edit modal -->
                 <div id="agent-md-modal" class="modal" style="display: none;">
                     <div class="modal-content" style="max-width: 720px; max-height: 92vh;">
                         <div class="modal-header">
@@ -3554,7 +3554,7 @@
                                     <option value="sub" data-i18n="agentsPage.roleSub">Sub-agent</option>
                                     <option value="orchestrator" data-i18n="agentsPage.roleOrchestrator">Orchestrator (Deep)</option>
                                 </select>
-                                <p class="form-hint muted" data-i18n="agentsPage.roleHint">主代理也可使用固定文件名 orchestrator.md；全目录仅允许一个主代理。</p>
+                                <p class="form-hint muted" data-i18n="agentsPage.roleHint">The orchestrator can also use the fixed file name orchestrator.md; only one orchestrator is allowed per directory.</p>
                             </div>
                             <div class="form-group">
                                 <label data-i18n="agentsPage.fieldId">Agent id (optional; derived from name if empty)</label>
@@ -3566,7 +3566,7 @@
                             </div>
                             <div class="form-group">
                                 <label data-i18n="agentsPage.fieldDesc">Description</label>
-                                <textarea id="agent-md-description" rows="2" data-i18n="agentsPage.descPlaceholder" data-i18n-attr="placeholder" placeholder="何时调用该子代理"></textarea>
+                                <textarea id="agent-md-description" rows="2" data-i18n="agentsPage.descPlaceholder" data-i18n-attr="placeholder" placeholder="When to invoke this sub-agent"></textarea>
                             </div>
                             <div class="form-group">
                                 <label data-i18n="agentsPage.fieldTools">Tools (comma-separated; same keys as role tools)</label>
@@ -3592,13 +3592,13 @@
                     </div>
                 </div>
 
-                <!-- 系统设置页面 -->
+                <!-- System settings page -->
                 <div id="page-settings" class="page">
                     <div class="page-header">
                         <h2 data-i18n="settings.title">System settings</h2>
                     </div>
                     <div class="page-content settings-layout">
-                        <!-- 左侧导航栏 -->
+                        <!-- Left sidebar navigation -->
                         <aside class="settings-sidebar">
                             <nav class="settings-nav">
                                 <div class="settings-nav-item active" data-section="basic" onclick="switchSettingsSection('basic')">
@@ -3640,7 +3640,7 @@
                             </nav>
                         </aside>
                         
-                        <!-- 右侧内容区域 -->
+                        <!-- Right content area -->
                         <div class="settings-content">
                             <div id="settings-section-token-usage" class="settings-section-content token-usage-panel">
                                 <div class="settings-section-header token-usage-header">
@@ -3656,17 +3656,17 @@
                                     </select>
                                     <span id="settings-token-scope" class="token-usage-scope"></span>
                                 </div>
-                                <details class="token-usage-note"><summary data-i18n="tokenUsageUI.scopeNote">Scope and counting rules</summary><p data-i18n="dashboard.usageScope">统计已记录的 Agent 运行中模型返回的用量，包括子 Agent。缓存读取和写入属于输入，推理属于输出，不重复加入总量。未返回或未采集的用量不在统计内；这不是供应商账单。模型按运行配置归类，切换模型的运行可能混合用量。</p></details>
+                                <details class="token-usage-note"><summary data-i18n="tokenUsageUI.scopeNote">Scope and counting rules</summary><p data-i18n="dashboard.usageScope">Counts recorded model usage returned during Agent runs, including sub-agents. Cache reads and writes count as input; reasoning counts as output; neither is double-counted in the total. Usage that was not returned or not captured is excluded; this is not a vendor bill. Models are grouped by run configuration, so a run that switches models may mix usage.</p></details>
                                 <div id="settings-token-analysis" aria-live="polite"></div>
                             </div>
 
-                            <!-- 基本设置 -->
+                            <!-- Basic settings -->
                             <div id="settings-section-basic" class="settings-section-content active">
                                 <div class="settings-section-header">
                                     <h3 data-i18n="settingsBasic.basicTitle">Basic settings</h3>
                                 </div>
                                 
-                                <!-- AI 通道配置 -->
+                                <!-- AI channel configuration -->
                                 <div class="settings-subsection">
                                     <div class="ai-channel-manager">
                                         <div class="ai-channel-manager-header">
@@ -3680,7 +3680,7 @@
                                             </div>
                                         </div>
                                         <div class="ai-channel-manager-body">
-                                            <div class="ai-channel-switcher" aria-label="AI 通道选择" data-i18n="settingsBasic.aiChannelListAria" data-i18n-attr="aria-label">
+                                            <div class="ai-channel-switcher" aria-label="AI channel selection" data-i18n="settingsBasic.aiChannelListAria" data-i18n-attr="aria-label">
                                                 <div class="ai-channel-switcher-field">
                                                     <label for="ai-channel-select" data-i18n="settingsBasic.aiChannelCurrent">Current channel</label>
                                                     <select id="ai-channel-select" class="ai-channel-switch-select" onchange="selectAIChannelForEditing(this.value)"></select>
@@ -3764,7 +3764,7 @@
                                                             <div class="form-group">
                                                                 <label for="openai-max-completion-tokens"><span data-i18n="settingsBasic.maxCompletionTokens">Max Output Tokens</span></label>
                                                                 <input type="number" id="openai-max-completion-tokens" data-i18n="settingsBasic.maxCompletionTokensPlaceholder" data-i18n-attr="placeholder" placeholder="16384" min="1" step="256" />
-                                                                <small class="form-hint" data-i18n="settingsBasic.maxCompletionTokensHint">单次模型回复的输出上限，默认 16384</small>
+                                                                <small class="form-hint" data-i18n="settingsBasic.maxCompletionTokensHint">Output limit for a single model reply; default 16384</small>
                                                             </div>
                                                         </div>
                                                     </section>
@@ -3778,7 +3778,7 @@
                                                         </summary>
                                                         <div class="ai-channel-reasoning-grid">
                                                             <div class="form-group">
-                                                                <label for="openai-reasoning-mode" data-i18n="chat.reasoningModeLabel">模式</label>
+                                                                <label for="openai-reasoning-mode" data-i18n="chat.reasoningModeLabel">Mode</label>
                                                                 <select id="openai-reasoning-mode">
                                                                     <option value="auto" data-i18n="chat.reasoningModeAuto">Auto</option>
                                                                     <option value="on" data-i18n="chat.reasoningModeOn">On</option>
@@ -3786,7 +3786,7 @@
                                                                 </select>
                                                             </div>
                                                             <div class="form-group">
-                                                                <label for="openai-reasoning-effort" data-i18n="chat.reasoningEffortLabel">强度</label>
+                                                                <label for="openai-reasoning-effort" data-i18n="chat.reasoningEffortLabel">Effort</label>
                                                                 <select id="openai-reasoning-effort">
                                                                     <option value="" data-i18n="chat.reasoningEffortUnset">Unspecified</option>
                                                                     <option value="low">low</option>
@@ -3797,7 +3797,7 @@
                                                                 </select>
                                                             </div>
                                                             <div class="form-group">
-                                                                <label for="openai-reasoning-profile" data-i18n="settingsBasic.openaiReasoningProfile">线路</label>
+                                                                <label for="openai-reasoning-profile" data-i18n="settingsBasic.openaiReasoningProfile">Profile</label>
                                                                 <select id="openai-reasoning-profile">
                                                                     <option value="auto">auto</option>
                                                                     <option value="deepseek">deepseek</option>
@@ -3816,14 +3816,14 @@
                                                     <details class="ai-channel-form-section ai-channel-advanced-section">
                                                         <summary>
                                                             <span>
-                                                                <strong>自定义请求头</strong>
-                                                                <small>每行一条 KEY=VALUE；值支持 ${ENV_VAR}、${ENV_VAR:-默认值} 与 %session_id%（自动填当前对话 ID）；同名头会覆盖内置 Authorization。</small>
+                                                                <strong>Custom request headers</strong>
+                                                                <small>One KEY=VALUE per line; values support ${ENV_VAR}, ${ENV_VAR:-default} and %session_id% (auto-filled with the current conversation ID); a header with the same name overrides the built-in Authorization.</small>
                                                             </span>
                                                         </summary>
                                                         <div class="form-group">
-                                                            <label for="openai-custom-headers">请求头</label>
+                                                            <label for="openai-custom-headers">Request headers</label>
                                                             <textarea id="openai-custom-headers" rows="4" spellcheck="false" placeholder="X-Api-Key=sk-xxx&#10;x-opencode-session=%session_id%&#10;HTTP-Referer=https://example.com"></textarea>
-                                                            <small class="form-hint">用于要求私有鉴权头、版本头或组织头的第三方 OpenAI 兼容供应商（例如 opencode 等聚合网关）。留空表示不附加。</small>
+                                                            <small class="form-hint">For third-party OpenAI-compatible providers that require a private auth header, version header, or organization header (such as opencode and other aggregator gateways). Leave empty to attach nothing.</small>
                                                         </div>
                                                     </details>
                                                 </div>
@@ -3832,7 +3832,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Vision 视觉分析 -->
+                                <!-- Vision visual analysis -->
                                 <div class="settings-subsection">
                                     <h4 data-i18n="settingsBasic.visionConfig">Vision analysis (analyze_image)</h4>
                                     <div class="settings-form">
@@ -3842,7 +3842,7 @@
                                                 <span class="checkbox-custom"></span>
                                                 <span class="checkbox-text" data-i18n="settingsBasic.visionEnabled">Enable analyze_image vision tool</span>
                                             </label>
-                                            <small class="form-hint" data-i18n="settingsBasic.visionEnabledHint">启用后注册 MCP 工具；图片仅在单次 VL 调用中出现，Agent 上下文只保留文字摘要。</small>
+                                            <small class="form-hint" data-i18n="settingsBasic.visionEnabledHint">Registers the MCP tool once enabled; images appear only within a single VL call, and the Agent context keeps only a text summary.</small>
                                         </div>
                                         <div id="vision-fields-panel">
                                             <div class="form-group">
@@ -3919,7 +3919,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Agent配置 -->
+                                <!-- Agent configuration -->
                                 <div class="settings-subsection">
                                     <h4 data-i18n="settingsBasic.agentConfig">Agent config</h4>
                                     <div class="settings-form">
@@ -3928,7 +3928,7 @@
                                             <input type="number" id="agent-max-iterations" min="1" data-i18n="settingsBasic.iterationsPlaceholder" data-i18n-attr="placeholder" placeholder="30" />
                                         </div>
                                         <div class="form-group">
-                                            <label for="agent-tool-wait-timeout-seconds" data-i18n="settingsBasic.toolWaitTimeoutSeconds">外部 MCP 单轮等待秒数</label>
+                                            <label for="agent-tool-wait-timeout-seconds" data-i18n="settingsBasic.toolWaitTimeoutSeconds">External MCP per-turn wait seconds</label>
                                             <input type="number" id="agent-tool-wait-timeout-seconds" min="0" step="1" placeholder="60" />
                                             <small class="form-hint" data-i18n="settingsBasic.toolWaitTimeoutSecondsHint">Per-turn wait limit for tools. When reached, the agent receives an execution_id while the worker keeps running; use wait_tool_execution to continue waiting. 0 waits until completion.</small>
                                         </div>
@@ -3958,12 +3958,12 @@
                                                 <span class="checkbox-custom"></span>
                                                 <span class="checkbox-text" data-i18n="settingsBasic.enableMultiAgent">Enable Eino multi-agent</span>
                                             </label>
-                                            <small class="form-hint" data-i18n="settingsBasic.enableMultiAgentHint">开启后对话页可选「多代理」模式；子代理在 config.yaml 的 multi_agent.sub_agents 或 agents 目录中配置。</small>
+                                            <small class="form-hint" data-i18n="settingsBasic.enableMultiAgentHint">Once enabled, the chat page offers a "Multi-agent" mode; sub-agents are configured in config.yaml under multi_agent.sub_agents or in the agents directory.</small>
                                         </div>
                                         <div class="form-group">
                                             <label for="multi-agent-pe-loop" data-i18n="settingsBasic.multiAgentPeLoop">plan_execute outer loop limit</label>
                                             <input type="number" id="multi-agent-pe-loop" min="0" step="1" value="0" data-i18n="settingsBasic.multiAgentPeLoopPlaceholder" data-i18n-attr="placeholder" placeholder="0 uses Eino default (10)" />
-                                            <small class="form-hint" data-i18n="settingsBasic.multiAgentPeLoopHint">仅 orchestration=plan_execute 时有效；execute 与 replan 之间的最大轮次。</small>
+                                            <small class="form-hint" data-i18n="settingsBasic.multiAgentPeLoopHint">Only effective when orchestration=plan_execute; the max number of rounds between execute and replan.</small>
                                         </div>
                                         <div class="form-group">
                                             <label for="multi-agent-robot-mode" data-i18n="settingsBasic.multiAgentRobotMode">Default conversation mode for bots</label>
@@ -4032,7 +4032,7 @@
                                 </div>
                             </div>
 
-                            <!-- 人机协同 -->
+                            <!-- Human-in-the-loop -->
                             <div id="settings-section-hitl" class="settings-section-content">
                                 <div class="settings-section-header">
                                     <h3 data-i18n="settings.hitl.title">Human-in-the-loop</h3>
@@ -4129,13 +4129,13 @@
                                 </div>
                             </div>
 
-                            <!-- 资产管理设置 -->
+                            <!-- Asset management settings -->
                             <div id="settings-section-infocollect" class="settings-section-content">
                                 <div class="settings-section-header">
                                     <h3 data-i18n="settings.infocollect.title">Asset management</h3>
                                 </div>
 
-                                <!-- FOFA配置 -->
+                                <!-- FOFA config -->
                                 <div class="settings-subsection">
                                     <h4 data-i18n="settingsBasic.fofaConfig">FOFA config</h4>
                                     <p class="form-hint" data-i18n="settingsBasic.fofaConfigHint">Used for asset discovery and import; only an API key is required.</p>
@@ -4154,52 +4154,52 @@
                                 </div>
 
                                 <div class="settings-subsection">
-                                    <h4>ZoomEye 配置</h4>
-                                    <p class="form-hint">用于信息收集页调用 ZoomEye API；也可设置环境变量 ZOOMEYE_API_KEY。</p>
+                                    <h4>ZoomEye config</h4>
+                                    <p class="form-hint">Used for asset discovery to call the ZoomEye API; can also be set via the ZOOMEYE_API_KEY environment variable.</p>
                                     <div class="settings-form">
                                         <div class="form-group">
                                             <label for="zoomeye-base-url">Base URL</label>
-                                            <input type="text" id="zoomeye-base-url" placeholder="https://api.zoomeye.ai/v2/search（可选）" />
-                                            <small class="form-hint">留空则使用默认地址。</small>
+                                            <input type="text" id="zoomeye-base-url" placeholder="https://api.zoomeye.ai/v2/search (optional)" />
+                                            <small class="form-hint">Leave empty for default.</small>
                                         </div>
                                         <div class="form-group">
                                             <label for="zoomeye-api-key">API Key</label>
-                                            <input type="password" id="zoomeye-api-key" placeholder="输入 ZoomEye API Key" autocomplete="off" />
-                                            <small class="form-hint">仅保存在服务器配置中（config.yaml）。</small>
+                                            <input type="password" id="zoomeye-api-key" placeholder="Enter ZoomEye API Key" autocomplete="off" />
+                                            <small class="form-hint">Stored in server config (config.yaml) only.</small>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="settings-subsection">
-                                    <h4>Quake 配置</h4>
-                                    <p class="form-hint">用于信息收集页调用 360 Quake API；也可设置环境变量 QUAKE_API_KEY。</p>
+                                    <h4>Quake config</h4>
+                                    <p class="form-hint">Used for asset discovery to call the 360 Quake API; can also be set via the QUAKE_API_KEY environment variable.</p>
                                     <div class="settings-form">
                                         <div class="form-group">
                                             <label for="quake-base-url">Base URL</label>
-                                            <input type="text" id="quake-base-url" placeholder="https://quake.360.net/api/v3/search/quake_service（可选）" />
-                                            <small class="form-hint">留空则使用默认地址。</small>
+                                            <input type="text" id="quake-base-url" placeholder="https://quake.360.net/api/v3/search/quake_service (optional)" />
+                                            <small class="form-hint">Leave empty for default.</small>
                                         </div>
                                         <div class="form-group">
                                             <label for="quake-api-key">API Token</label>
-                                            <input type="password" id="quake-api-key" placeholder="输入 Quake API Token" autocomplete="off" />
-                                            <small class="form-hint">仅保存在服务器配置中（config.yaml）。</small>
+                                            <input type="password" id="quake-api-key" placeholder="Enter Quake API Token" autocomplete="off" />
+                                            <small class="form-hint">Stored in server config (config.yaml) only.</small>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="settings-subsection">
-                                    <h4>Shodan 配置</h4>
-                                    <p class="form-hint">用于信息收集页调用 Shodan API；也可设置环境变量 SHODAN_API_KEY。</p>
+                                    <h4>Shodan config</h4>
+                                    <p class="form-hint">Used for asset discovery to call the Shodan API; can also be set via the SHODAN_API_KEY environment variable.</p>
                                     <div class="settings-form">
                                         <div class="form-group">
                                             <label for="shodan-base-url">Base URL</label>
-                                            <input type="text" id="shodan-base-url" placeholder="https://api.shodan.io（可选）" />
-                                            <small class="form-hint">留空则使用默认地址。</small>
+                                            <input type="text" id="shodan-base-url" placeholder="https://api.shodan.io (optional)" />
+                                            <small class="form-hint">Leave empty for default.</small>
                                         </div>
                                         <div class="form-group">
                                             <label for="shodan-api-key">API Key</label>
-                                            <input type="password" id="shodan-api-key" placeholder="输入 Shodan API Key" autocomplete="off" />
-                                            <small class="form-hint">仅保存在服务器配置中（config.yaml）。</small>
+                                            <input type="password" id="shodan-api-key" placeholder="Enter Shodan API Key" autocomplete="off" />
+                                            <small class="form-hint">Stored in server config (config.yaml) only.</small>
                                         </div>
                                     </div>
                                 </div>
@@ -4209,7 +4209,7 @@
                                 </div>
                             </div>
 
-                            <!-- 知识库设置 -->
+                            <!-- Knowledge base settings -->
                             <div id="settings-section-knowledge" class="settings-section-content">
                                 <div class="settings-section-header">
                                     <h3 data-i18n="settings.knowledge.title">Knowledge base</h3>
@@ -4278,8 +4278,8 @@
                                         </div>
                                         <div class="form-group">
                                             <label for="knowledge-retrieval-sub-index-filter" data-i18n="settingsBasic.subIndexFilter">Sub-index filter (optional)</label>
-                                            <input type="text" id="knowledge-retrieval-sub-index-filter" data-i18n="settingsBasic.subIndexFilterPlaceholder" data-i18n-attr="placeholder" placeholder="与索引 sub_indexes 标签一致，如 prod" />
-                                            <small class="form-hint" data-i18n="settingsBasic.subIndexFilterHint">留空表示不过滤；非空时仅检索 sub_indexes 含该标签的向量行（未打标旧数据仍会命中）。</small>
+                                            <input type="text" id="knowledge-retrieval-sub-index-filter" data-i18n="settingsBasic.subIndexFilterPlaceholder" data-i18n-attr="placeholder" placeholder="Must match the index sub_indexes tag, e.g. prod" />
+                                            <small class="form-hint" data-i18n="settingsBasic.subIndexFilterHint">Leave empty for no filtering; when set, retrieval only matches vector rows whose sub_indexes contains this tag (untagged legacy data still matches).</small>
                                         </div>
 
                                         <div class="settings-subsection-header">
@@ -4343,17 +4343,17 @@
                                                 <option value="markdown_then_recursive" data-i18n="settingsBasic.chunkStrategyMarkdownRecursive">Markdown headers, then recursive (recommended)</option>
                                                 <option value="recursive" data-i18n="settingsBasic.chunkStrategyRecursive">Recursive only</option>
                                             </select>
-                                            <small class="form-hint" data-i18n="settingsBasic.chunkStrategyHint">与 Eino 官方索引链一致：技术文档建议 Markdown 标题 + 递归；纯文本可仅用递归。</small>
+                                            <small class="form-hint" data-i18n="settingsBasic.chunkStrategyHint">Matches Eino’s official indexing chain: for technical docs, Markdown headers + recursive is recommended; plain text can use recursive only.</small>
                                         </div>
                                         <div class="form-group">
                                             <label for="knowledge-indexing-request-timeout" data-i18n="settingsBasic.requestTimeoutSeconds">Embedding HTTP timeout (seconds)</label>
                                             <input type="number" id="knowledge-indexing-request-timeout" min="0" max="600" data-i18n="settingsBasic.requestTimeoutPlaceholder" data-i18n-attr="placeholder" placeholder="120" />
-                                            <small class="form-hint" data-i18n="settingsBasic.requestTimeoutHint">0 表示使用默认 120 秒；与 OpenAI 嵌入客户端一致。</small>
+                                            <small class="form-hint" data-i18n="settingsBasic.requestTimeoutHint">0 means the default of 120 seconds is used; consistent with the OpenAI embedding client.</small>
                                         </div>
                                         <div class="form-group">
                                             <label for="knowledge-indexing-batch-size" data-i18n="settingsBasic.batchSize">Embedding batch size</label>
                                             <input type="number" id="knowledge-indexing-batch-size" min="1" max="256" data-i18n="settingsBasic.batchSizePlaceholder" data-i18n-attr="placeholder" placeholder="64" />
-                                            <small class="form-hint" data-i18n="settingsBasic.batchSizeHint">单次请求嵌入的文本条数上限（SQLite 索引写入分批）。</small>
+                                            <small class="form-hint" data-i18n="settingsBasic.batchSizeHint">Max number of text entries embedded per request (SQLite index writes are batched).</small>
                                         </div>
                                         <div class="form-group">
                                             <label class="checkbox-label">
@@ -4365,7 +4365,7 @@
                                         <div class="form-group">
                                             <label for="knowledge-indexing-sub-indexes" data-i18n="settingsBasic.subIndexes">Eino sub-indexes (comma-separated)</label>
                                             <input type="text" id="knowledge-indexing-sub-indexes" data-i18n="settingsBasic.subIndexesPlaceholder" data-i18n-attr="placeholder" placeholder="e.g. prod, knowledge" />
-                                            <small class="form-hint" data-i18n="settingsBasic.subIndexesHint">传入 indexer.WithSubIndexes，写入向量行的 sub_indexes 字段（逻辑分区标记）。</small>
+                                            <small class="form-hint" data-i18n="settingsBasic.subIndexesHint">Passed to indexer.WithSubIndexes, written to the sub_indexes field of vector rows (a logical partition marker).</small>
                                         </div>
                                         <div class="form-group">
                                             <label for="knowledge-indexing-chunk-size" data-i18n="settingsBasic.chunkSize">Chunk size</label>
@@ -4410,7 +4410,7 @@
                                 </div>
                             </div>
 
-                            <!-- C2 总开关 -->
+                            <!-- C2 master switch -->
                             <div id="settings-section-c2" class="settings-section-content">
                                 <div class="settings-section-header">
                                     <h3 data-i18n="settings.c2.title">C2</h3>
@@ -4424,7 +4424,7 @@
                                                 <span class="checkbox-custom"></span>
                                                 <span class="checkbox-text" data-i18n="settings.c2.enableLabel">Enable built-in C2 (listeners, sessions, payloads, MCP tools)</span>
                                             </label>
-                                            <small class="form-hint" data-i18n="settings.c2.enableHint">关闭后不再启动监听器、不注册 C2 相关 MCP 工具，侧栏 C2 入口将隐藏；仅本机使用对话与知识库时可关闭以节省资源。</small>
+                                            <small class="form-hint" data-i18n="settings.c2.enableHint">When off, no listeners start and no C2-related MCP tools are registered; the sidebar C2 entry is hidden. Turn it off to save resources if only chat and the knowledge base are used locally.</small>
                                         </div>
                                     </div>
                                 </div>
@@ -4433,11 +4433,11 @@
                                 </div>
                             </div>
 
-                            <!-- 机器人设置 -->
+                            <!-- Bot settings -->
                             <div id="settings-section-robots" class="settings-section-content">
                                 <div class="settings-section-header">
                                     <h3 data-i18n="settings.robots.title">Bot settings</h3>
-                                    <p class="settings-description" data-i18n="settings.robots.description">配置企业微信、钉钉、飞书等机器人，在手机端直接与 CyberStrikeAI 对话，无需在服务器上打开网页。</p>
+                                    <p class="settings-description" data-i18n="settings.robots.description">Configure bots such as WeCom, DingTalk, and Lark to chat with CyberStrikeAI directly from your phone, without opening the web page on the server.</p>
                                 </div>
 
                                 <div class="robot-manager">
@@ -4572,32 +4572,32 @@
                                 </div>
 
                                 <div id="robot-auth-policy-panel" class="settings-subsection" hidden>
-                                    <h4>业务鉴权策略</h4>
+                                    <h4>Business authorization strategy</h4>
                                     <div class="settings-form">
                                         <div class="form-group">
-                                            <label for="robot-auth-mode">鉴权模式</label>
+                                            <label for="robot-auth-mode">Authorization mode</label>
                                             <select id="robot-auth-mode" class="form-select" onchange="onRobotAuthModeChange()">
-                                                <option value="user_binding">逐用户绑定（多人机器人推荐）</option>
-                                                <option value="service_account">专用服务账号（仅白名单发送者）</option>
+                                                <option value="user_binding">Per-user binding (recommended for multi-user bots)</option>
+                                                <option value="service_account">Dedicated service account (whitelisted senders only)</option>
                                             </select>
-                                            <small class="form-hint">平台验签负责确认消息来源；这里决定消息最终使用哪个 RBAC 身份。</small>
+                                            <small class="form-hint">The platform signature verification confirms the message source; this setting decides which RBAC identity the message ultimately uses.</small>
                                         </div>
                                         <div id="robot-service-account-fields" hidden>
                                             <div class="form-group">
-                                                <label for="robot-service-user-id">服务账号 RBAC User ID</label>
-                                                <input type="text" id="robot-service-user-id" placeholder="例如 admin 或专用服务账号 User ID" autocomplete="off" oninput="updateRobotServiceAccountWarning()" />
-                                                <small id="robot-service-admin-warning" class="form-hint robot-service-admin-warning" hidden>当前使用 admin：白名单发送者将拥有完整平台权限，请仅添加你完全信任的账号。</small>
+                                                <label for="robot-service-user-id">Service account RBAC User ID</label>
+                                                <input type="text" id="robot-service-user-id" placeholder="e.g. admin or a dedicated service-account User ID" autocomplete="off" oninput="updateRobotServiceAccountWarning()" />
+                                                <small id="robot-service-admin-warning" class="form-hint robot-service-admin-warning" hidden>Currently using admin: whitelisted senders will have full platform permissions. Only add accounts you fully trust.</small>
                                             </div>
                                             <div class="form-group">
-                                                <label for="robot-allowed-external-users">允许的平台发送者 ID</label>
-                                                <textarea id="robot-allowed-external-users" rows="4" placeholder="每行一个；在机器人中发送“身份”或 whoami 获取"></textarea>
-                                                <small class="form-hint">不支持 * 通配符。服务账号模式只有这里列出的真实发送者可以执行。</small>
+                                                <label for="robot-allowed-external-users">Allowed platform sender IDs</label>
+                                                <textarea id="robot-allowed-external-users" rows="4" placeholder="One per line; send whoami in the bot to look it up"></textarea>
+                                                <small class="form-hint">The * wildcard is not supported. In service-account mode, only the real senders listed here can execute commands.</small>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- 微信 / iLink -->
+                                <!-- WeChat / iLink -->
                                 <div class="settings-subsection robot-editor-panel robot-wechat-card" id="robot-wechat-subsection" data-robot-editor="wechat" hidden>
                                     <div class="robot-wechat-header">
                                         <div class="robot-wechat-header-text">
@@ -4630,7 +4630,7 @@
                                                 <div class="robot-wechat-bound-icon" aria-hidden="true">
                                                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                                                 </div>
-                                                <p class="robot-wechat-bound-msg" data-i18n="settings.robots.wechat.boundSuccess">绑定成功，微信机器人已启用</p>
+                                                <p class="robot-wechat-bound-msg" data-i18n="settings.robots.wechat.boundSuccess">Binding successful. WeChat bot is enabled.</p>
                                                 <p id="robot-wechat-bound-id" class="robot-wechat-bound-id" hidden></p>
                                             </div>
                                             <div id="robot-wechat-scan-panel" class="robot-wechat-scan-panel" hidden>
@@ -4671,7 +4671,7 @@
                                     </div>
                                 </div>
 
-                                <!-- 企业微信 -->
+                                <!-- WeCom -->
                                 <div class="settings-subsection robot-editor-panel" data-robot-editor="wecom" hidden>
                                     <h4 data-i18n="settings.robots.wecom.title">WeCom</h4>
                                     <div class="settings-form">
@@ -4705,7 +4705,7 @@
                                     </div>
                                 </div>
 
-                                <!-- 钉钉 -->
+                                <!-- DingTalk -->
                                 <div class="settings-subsection robot-editor-panel" data-robot-editor="dingtalk" hidden>
                                     <h4 data-i18n="settings.robots.dingtalk.title">DingTalk</h4>
                                     <div class="settings-form">
@@ -4728,7 +4728,7 @@
                                     </div>
                                 </div>
 
-                                <!-- 飞书 -->
+                                <!-- Lark -->
                                 <div class="settings-subsection robot-editor-panel" data-robot-editor="lark" hidden>
                                     <h4 data-i18n="settings.robots.lark.title">Lark</h4>
                                     <div class="settings-form">
@@ -4767,12 +4767,12 @@
                                         </div>
                                         <div class="form-group">
                                             <label for="robot-telegram-bot-token" data-i18n="settings.robots.telegram.botToken">Bot Token</label>
-                                            <input type="password" id="robot-telegram-bot-token" autocomplete="off" placeholder="从 @BotFather 获取" />
+                                            <input type="password" id="robot-telegram-bot-token" autocomplete="off" placeholder="Obtained from @BotFather" />
                                             <small class="form-hint" data-i18n="settings.robots.telegram.botTokenHint">Receives via getUpdates long poll; no public callback URL needed</small>
                                         </div>
                                         <div class="form-group">
                                             <label for="robot-telegram-bot-username" data-i18n="settings.robots.telegram.botUsername">Bot Username (optional)</label>
-                                            <input type="text" id="robot-telegram-bot-username" autocomplete="off" placeholder="不含 @，留空则自动 getMe" />
+                                            <input type="text" id="robot-telegram-bot-username" autocomplete="off" placeholder="Without @; leave blank to auto getMe" />
                                         </div>
                                         <div class="form-group">
                                             <label class="checkbox-label">
@@ -4874,23 +4874,23 @@
                                             <div class="robot-type-grid">
                                                 <button type="button" class="robot-type-option" onclick="selectRobotType('wechat')">
                                                     <span data-i18n="settings.robots.wechat.title">WeChat / iLink</span>
-                                                    <small data-i18n="settings.robots.wechat.subtitle">扫码绑定个人微信</small>
+                                                    <small data-i18n="settings.robots.wechat.subtitle">Scan a QR code to bind your personal WeChat</small>
                                                 </button>
                                                 <button type="button" class="robot-type-option" onclick="selectRobotType('wecom')">
                                                     <span data-i18n="settings.robots.wecom.title">WeCom</span>
-                                                    <small data-i18n="settings.robots.wecom.subtitle">HTTP 回调模式</small>
+                                                    <small data-i18n="settings.robots.wecom.subtitle">HTTP callback mode</small>
                                                 </button>
                                                 <button type="button" class="robot-type-option" onclick="selectRobotType('dingtalk')">
                                                     <span data-i18n="settings.robots.dingtalk.title">DingTalk</span>
-                                                    <small data-i18n="settings.robots.dingtalk.subtitle">Stream 长连接</small>
+                                                    <small data-i18n="settings.robots.dingtalk.subtitle">Stream long connection</small>
                                                 </button>
                                                 <button type="button" class="robot-type-option" onclick="selectRobotType('lark')">
                                                     <span data-i18n="settings.robots.lark.title">Lark</span>
-                                                    <small data-i18n="settings.robots.lark.subtitle">企业应用机器人</small>
+                                                    <small data-i18n="settings.robots.lark.subtitle">Enterprise app bot</small>
                                                 </button>
                                                 <button type="button" class="robot-type-option" onclick="selectRobotType('telegram')">
                                                     <span data-i18n="settings.robots.telegram.title">Telegram</span>
-                                                    <small data-i18n="settings.robots.telegram.subtitle">Bot API 长轮询</small>
+                                                    <small data-i18n="settings.robots.telegram.subtitle">Bot API long polling</small>
                                                 </button>
                                                 <button type="button" class="robot-type-option" onclick="selectRobotType('slack')">
                                                     <span data-i18n="settings.robots.slack.title">Slack</span>
@@ -4902,7 +4902,7 @@
                                                 </button>
                                                 <button type="button" class="robot-type-option" onclick="selectRobotType('qq')">
                                                     <span data-i18n="settings.robots.qq.title">QQ Bot</span>
-                                                    <small data-i18n="settings.robots.qq.subtitle">QQ 开放平台</small>
+                                                    <small data-i18n="settings.robots.qq.subtitle">QQ Open Platform</small>
                                                 </button>
                                             </div>
                                         </div>
@@ -4920,56 +4920,56 @@
 
                                             <p class="robot-cmd-category" data-i18n="settingsRobotsExtra.botCmdCategoryGeneral">General</p>
                                             <ul class="robot-cmd-list">
-                                                <li><code>帮助</code> <code>help</code> — <span data-i18n="settingsRobotsExtra.botCmdHelp">Show this help</span></li>
-                                                <li><code>版本</code> <code>version</code> — <span data-i18n="settingsRobotsExtra.botCmdVersion">Show version</span></li>
+                                                <li><code>help</code> — <span data-i18n="settingsRobotsExtra.botCmdHelp">Show this help</span></li>
+                                                <li><code>version</code> — <span data-i18n="settingsRobotsExtra.botCmdVersion">Show version</span></li>
                                             </ul>
 
                                             <p class="robot-cmd-category" data-i18n="settingsRobotsExtra.botCmdCategoryIdentity">Identity and authorization</p>
                                             <ul class="robot-cmd-list">
-                                                <li><code>身份</code> <code>whoami</code> — <span data-i18n="settingsRobotsExtra.botCmdIdentity">Show the platform sender, authorization mode, and effective RBAC identity</span></li>
-                                                <li><code>绑定 &lt;绑定码&gt;</code> <code>bind &lt;code&gt;</code> — <span data-i18n="settingsRobotsExtra.botCmdBindUser">Bind this platform identity to an RBAC user (user-binding mode only)</span></li>
-                                                <li><code>解绑</code> <code>unbind</code> — <span data-i18n="settingsRobotsExtra.botCmdUnbindUser">Remove this platform identity binding (user-binding mode only; confirmation required)</span></li>
+                                                <li><code>whoami</code> — <span data-i18n="settingsRobotsExtra.botCmdIdentity">Show the platform sender, authorization mode, and effective RBAC identity</span></li>
+                                                <li><code>bind &lt;code&gt;</code> — <span data-i18n="settingsRobotsExtra.botCmdBindUser">Bind this platform identity to an RBAC user (user-binding mode only)</span></li>
+                                                <li><code>unbind</code> — <span data-i18n="settingsRobotsExtra.botCmdUnbindUser">Remove this platform identity binding (user-binding mode only; confirmation required)</span></li>
                                             </ul>
                                             <p class="settings-description" data-i18n="settingsRobotsExtra.botAuthHint">Service-account mode does not accept bind or unbind commands; only configured allowlisted senders are accepted.</p>
 
                                             <p class="robot-cmd-category" data-i18n="settingsRobotsExtra.botCmdCategoryConversation">Conversation</p>
                                             <ul class="robot-cmd-list">
-                                                <li><code>列表</code> <code>list</code> — <span data-i18n="settingsRobotsExtra.botCmdList">List conversations</span></li>
-                                                <li><code>切换 &lt;ID&gt;</code> <code>switch &lt;ID&gt;</code> — <span data-i18n="settingsRobotsExtra.botCmdSwitch">Switch to conversation</span></li>
-                                                <li><code>新对话</code> <code>new</code> — <span data-i18n="settingsRobotsExtra.botCmdNew">Start new conversation</span></li>
-                                                <li><code>清空</code> <code>clear</code> — <span data-i18n="settingsRobotsExtra.botCmdClear">Clear context</span></li>
-                                                <li><code>状态</code> <code>status</code> — <span data-i18n="settingsRobotsExtra.botCmdStatus">Show the current conversation, mode, role and project</span></li>
-                                                <li><code>任务</code> <code>task</code> — <span data-i18n="settingsRobotsExtra.botCmdTask">Show current task status and elapsed time</span></li>
-                                                <li><code>重命名 &lt;名称&gt;</code> <code>rename &lt;name&gt;</code> — <span data-i18n="settingsRobotsExtra.botCmdRename">Rename the current conversation</span></li>
-                                                <li><code>停止</code> <code>stop</code> — <span data-i18n="settingsRobotsExtra.botCmdStop">Stop running task</span></li>
-                                                <li><code>删除 &lt;ID&gt;</code> <code>delete &lt;ID&gt;</code> — <span data-i18n="settingsRobotsExtra.botCmdDelete">Delete conversation (confirmation required)</span></li>
+                                                <li><code>list</code> — <span data-i18n="settingsRobotsExtra.botCmdList">List conversations</span></li>
+                                                <li><code>switch &lt;ID&gt;</code> — <span data-i18n="settingsRobotsExtra.botCmdSwitch">Switch to conversation</span></li>
+                                                <li><code>new</code> — <span data-i18n="settingsRobotsExtra.botCmdNew">Start new conversation</span></li>
+                                                <li><code>clear</code> — <span data-i18n="settingsRobotsExtra.botCmdClear">Clear context</span></li>
+                                                <li><code>status</code> — <span data-i18n="settingsRobotsExtra.botCmdStatus">Show the current conversation, mode, role and project</span></li>
+                                                <li><code>task</code> — <span data-i18n="settingsRobotsExtra.botCmdTask">Show current task status and elapsed time</span></li>
+                                                <li><code>rename &lt;name&gt;</code> — <span data-i18n="settingsRobotsExtra.botCmdRename">Rename the current conversation</span></li>
+                                                <li><code>stop</code> — <span data-i18n="settingsRobotsExtra.botCmdStop">Stop running task</span></li>
+                                                <li><code>delete &lt;ID&gt;</code> — <span data-i18n="settingsRobotsExtra.botCmdDelete">Delete conversation (confirmation required)</span></li>
                                             </ul>
 
                                             <p class="robot-cmd-category" data-i18n="settingsRobotsExtra.botCmdCategoryRole">Role</p>
                                             <ul class="robot-cmd-list">
-                                                <li><code>角色</code> <code>roles</code> — <span data-i18n="settingsRobotsExtra.botCmdRoles">List roles</span></li>
-                                                <li><code>角色 &lt;名&gt;</code> <code>role &lt;name&gt;</code> — <span data-i18n="settingsRobotsExtra.botCmdRole">Switch role</span></li>
+                                                <li><code>roles</code> — <span data-i18n="settingsRobotsExtra.botCmdRoles">List roles</span></li>
+                                                <li><code>role &lt;name&gt;</code> — <span data-i18n="settingsRobotsExtra.botCmdRole">Switch role</span></li>
                                             </ul>
 
                                             <p class="robot-cmd-category" data-i18n="settingsRobotsExtra.botCmdCategoryMode">Mode</p>
                                             <ul class="robot-cmd-list">
-                                                <li><code>模式</code> <code>modes</code> — <span data-i18n="settingsRobotsExtra.botCmdModes">List conversation modes and the current selection</span></li>
-                                                <li><code>模式 &lt;名称&gt;</code> <code>mode &lt;name&gt;</code> — <span data-i18n="settingsRobotsExtra.botCmdMode">Switch conversation mode</span></li>
+                                                <li><code>modes</code> — <span data-i18n="settingsRobotsExtra.botCmdModes">List conversation modes and the current selection</span></li>
+                                                <li><code>mode &lt;name&gt;</code> — <span data-i18n="settingsRobotsExtra.botCmdMode">Switch conversation mode</span></li>
                                             </ul>
 
                                             <p class="robot-cmd-category" data-i18n="settingsRobotsExtra.botCmdCategoryProject">Project</p>
                                             <ul class="robot-cmd-list">
-                                                <li><code>项目</code> <code>projects</code> — <span data-i18n="settingsRobotsExtra.botCmdProjects">List projects</span></li>
-                                                <li><code>新建项目 &lt;名称&gt;</code> <code>new project &lt;name&gt;</code> — <span data-i18n="settingsRobotsExtra.botCmdNewProject">Create project and bind current conversation</span></li>
-                                                <li><code>绑定项目 &lt;ID或名称&gt;</code> <code>bind project &lt;ID|name&gt;</code> — <span data-i18n="settingsRobotsExtra.botCmdBindProject">Bind current conversation to a project</span></li>
-                                                <li><code>解除项目</code> <code>unbind project</code> — <span data-i18n="settingsRobotsExtra.botCmdUnbindProject">Unbind project from current conversation</span></li>
+                                                <li><code>projects</code> — <span data-i18n="settingsRobotsExtra.botCmdProjects">List projects</span></li>
+                                                <li><code>new project &lt;name&gt;</code> — <span data-i18n="settingsRobotsExtra.botCmdNewProject">Create project and bind current conversation</span></li>
+                                                <li><code>bind project &lt;ID|name&gt;</code> — <span data-i18n="settingsRobotsExtra.botCmdBindProject">Bind current conversation to a project</span></li>
+                                                <li><code>unbind project</code> — <span data-i18n="settingsRobotsExtra.botCmdUnbindProject">Unbind project from current conversation</span></li>
                                             </ul>
 
                                             <p class="robot-cmd-category" data-i18n="settingsRobotsExtra.botCmdCategoryDiagnostics">Diagnostics and safety</p>
                                             <ul class="robot-cmd-list">
-                                                <li><code>权限</code> <code>permissions</code> — <span data-i18n="settingsRobotsExtra.botCmdPermissions">Show effective business permissions</span></li>
-                                                <li><code>诊断</code> <code>doctor</code> — <span data-i18n="settingsRobotsExtra.botCmdDoctor">Check key configuration status</span></li>
-                                                <li><code>确认</code> <code>confirm</code> / <code>取消</code> <code>cancel</code> — <span data-i18n="settingsRobotsExtra.botCmdConfirmation">Confirm or cancel a risky action</span></li>
+                                                <li><code>permissions</code> — <span data-i18n="settingsRobotsExtra.botCmdPermissions">Show effective business permissions</span></li>
+                                                <li><code>doctor</code> — <span data-i18n="settingsRobotsExtra.botCmdDoctor">Check key configuration status</span></li>
+                                                <li><code>confirm</code> / <code>cancel</code> — <span data-i18n="settingsRobotsExtra.botCmdConfirmation">Confirm or cancel a risky action</span></li>
                                             </ul>
 
                                             <p class="settings-description robot-cmd-footer" data-i18n="settingsRobotsExtra.botCommandsFooter">Otherwise, text is sent to AI under the bound user or service account's current RBAC permissions.</p>
@@ -4990,7 +4990,7 @@
                                 </div>
                             </div>
 
-                            <!-- 终端 -->
+                            <!-- Terminal -->
                             <div id="settings-section-terminal" class="settings-section-content">
                                 <div class="settings-section-header">
                                     <h3 data-i18n="settingsTerminal.title">Terminal</h3>
@@ -4998,8 +4998,8 @@
                                 </div>
                                 <div class="terminal-wrapper">
                                     <div class="terminal-tabs">
-                                        <div class="terminal-tab active" data-tab-id="1"><span class="terminal-tab-label" onclick="switchTerminalTab(1)">终端 1</span><button type="button" class="terminal-tab-close" onclick="removeTerminalTab(1); event.stopPropagation();" data-i18n="settingsTerminal.close" data-i18n-attr="title" title="关闭">×</button></div>
-                                        <button type="button" class="terminal-tab-new" onclick="addTerminalTab()" data-i18n="settingsTerminal.newTerminal" data-i18n-attr="title" title="新终端">+</button>
+                                        <div class="terminal-tab active" data-tab-id="1"><span class="terminal-tab-label" onclick="switchTerminalTab(1)">Terminal 1</span><button type="button" class="terminal-tab-close" onclick="removeTerminalTab(1); event.stopPropagation();" data-i18n="settingsTerminal.close" data-i18n-attr="title" title="Close">×</button></div>
+                                        <button type="button" class="terminal-tab-new" onclick="addTerminalTab()" data-i18n="settingsTerminal.newTerminal" data-i18n-attr="title" title="New terminal">+</button>
                                     </div>
                                     <div class="terminal-panes">
                                         <div id="terminal-pane-1" class="terminal-pane active">
@@ -5009,7 +5009,7 @@
                                 </div>
                             </div>
 
-                            <!-- 日志审计 -->
+                            <!-- Audit log -->
                             <div id="settings-section-audit" class="settings-section-content">
                                 <div class="audit-section-head">
                                     <h3 data-i18n="settingsAudit.title">Audit logs</h3>
@@ -5034,7 +5034,7 @@
                                         <div class="audit-field audit-field--event">
                                             <span data-i18n="settingsAudit.filterEvent">Event type</span>
                                             <div class="audit-filter-cascade">
-                                                <select id="audit-filter-category" onchange="onAuditCategoryFilterChange()" aria-label="类别">
+                                                <select id="audit-filter-category" onchange="onAuditCategoryFilterChange()" aria-label="Category">
                                                     <option value="" data-i18n="settingsAudit.filterAllCategories">All categories</option>
                                                     <option value="auth" data-i18n="settingsAudit.cat.auth">Auth</option>
                                                     <option value="config" data-i18n="settingsAudit.cat.config">Config</option>
@@ -5053,7 +5053,7 @@
                                                     <option value="agent" data-i18n="settingsAudit.cat.agent">Sub-agents</option>
                                                 </select>
                                                 <span class="audit-filter-cascade-arrow" aria-hidden="true">→</span>
-                                                <select id="audit-filter-action" disabled aria-label="操作">
+                                                <select id="audit-filter-action" disabled aria-label="Action">
                                                     <option value="" data-i18n="settingsAudit.filterAllActions">All actions</option>
                                                 </select>
                                             </div>
@@ -5117,7 +5117,7 @@
                                 <div id="audit-logs-pagination" class="pagination-container audit-logs-pagination"></div>
                             </div>
 
-                            <!-- 安全设置 -->
+                            <!-- Security settings -->
                             <div id="settings-section-security" class="settings-section-content">
                                 <div class="settings-section-header">
                                     <h3 data-i18n="settings.nav.security">Security</h3>
@@ -5151,7 +5151,7 @@
                                 </div>
                             </div>
 
-                            <!-- 存储清理 -->
+                            <!-- Storage cleanup -->
                             <div id="settings-section-storage" class="settings-section-content">
                                 <div class="settings-section-header">
                                     <h3 data-i18n="settingsStorage.title">Storage cleanup</h3>
@@ -5237,13 +5237,13 @@
                                 </div>
                             </div>
 
-                            <!-- 一键更新 -->
+                            <!-- One-click update -->
                             <div id="settings-section-update" class="settings-section-content" data-require-permission="update:read">
                                 <div class="settings-section-header update-section-head">
                                     <h3 data-i18n="update.title">One-Click Update</h3>
                                     <button class="btn-secondary" type="button" onclick="loadUpdateConsole()" data-i18n="common.refresh">Refresh</button>
                                 </div>
-                                <p class="update-intro" data-i18n="update.intro">这一页改的就是当前正在应答请求的这套安装：拉取它自己跟踪的远端、重新编译、换掉二进制。你本机维护的 roles/skills/tools 与配置不会被覆盖。</p>
+                                <p class="update-intro" data-i18n="update.intro">This page changes the very installation currently answering requests: it pulls the remote it tracks, recompiles, and swaps the binary. The roles/skills/tools and config you maintain locally are never overwritten.</p>
                                 <div id="update-console" class="update-console"></div>
                             </div>
 
@@ -5251,7 +5251,7 @@
                     </div>
                 </div>
 
-                <!-- 平台权限页面 -->
+                <!-- Platform permissions page -->
                 <div id="page-platform-rbac" class="page platform-rbac-page">
                                 <div class="page-header">
                                     <div>
@@ -5284,7 +5284,7 @@
                                             </div>
                                         </div>
                                         <div id="rbac-metric-context" class="rbac-metric-context" hidden></div>
-                                        <div class="rbac-workspace-nav" role="tablist" aria-label="权限管理视图">
+                                        <div class="rbac-workspace-nav" role="tablist" aria-label="Permission management view">
                                             <button type="button" class="rbac-workspace-tab is-active" role="tab" aria-selected="true" data-rbac-view="users" onclick="switchRbacView('users')">
                                                 <span data-i18n="rbac.memberManagement">Member Management</span>
                                                 <small data-i18n="rbac.memberManagementHint">Assign roles and data scope to members</small>
@@ -5370,17 +5370,17 @@
                                                                 <option value="project" data-i18n="rbac.resourceTypes.project">Project</option>
                                                                 <option value="batch_task" data-i18n="rbac.resourceTypes.batch_task">Batch Task</option>
                                                                 <option value="vulnerability" data-i18n="rbac.resourceTypes.vulnerability">Vulnerability</option>
-                                                                <option value="asset" data-i18n="rbac.resourceTypes.asset">资产</option>
+                                                                <option value="asset" data-i18n="rbac.resourceTypes.asset">Asset</option>
                                                                 <option value="webshell" data-i18n="rbac.resourceTypes.webshell">WebShell Connection</option>
                                                                 <option value="c2_listener" data-i18n="rbac.resourceTypes.c2_listener">C2 Listener</option>
                                                             </select>
-                                                            <input id="rbac-resource-search" class="form-input" type="search" placeholder="按名称或 ID 搜索可授权资源" data-i18n="rbac.searchResourcePlaceholder" data-i18n-attr="placeholder" oninput="queueRbacResourceSearch(this.value)">
-                                                            <input id="rbac-assignment-id" class="form-input" type="text" placeholder="多个 ID 用逗号分隔" data-i18n="rbac.resourceIdPlaceholder" data-i18n-attr="placeholder" oninput="syncRbacAssignmentSubmit()">
+                                                            <input id="rbac-resource-search" class="form-input" type="search" placeholder="Search grantable resources by name or ID" data-i18n="rbac.searchResourcePlaceholder" data-i18n-attr="placeholder" oninput="queueRbacResourceSearch(this.value)">
+                                                            <input id="rbac-assignment-id" class="form-input" type="text" placeholder="Separate multiple IDs with commas" data-i18n="rbac.resourceIdPlaceholder" data-i18n-attr="placeholder" oninput="syncRbacAssignmentSubmit()">
                                                         </div>
                                                         <div id="rbac-resource-picker" class="rbac-resource-picker"></div>
                                                         <div id="rbac-resource-pagination" class="rbac-pagination">
                                                             <button type="button" class="btn-secondary btn-small" data-rbac-page-previous onclick="changeRbacResourcePage(-1)" data-i18n="rbac.pagination.previous">Previous</button>
-                                                            <span data-rbac-page-info>第 1 页</span>
+                                                            <span data-rbac-page-info>Page 1</span>
                                                             <button type="button" class="btn-secondary btn-small" data-rbac-page-next onclick="changeRbacResourcePage(1)" data-i18n="rbac.pagination.next">Next</button>
                                                         </div>
                                                     </section>
@@ -5393,13 +5393,13 @@
                                                         </div>
                                                         <div class="rbac-assignment-filterbar">
                                                             <div class="rbac-assignment-filters">
-                                                                <select id="rbac-assignment-filter-type" class="form-select rbac-form-select" onchange="changeRbacAssignmentFilter(this.value)" aria-label="筛选资源类型">
+                                                                <select id="rbac-assignment-filter-type" class="form-select rbac-form-select" onchange="changeRbacAssignmentFilter(this.value)" aria-label="Filter resource type">
                                                                     <option value="all" data-i18n="rbac.allResourceTypes">All Types</option>
                                                                     <option value="conversation" data-i18n="rbac.resourceTypes.conversation">Conversation</option>
                                                                     <option value="project" data-i18n="rbac.resourceTypes.project">Project</option>
                                                                     <option value="batch_task" data-i18n="rbac.resourceTypes.batch_task">Batch Task</option>
                                                                     <option value="vulnerability" data-i18n="rbac.resourceTypes.vulnerability">Vulnerability</option>
-                                                                    <option value="asset" data-i18n="rbac.resourceTypes.asset">资产</option>
+                                                                    <option value="asset" data-i18n="rbac.resourceTypes.asset">Asset</option>
                                                                     <option value="webshell" data-i18n="rbac.resourceTypes.webshell">WebShell Connection</option>
                                                                     <option value="c2_listener" data-i18n="rbac.resourceTypes.c2_listener">C2 Listener</option>
                                                                 </select>
@@ -5440,7 +5440,7 @@
                                                                 <option value="project" data-i18n="rbac.resourceTypes.project">Project</option>
                                                                 <option value="conversation" data-i18n="rbac.resourceTypes.conversation">Conversation</option>
                                                                 <option value="vulnerability" data-i18n="rbac.resourceTypes.vulnerability">Vulnerability</option>
-                                                                <option value="asset" data-i18n="rbac.resourceTypes.asset">资产</option>
+                                                                <option value="asset" data-i18n="rbac.resourceTypes.asset">Asset</option>
                                                                 <option value="webshell" data-i18n="rbac.resourceTypes.webshell">WebShell Connection</option>
                                                                 <option value="batch_task" data-i18n="rbac.resourceTypes.batch_task">Batch Task</option>
                                                                 <option value="c2_listener" data-i18n="rbac.resourceTypes.c2_listener">C2 Listener</option>
@@ -5453,7 +5453,7 @@
                                                 </div>
                                                 <div id="rbac-audit-pagination" class="rbac-pagination rbac-audit-pagination">
                                                     <div class="rbac-audit-pagination-meta">
-                                                        <span data-rbac-page-range>显示 0-0 / 共 0 条记录</span>
+                                                        <span data-rbac-page-range>Showing 0-0 / 0 total records</span>
                                                         <label class="rbac-audit-page-size-control">
                                                             <span data-i18n="rbac.pagination.rowsPerPage">Rows per page</span>
                                                             <select id="rbac-audit-page-size" class="form-select rbac-form-select" onchange="changeRbacAuditPageSize(this.value)" aria-label="Rows per page" data-i18n="rbac.auditPageSizeLabel" data-i18n-attr="aria-label">
@@ -5466,7 +5466,7 @@
                                                     <div class="rbac-audit-pagination-nav">
                                                         <button type="button" class="btn-secondary btn-small" data-rbac-page-first onclick="setRbacAuditPage(0)" data-i18n="rbac.pagination.first" disabled>First</button>
                                                         <button type="button" class="btn-secondary btn-small" data-rbac-page-previous onclick="changeRbacAuditPage(-1)" data-i18n="rbac.pagination.previous" disabled>Previous</button>
-                                                        <span data-rbac-page-info>第 1 / 1 页</span>
+                                                        <span data-rbac-page-info>Page 1 / 1</span>
                                                         <button type="button" class="btn-secondary btn-small" data-rbac-page-next onclick="changeRbacAuditPage(1)" data-i18n="rbac.pagination.next" disabled>Next</button>
                                                         <button type="button" class="btn-secondary btn-small" data-rbac-page-last onclick="setRbacAuditPage(-1)" data-i18n="rbac.pagination.last" disabled>Last</button>
                                                     </div>
@@ -5497,7 +5497,7 @@
     </div>
 
 
-    <!-- MCP调用详情模态框 -->
+    <!-- MCP call detail modal -->
     <div id="mcp-detail-modal" class="modal">
         <div class="modal-content mcp-detail-content">
             <div class="modal-header">
@@ -5532,8 +5532,8 @@
                     <div class="detail-section-header">
                         <h3 data-i18n="mcpDetailModal.abortTitle">Execution control</h3>
                     </div>
-                    <p class="detail-abort-hint" data-i18n="mcpDetailModal.abortHint">仅中断当前工具调用；对话与多步任务会继续。</p>
-                    <button type="button" class="btn-secondary btn-monitor-abort" id="detail-abort-btn" onclick="abortMCPToolExecutionFromDetail()">终止工具</button>
+                    <p class="detail-abort-hint" data-i18n="mcpDetailModal.abortHint">Only interrupts the current tool call; the conversation and multi-step task continue.</p>
+                    <button type="button" class="btn-secondary btn-monitor-abort" id="detail-abort-btn" onclick="abortMCPToolExecutionFromDetail()">Stop tool</button>
                 </div>
                 <div class="detail-section">
                     <div class="detail-section-header">
@@ -5549,7 +5549,7 @@
                         <h3 data-i18n="mcpDetailModal.responseResult">Response</h3>
                         <button class="btn-ghost" type="button" onclick="copyActiveMCPResultDetail(this)" data-i18n="mcpDetailModal.copyContent">Copy content</button>
                     </div>
-                    <div class="detail-result-tabs" role="tablist" aria-label="响应结果视图">
+                    <div class="detail-result-tabs" role="tablist" aria-label="Response result view">
                         <button id="detail-result-tab-success" class="detail-result-tab active" type="button" role="tab" aria-selected="true" aria-controls="detail-result-panel-success" onclick="switchMCPResultDetailTab('success')">
                             <span data-i18n="mcpDetailModal.correctInfo">Correct info</span>
                         </button>
@@ -5581,7 +5581,7 @@
         </div>
     </div>
 
-    <!-- 用户中断并说明（继续迭代） -->
+    <!-- User abort with note (continue iterating) -->
     <div id="user-interrupt-modal" class="modal">
         <div class="modal-content" style="max-width: 520px;">
             <div class="modal-header">
@@ -5589,7 +5589,7 @@
                 <span class="modal-close" onclick="closeUserInterruptModal()">&times;</span>
             </div>
             <div class="modal-body">
-                <p class="detail-abort-hint" data-i18n="tasks.interruptModalHint">填写说明后将写入对话并由智能体继续迭代。</p>
+                <p class="detail-abort-hint" data-i18n="tasks.interruptModalHint">Once you add a note, it is written into the conversation and the agent continues iterating.</p>
                 <div class="form-group">
                     <label for="user-interrupt-reason"><span data-i18n="tasks.interruptReasonLabel">Interrupt note</span></label>
                     <textarea id="user-interrupt-reason" class="form-control" rows="4" data-i18n="tasks.interruptReasonPlaceholder" data-i18n-attr="placeholder" placeholder=""></textarea>
@@ -5603,7 +5603,7 @@
         </div>
     </div>
 
-    <!-- MCP 工具终止：可填写给模型的说明 -->
+    <!-- MCP tool stop: optional note for the model -->
     <div id="mcp-tool-abort-modal" class="modal">
         <div class="modal-content" style="max-width: 520px;">
             <div class="modal-header">
@@ -5611,7 +5611,7 @@
                 <span class="modal-close" onclick="closeMcpToolAbortModal()">&times;</span>
             </div>
             <div class="modal-body">
-                <p class="detail-abort-hint" data-i18n="mcpDetailModal.abortNoteModalHint">可选说明。</p>
+                <p class="detail-abort-hint" data-i18n="mcpDetailModal.abortNoteModalHint">Optional note.</p>
                 <div class="form-group">
                     <label for="mcp-tool-abort-note"><span data-i18n="mcpDetailModal.abortNoteLabel">Note (optional)</span></label>
                     <textarea id="mcp-tool-abort-note" class="form-control" rows="4" data-i18n="mcpDetailModal.abortNotePlaceholder" data-i18n-attr="placeholder" placeholder=""></textarea>
@@ -5624,7 +5624,7 @@
         </div>
     </div>
 
-    <!-- 外部MCP配置模态框 -->
+    <!-- External MCP configuration modal -->
     <div id="external-mcp-modal" class="modal">
         <div class="modal-content" style="max-width: 900px;">
             <div class="modal-header">
@@ -5640,14 +5640,14 @@
                         <button type="button" class="btn-secondary" onclick="loadExternalMCPExample()" data-i18n="externalMcpModal.loadExample">Load example</button>
                     </div>
                     <div class="password-hint">
-                        <strong data-i18n="externalMcpModal.formatLabel">Format:</strong><span data-i18n="externalMcpModal.formatDesc">JSON对象，key为配置名称，value为配置内容。状态通过"启动/停止"按钮控制，无需在JSON中配置。</span><br>
+                        <strong data-i18n="externalMcpModal.formatLabel">Format:</strong><span data-i18n="externalMcpModal.formatDesc">A JSON object where the key is the config name and the value is its content. Status is controlled via the "Start/Stop" button and does not need to be set in the JSON.</span><br>
                         <strong data-i18n="externalMcpModal.configExample">Configuration example:</strong><br>
                         <strong data-i18n="externalMcpModal.stdioMode">stdio mode:</strong><br>
                         <code data-i18n="externalMcpModal.exampleStdio" style="display: block; margin: 8px 0; padding: 8px; background: var(--bg-secondary); border-radius: 4px; white-space: pre-wrap;">{
   "hexstrike-ai": {
     "command": "python3",
     "args": ["/path/to/script.py", "--server", "http://example.com"],
-    "description": "描述",
+    "description": "A short description of this MCP server",
     "timeout": 300
   }
 }</code>
@@ -5676,7 +5676,7 @@
         </div>
     </div>
 
-    <!-- 攻击链可视化模态框 -->
+    <!-- Attack chain visualization modal -->
     <div id="attack-chain-modal" class="modal">
         <div class="modal-content attack-chain-modal-content">
             <div class="modal-header">
@@ -5865,16 +5865,16 @@
         </div>
     </div>
 
-    <!-- Marked.js + DOMPurify + 其他前端依赖：本地 vendor，内网/离线部署不依赖 CDN -->
+    <!-- Marked.js + DOMPurify + other frontend dependencies: local vendor copies, so intranet/offline deployments do not depend on a CDN -->
     <script src="/static/vendor/marked.min.js"></script>
     <script src="/static/vendor/purify.min.js"></script>
     <script src="/static/js/sanitize-markdown.js"></script>
     <!-- Cytoscape.js for attack chain visualization -->
     <script src="/static/vendor/cytoscape.min.js"></script>
-    <!-- ELK.js (1.5MB) + SheetJS (860KB)：移动端延迟加载，首屏不再阻塞解析。
-         桌面端走 document.write 分支，保持与静态 <script src> 完全一致的同步语义。
-         安全依据：chat.js:7450 与 fact-graph.js:491 均有 typeof ELK 守卫并降级为默认布局；
-         assets.js:127/234/1024 与 info-collect.js:1537 均有 XLSX 守卫。 -->
+    <!-- ELK.js (1.5MB) + SheetJS (860KB): lazy-loaded on mobile so they no longer block first-paint parsing.
+         Desktop takes the document.write branch, keeping the exact same synchronous semantics as a static <script src>.
+         Safety rationale: chat.js:7450 and fact-graph.js:491 both guard with typeof ELK and fall back to the default layout;
+         assets.js:127/234/1024 and info-collect.js:1537 all guard with typeof XLSX. -->
     <script>
     (function () {
         var LAZY_VENDOR = ['/static/vendor/elk.bundled.js', '/static/vendor/xlsx.full.min.js'];
@@ -5898,12 +5898,12 @@
     })();
     </script>
     <script>
-        // 确保ELK对象全局可用
+        // Ensure the ELK object is available globally
         if (typeof ELK === 'undefined' && typeof elk !== 'undefined') {
             window.ELK = elk;
         }
     </script>
-    <!-- 工作流信息 -->
+    <!-- Workflow info -->
     <div id="workflow-meta-modal" class="modal" style="display: none;">
         <div class="modal-content workflow-meta-modal-content">
             <div class="modal-header workflow-meta-modal-header">
@@ -6036,7 +6036,7 @@
                         </span>
                         <span class="workflow-package-dropzone-copy">
                             <strong data-i18n="workflows.package.dropTitle">Drop a local package here</strong>
-                            <span><span data-i18n="workflows.package.dropOr">or</span> <span class="workflow-package-browse" data-i18n="workflows.package.selectFile">浏览文件</span></span>
+                            <span><span data-i18n="workflows.package.dropOr">or</span> <span class="workflow-package-browse" data-i18n="workflows.package.selectFile">Browse files</span></span>
                         </span>
                     </div>
                     <div id="workflow-package-selected-file" class="workflow-package-selected-file" hidden>
@@ -6090,8 +6090,8 @@
             </div>
         </div>
     </div>
-    <!-- 知识项编辑模态框 -->
-    <!-- Skill模态框 -->
+    <!-- Knowledge item edit modal -->
+    <!-- Skill modal -->
     <div id="skill-modal" class="modal">
         <div class="modal-content" style="max-width: 1100px;">
             <div class="modal-header">
@@ -6107,10 +6107,10 @@
                 <div class="form-group">
                     <label for="skill-description"><span data-i18n="skillModal.description">Description</span> <span style="color: red;">*</span></label>
                     <input type="text" id="skill-description" data-i18n="skillModal.descriptionPlaceholder" data-i18n-attr="placeholder" placeholder="Short description" required />
-                    <small class="form-hint" data-i18n="skillModal.descriptionHint">写入 SKILL.md 的 YAML front matter（description 字段）</small>
+                    <small class="form-hint" data-i18n="skillModal.descriptionHint">Written into SKILL.md’s YAML front matter (the description field)</small>
                 </div>
                 <div class="form-group" id="skill-package-editor" style="display: none;">
-                    <label data-i18n="skillModal.packageFiles">包内文件（标准 Agent Skills 布局）</label>
+                    <label data-i18n="skillModal.packageFiles">Files in the package (standard Agent Skills layout)</label>
                     <small class="skill-package-tree-hint" data-i18n="skillModal.packageFilesHint">Click a file to edit; folders are labels only and cannot be opened</small>
                     <div style="display: flex; gap: 12px; align-items: flex-start; min-height: 300px;">
                         <div id="skill-package-tree"></div>
@@ -6119,19 +6119,19 @@
                                 <span data-i18n="skillModal.editingFile">Editing</span> <code id="skill-active-path">SKILL.md</code>
                             </div>
                             <div id="skill-new-file-row" style="display: flex; gap: 8px; margin-bottom: 8px; align-items: center;">
-                                <input type="text" id="skill-new-file-path" data-i18n="skillModal.newFilePlaceholder" data-i18n-attr="placeholder" placeholder="新文件路径，如 FORMS.md" style="flex: 1;" />
+                                <input type="text" id="skill-new-file-path" data-i18n="skillModal.newFilePlaceholder" data-i18n-attr="placeholder" placeholder="New file path, e.g. FORMS.md" style="flex: 1;" />
                                 <button type="button" class="btn-secondary btn-small" id="skill-new-file-btn" data-i18n="skillModal.newFile">New file</button>
                             </div>
                             <label for="skill-content"><span data-i18n="skillModal.contentLabel">Content</span> <span style="color: red;">*</span></label>
-                            <textarea id="skill-content" rows="18" data-i18n="skillModal.contentPlaceholder" data-i18n-attr="placeholder" placeholder="输入skill内容，支持Markdown格式..." style="font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; font-size: 0.875rem; line-height: 1.5; width: 100%; box-sizing: border-box;" required></textarea>
-                            <small class="form-hint" id="skill-body-hint-edit" data-i18n="skillModal.bodyHintEdit" style="display: none;">选择 SKILL.md 时，此处为正文（不含 YAML 头）；保存时与上方描述一并写回标准 SKILL.md。</small>
+                            <textarea id="skill-content" rows="18" data-i18n="skillModal.contentPlaceholder" data-i18n-attr="placeholder" placeholder="Enter skill content; Markdown is supported..." style="font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; font-size: 0.875rem; line-height: 1.5; width: 100%; box-sizing: border-box;" required></textarea>
+                            <small class="form-hint" id="skill-body-hint-edit" data-i18n="skillModal.bodyHintEdit" style="display: none;">When SKILL.md is selected, this is the body (without the YAML header); saving writes it back to a standard SKILL.md together with the description above.</small>
                         </div>
                     </div>
                 </div>
                 <div class="form-group" id="skill-add-editor">
-                    <label for="skill-content-add"><span data-i18n="skillModal.contentLabel">正文（Markdown）</span> <span style="color: red;">*</span></label>
-                    <textarea id="skill-content-add" rows="18" data-i18n="skillModal.contentPlaceholderAdd" data-i18n-attr="placeholder" placeholder="SKILL.md 正文（无需手写 front matter，由名称与描述自动生成）..." style="font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; font-size: 0.875rem; line-height: 1.5; width: 100%; box-sizing: border-box;" required></textarea>
-                    <small class="form-hint" data-i18n="skillModal.contentHintAdd">创建时只需填写正文；保存后生成标准 SKILL.md（含 YAML 头）。开源技能包可直接放入 skills/&lt;name&gt;/ 使用。</small>
+                    <label for="skill-content-add"><span data-i18n="skillModal.contentLabel">Body (Markdown)</span> <span style="color: red;">*</span></label>
+                    <textarea id="skill-content-add" rows="18" data-i18n="skillModal.contentPlaceholderAdd" data-i18n-attr="placeholder" placeholder="SKILL.md body (no need to write front matter by hand; it is generated from the name and description)..." style="font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; font-size: 0.875rem; line-height: 1.5; width: 100%; box-sizing: border-box;" required></textarea>
+                    <small class="form-hint" data-i18n="skillModal.contentHintAdd">Only the body is needed when creating; saving generates a standard SKILL.md (with a YAML header). Open-source skill packages can be dropped directly into skills/&lt;name&gt;/.</small>
                 </div>
             </div>
             <div class="modal-footer">
@@ -6144,35 +6144,35 @@
     <div id="knowledge-item-modal" class="modal">
         <div class="modal-content" style="max-width: 900px;">
             <div class="modal-header">
-                <h2 id="knowledge-item-modal-title">添加知识</h2>
+                <h2 id="knowledge-item-modal-title">Add knowledge</h2>
                 <span class="modal-close" onclick="closeKnowledgeItemModal()">&times;</span>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="knowledge-item-category">分类（风险类型）<span style="color: red;">*</span></label>
-                    <input type="text" id="knowledge-item-category" placeholder="例如：SQL注入" required />
+                    <label for="knowledge-item-category">Category (risk type)<span style="color: red;">*</span></label>
+                    <input type="text" id="knowledge-item-category" placeholder="e.g. SQL injection" required />
                 </div>
                 <div class="form-group">
-                    <label for="knowledge-item-title">标题<span style="color: red;">*</span></label>
-                    <input type="text" id="knowledge-item-title" placeholder="知识项标题" required />
+                    <label for="knowledge-item-title">Title<span style="color: red;">*</span></label>
+                    <input type="text" id="knowledge-item-title" placeholder="Knowledge item title" required />
                 </div>
                 <div class="form-group">
-                    <label for="knowledge-item-content">内容（Markdown格式）<span style="color: red;">*</span></label>
-                    <textarea id="knowledge-item-content" rows="20" placeholder="输入知识内容，支持Markdown格式..." style="font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; font-size: 0.875rem; line-height: 1.5;" required></textarea>
+                    <label for="knowledge-item-content">Content (Markdown format)<span style="color: red;">*</span></label>
+                    <textarea id="knowledge-item-content" rows="20" placeholder="Enter knowledge content; Markdown is supported..." style="font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; font-size: 0.875rem; line-height: 1.5;" required></textarea>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn-secondary" onclick="closeKnowledgeItemModal()">取消</button>
-                <button class="btn-primary" data-require-permission="knowledge:write" onclick="saveKnowledgeItem()">保存</button>
+                <button class="btn-secondary" onclick="closeKnowledgeItemModal()">Cancel</button>
+                <button class="btn-primary" data-require-permission="knowledge:write" onclick="saveKnowledgeItem()">Save</button>
             </div>
         </div>
     </div>
 
-    <!-- 批量管理对话模态框 -->
+    <!-- Batch-manage conversations modal -->
     <div id="batch-manage-modal" class="modal">
         <div class="modal-content batch-manage-modal-content">
             <div class="modal-header">
-                <h2 id="batch-manage-title">管理对话记录·共<span id="batch-manage-count">0</span>条</h2>
+                <h2 id="batch-manage-title">Manage conversation records · <span id="batch-manage-count">0</span> total</h2>
                 <div class="batch-manage-header-actions">
                     <select id="batch-project-filter" class="conversation-project-filter-native" onchange="applyBatchConversationFilters()" data-i18n="batchManageModal.filterByProject" data-i18n-attr="title" title="Filter by project">
                         <option value="" data-i18n="chat.filterAllProjects">All projects</option>
@@ -6211,7 +6211,7 @@
         </div>
     </div>
 
-    <!-- 上下文菜单 -->
+    <!-- Context menu -->
     <div id="conversation-context-menu" class="context-menu" style="display: none;">
         <div id="attack-chain-menu-item" class="context-menu-item" onclick="showAttackChainFromContext()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -6278,7 +6278,7 @@
         </div>
     </div>
 
-    <!-- 项目列表操作菜单 -->
+    <!-- Project list action menu -->
     <div id="projects-list-action-menu" class="context-menu" style="display: none;" role="menu">
         <div id="projects-list-menu-edit" class="context-menu-item" data-require-permission="project:write" onclick="editProjectFromListMenu()">
             <span id="projects-list-menu-edit-text"></span>
@@ -6295,7 +6295,7 @@
         </div>
     </div>
 
-    <!-- 新建任务模态框 -->
+    <!-- New task modal -->
     <div id="batch-import-modal" class="modal">
         <div class="modal-content" style="max-width: 800px;">
             <div class="modal-header">
@@ -6374,7 +6374,7 @@
 Scan open ports of 192.168.1.1
 Check if https://example.com has SQL injection
 Enumerate subdomains of example.com" style="font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; font-size: 0.875rem; line-height: 1.5;"></textarea>
-                    <div class="form-hint" style="margin-top: 8px;" data-i18n="batchImportModal.tasksListHintFull">提示：每行输入一个任务指令，系统将依次执行这些任务。空行会被自动忽略。</div>
+                    <div class="form-hint" style="margin-top: 8px;" data-i18n="batchImportModal.tasksListHintFull">Tip: enter one task instruction per line; the system runs them in order. Blank lines are ignored automatically.</div>
                 </div>
                 <div class="form-group">
                     <div id="batch-import-stats" class="batch-import-stats"></div>
@@ -6387,7 +6387,7 @@ Enumerate subdomains of example.com" style="font-family: 'Monaco', 'Menlo', 'Ubu
         </div>
     </div>
 
-    <!-- 批量任务队列详情模态框 -->
+    <!-- Batch task queue detail modal -->
     <div id="batch-queue-detail-modal" class="modal">
         <div class="modal-content" style="max-width: 900px;">
             <div class="modal-header">
@@ -6409,7 +6409,7 @@ Enumerate subdomains of example.com" style="font-family: 'Monaco', 'Menlo', 'Ubu
         </div>
     </div>
 
-    <!-- 添加批量任务模态框 -->
+    <!-- Add batch task modal -->
     <div id="add-batch-task-modal" class="modal">
         <div class="modal-content" style="max-width: 600px;">
             <div class="modal-header">
@@ -6434,7 +6434,7 @@ Enumerate subdomains of example.com" style="font-family: 'Monaco', 'Menlo', 'Ubu
         <div class="modal-content" style="max-width: 720px;">
             <div class="modal-header">
                 <h2 data-i18n="vulnerabilityRetest.title">Retest vulnerability</h2>
-                <button type="button" class="modal-close" onclick="closeAppModal('vulnerability-retest-modal')" aria-label="关闭">&times;</button>
+                <button type="button" class="modal-close" onclick="closeAppModal('vulnerability-retest-modal')" aria-label="Close">&times;</button>
             </div>
             <div class="modal-body">
                 <p id="vulnerability-retest-title"></p>
@@ -6453,7 +6453,7 @@ Enumerate subdomains of example.com" style="font-family: 'Monaco', 'Menlo', 'Ubu
         </div>
     </div>
 
-    <!-- 漏洞编辑模态框 -->
+    <!-- Vulnerability edit modal -->
     <div id="vulnerability-modal" class="modal">
         <div class="modal-content" style="max-width: 900px;">
             <div class="modal-header">
@@ -6486,7 +6486,7 @@ Enumerate subdomains of example.com" style="font-family: 'Monaco', 'Menlo', 'Ubu
                 </div>
                 <div class="form-group">
                     <label for="vulnerability-description"><span data-i18n="vulnerabilityModal.description">Description</span> <span style="color: red;">*</span></label>
-                    <textarea id="vulnerability-description" rows="7" data-i18n="vulnerabilityModal.descriptionPlaceholder" data-i18n-attr="placeholder" placeholder="建议包含：摘要、测试环境与范围、前置条件、复现步骤、预期结果、实际结果。"></textarea>
+                    <textarea id="vulnerability-description" rows="7" data-i18n="vulnerabilityModal.descriptionPlaceholder" data-i18n-attr="placeholder" placeholder="Suggested to include: summary, test environment and scope, preconditions, reproduction steps, expected result, actual result."></textarea>
                 </div>
                 <div class="form-group">
                     <label for="vulnerability-severity"><span data-i18n="vulnerabilityModal.severity">Severity</span> <span style="color: red;">*</span></label>
@@ -6549,7 +6549,7 @@ Enumerate subdomains of example.com" style="font-family: 'Monaco', 'Menlo', 'Ubu
         </div>
     </div>
 
-    <!-- WebShell 添加连接模态框 -->
+    <!-- WebShell add connection modal -->
     <div id="webshell-modal" class="modal">
         <div class="modal-content" style="max-width: 560px;">
             <div class="modal-header">
@@ -6585,7 +6585,7 @@ Enumerate subdomains of example.com" style="font-family: 'Monaco', 'Menlo', 'Ubu
                 </div>
                 <div class="form-group">
                     <label for="webshell-cmd-param" data-i18n="webshell.cmdParam">Command parameter name</label>
-                    <input type="text" id="webshell-cmd-param" data-i18n="webshell.cmdParamPlaceholder" data-i18n-attr="placeholder" placeholder="不填默认为 cmd，如 xxx 则请求为 xxx=命令" />
+                    <input type="text" id="webshell-cmd-param" data-i18n="webshell.cmdParamPlaceholder" data-i18n-attr="placeholder" placeholder="Defaults to cmd if left blank; e.g. xxx makes the request xxx=&lt;command&gt;" />
                 </div>
                 <div class="form-group">
                     <label for="webshell-os" data-i18n="webshell.os">Target OS</label>
@@ -6625,7 +6625,7 @@ Enumerate subdomains of example.com" style="font-family: 'Monaco', 'Menlo', 'Ubu
         </div>
     </div>
 
-    <!-- 角色选择弹窗 -->
+    <!-- Role selection modal -->
     <div id="role-select-modal" class="modal">
         <div class="modal-content role-select-modal-content">
             <div class="modal-header">
@@ -6638,7 +6638,7 @@ Enumerate subdomains of example.com" style="font-family: 'Monaco', 'Menlo', 'Ubu
         </div>
     </div>
 
-    <!-- 角色编辑模态框 -->
+    <!-- Role edit modal -->
     <div id="role-modal" class="modal">
         <div class="modal-content" style="max-width: 900px;">
             <div class="modal-header">
@@ -6716,7 +6716,7 @@ Enumerate subdomains of example.com" style="font-family: 'Monaco', 'Menlo', 'Ubu
                     <div id="role-tools-list" class="role-tools-list">
                         <div class="tools-loading" data-i18n="roleModal.loadingTools">Loading tools...</div>
                     </div>
-                    <small class="form-hint" data-i18n="roleModal.relatedToolsHint">勾选要关联的工具，留空则使用MCP管理中的全部工具配置。</small>
+                    <small class="form-hint" data-i18n="roleModal.relatedToolsHint">Check the tools to associate; leave empty to use the full tool configuration from MCP Management.</small>
                 </div>
                 <div class="form-group">
                     <label class="checkbox-label">
@@ -6820,7 +6820,7 @@ Enumerate subdomains of example.com" style="font-family: 'Monaco', 'Menlo', 'Ubu
         </div>
     </div>
 
-    <!-- 项目管理弹窗（挂 body 下，避免被 .page overflow 裁剪） -->
+    <!-- Project management modal (mounted under body to avoid being clipped by .page overflow) -->
     <div id="project-modal" class="modal-overlay projects-modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="project-modal-title" onclick="if(event.target===this)closeProjectModal()">
         <div class="projects-modal-dialog" onclick="event.stopPropagation()">
             <div class="projects-modal-header">
@@ -6834,7 +6834,7 @@ Enumerate subdomains of example.com" style="font-family: 'Monaco', 'Menlo', 'Ubu
             </div>
             <div class="projects-modal-body">
                 <div class="projects-form-field">
-                    <label for="project-modal-name" data-i18n="projects.projectName">项目名称 <span class="required">*</span></label>
+                    <label for="project-modal-name" data-i18n="projects.projectName">Project name <span class="required">*</span></label>
                     <input type="text" id="project-modal-name" class="form-input" maxlength="200" placeholder="e.g. Client A Web pentest" autocomplete="off" data-i18n="projects.projectNamePlaceholder" data-i18n-attr="placeholder">
                 </div>
                 <div class="projects-form-field">
@@ -6864,46 +6864,46 @@ Enumerate subdomains of example.com" style="font-family: 'Monaco', 'Menlo', 'Ubu
             <div class="projects-modal-body">
                 <div class="projects-form-field">
                     <label for="fact-modal-key">fact_key</label>
-                    <input type="text" id="fact-modal-key" class="form-input" placeholder="target/primary_domain 或 finding/sqli-login" oninput="updateFactFormHints()">
-                    <p class="projects-field-hint">环境类：target/、auth/、infra/、business/；发现/利用：finding/、chain/、exploit/、poc/</p>
+                    <input type="text" id="fact-modal-key" class="form-input" placeholder="target/primary_domain or finding/sqli-login" oninput="updateFactFormHints()">
+                    <p class="projects-field-hint">Environment: target/, auth/, infra/, business/; findings/exploitation: finding/, chain/, exploit/, poc/</p>
                 </div>
                 <div class="projects-form-row">
                     <div class="projects-form-field">
                         <label for="fact-modal-category" data-i18n="projects.category">Category</label>
                         <select id="fact-modal-category" class="form-input" onchange="updateFactFormHints()">
-                            <option value="target">target（目标）</option>
-                            <option value="auth">auth（认证）</option>
-                            <option value="infra">infra（基础设施）</option>
-                            <option value="business">business（业务）</option>
-                            <option value="finding">finding（发现）</option>
-                            <option value="chain">chain（攻击链）</option>
-                            <option value="exploit">exploit（利用）</option>
-                            <option value="poc">poc（POC）</option>
-                            <option value="note" selected>note（备注）</option>
+                            <option value="target">target (target)</option>
+                            <option value="auth">auth (authentication)</option>
+                            <option value="infra">infra (infrastructure)</option>
+                            <option value="business">business (business)</option>
+                            <option value="finding">finding (discovery)</option>
+                            <option value="chain">chain (attack chain)</option>
+                            <option value="exploit">exploit (exploitation)</option>
+                            <option value="poc">poc (PoC)</option>
+                            <option value="note" selected>note (remark)</option>
                         </select>
                     </div>
                     <div class="projects-form-field">
                         <label for="fact-modal-confidence" data-i18n="projects.confidence">Confidence</label>
                         <select id="fact-modal-confidence" class="form-input">
-                            <option value="tentative">待确认</option>
-                            <option value="confirmed">已确认</option>
-                            <option value="deprecated">已废弃</option>
+                            <option value="tentative">Unconfirmed</option>
+                            <option value="confirmed">Confirmed</option>
+                            <option value="deprecated">Deprecated</option>
                         </select>
                     </div>
                 </div>
                 <div class="projects-form-field">
-                    <label for="fact-modal-summary">摘要（索引一行）</label>
-                    <input type="text" id="fact-modal-summary" class="form-input" maxlength="400" placeholder="什么 + 在哪 + 如何验证（勿仅写「存在 XSS」）" oninput="updateFactFormHints()">
+                    <label for="fact-modal-summary">Summary (single indexed line)</label>
+                    <input type="text" id="fact-modal-summary" class="form-input" maxlength="400" placeholder="What + where + how to verify (don't just write 'XSS exists')" oninput="updateFactFormHints()">
                 </div>
                 <div class="projects-form-field">
                     <div class="projects-form-label-row">
-                        <label for="fact-modal-body">body（可复现详情）</label>
+                        <label for="fact-modal-body">body (reproducible details)</label>
                         <div class="projects-form-label-actions">
-                            <button type="button" class="btn-link btn-small" onclick="insertFactBodyTemplate('attack')">插入攻击链模板</button>
-                            <button type="button" class="btn-link btn-small" onclick="insertFactBodyTemplate('env')">插入环境模板</button>
+                            <button type="button" class="btn-link btn-small" onclick="insertFactBodyTemplate('attack')">Insert attack chain template</button>
+                            <button type="button" class="btn-link btn-small" onclick="insertFactBodyTemplate('env')">Insert environment template</button>
                         </div>
                     </div>
-                    <textarea id="fact-modal-body" class="form-input fact-modal-body-input" rows="14" placeholder="攻击链步骤、HTTP/命令 POC、响应现象、证据…" oninput="updateFactFormHints()"></textarea>
+                    <textarea id="fact-modal-body" class="form-input fact-modal-body-input" rows="14" placeholder="Attack chain steps, HTTP/command PoC, observed response, evidence…" oninput="updateFactFormHints()"></textarea>
                     <p id="fact-modal-body-hint" class="projects-field-hint" role="status"></p>
                     <small class="form-hint" data-i18n="projects.factBodyRelationsHint">Enter relationships such as discovered_on in the Links field below to create graph edges.</small>
                 </div>
@@ -6964,58 +6964,58 @@ Enumerate subdomains of example.com" style="font-family: 'Monaco', 'Menlo', 'Ubu
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     </span>
                     <div>
-                        <h2 id="robot-account-binding-title">绑定机器人账号</h2>
-                        <p>将 IM 平台身份安全关联到当前 RBAC 用户</p>
+                        <h2 id="robot-account-binding-title">Bind bot account</h2>
+                        <p>Securely link an IM platform identity to the current RBAC user</p>
                     </div>
                 </div>
-                <button type="button" class="modal-close" onclick="closeRobotAccountBinding()" aria-label="关闭"></button>
+                <button type="button" class="modal-close" onclick="closeRobotAccountBinding()" aria-label="Close"></button>
             </div>
             <div class="modal-body robot-binding-body">
                 <div class="robot-binding-guide">
-                    <span class="robot-binding-guide-number">1</span><span>生成一次性绑定码</span>
+                    <span class="robot-binding-guide-number">1</span><span>Generate a one-time binding code</span>
                     <span class="robot-binding-guide-arrow">→</span>
-                    <span class="robot-binding-guide-number">2</span><span>在机器人中发送绑定命令</span>
+                    <span class="robot-binding-guide-number">2</span><span>Send the binding command in the bot</span>
                     <span class="robot-binding-guide-arrow">→</span>
-                    <span class="robot-binding-guide-number">3</span><span>立即继承当前用户权限</span>
+                    <span class="robot-binding-guide-number">3</span><span>Immediately inherit the current user’s permissions</span>
                 </div>
 
                 <section id="robot-binding-code-card" class="robot-binding-code-card is-empty">
                     <div class="robot-binding-code-meta">
-                        <span class="robot-binding-one-time-badge">一次性安全码</span>
-                        <span id="robot-binding-code-state" class="robot-binding-state">等待生成</span>
+                        <span class="robot-binding-one-time-badge">One-time security code</span>
+                        <span id="robot-binding-code-state" class="robot-binding-state">Waiting to generate</span>
                     </div>
                     <div class="robot-binding-code-row">
                         <code id="robot-binding-code">••••-••••</code>
                         <div class="robot-binding-code-actions">
-                            <button type="button" class="btn-primary" id="robot-binding-generate-btn" onclick="generateRobotBindingCode()">生成绑定码</button>
+                            <button type="button" class="btn-primary" id="robot-binding-generate-btn" onclick="generateRobotBindingCode()">Generate binding code</button>
                             <button type="button" class="btn-secondary robot-binding-copy-btn" id="robot-binding-copy-btn" onclick="copyRobotBindingCode()" disabled>
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2"/></svg>
-                                <span>复制命令</span>
+                                <span>Copy command</span>
                             </button>
                         </div>
                     </div>
                     <div id="robot-binding-timer" class="robot-binding-timer" hidden>
                         <div class="robot-binding-timer-copy">
-                            <span id="robot-binding-expiry">请在机器人中发送绑定命令</span>
+                            <span id="robot-binding-expiry">Send the binding command in the bot</span>
                             <strong id="robot-binding-countdown">05:00</strong>
                         </div>
                         <div class="robot-binding-progress" aria-hidden="true"><span id="robot-binding-progress-bar"></span></div>
                     </div>
                     <p class="robot-binding-security-note">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" stroke="currentColor" stroke-width="2"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                        绑定码仅保存哈希、只能使用一次，新码会使旧码立即失效
+                        Only a hash of the binding code is stored; it can be used only once, and generating a new code immediately invalidates the old one
                     </p>
                 </section>
 
                 <section class="robot-binding-list-section">
                     <div class="robot-binding-section-heading">
                         <div>
-                            <h3>已绑定平台账号</h3>
-                            <p>这些平台身份可使用当前用户的实时 RBAC 权限</p>
+                            <h3>Bound platform accounts</h3>
+                            <p>These platform identities use the current user’s live RBAC permissions</p>
                         </div>
-                        <button type="button" class="btn-secondary btn-small" onclick="loadRobotAccountBindings()">刷新</button>
+                        <button type="button" class="btn-secondary btn-small" onclick="loadRobotAccountBindings()">Refresh</button>
                     </div>
-                    <div id="robot-account-binding-list" class="robot-account-binding-list"><div class="robot-binding-list-loading">正在加载绑定信息…</div></div>
+                    <div id="robot-account-binding-list" class="robot-account-binding-list"><div class="robot-binding-list-loading">Loading binding info…</div></div>
                 </section>
             </div>
             <div class="modal-footer robot-binding-footer">
@@ -7023,9 +7023,9 @@ Enumerate subdomains of example.com" style="font-family: 'Monaco', 'Menlo', 'Ubu
                     <span class="robot-binding-service-hint-icon" aria-hidden="true">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.09a2 2 0 0 1 1 1.74v.5a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/></svg>
                     </span>
-                    <span>如需配置专用服务账号，请前往“系统设置 → 机器人设置”。</span>
+                    <span>To configure a dedicated service account, go to “System Settings → Bot Settings”.</span>
                 </div>
-                <button type="button" class="btn-secondary" onclick="closeRobotAccountBinding()">关闭</button>
+                <button type="button" class="btn-secondary" onclick="closeRobotAccountBinding()">Close</button>
             </div>
         </div>
     </div>
@@ -7086,7 +7086,7 @@ Enumerate subdomains of example.com" style="font-family: 'Monaco', 'Menlo', 'Ubu
     <script src="/static/js/rbac.js"></script>
     <script src="/static/js/c2.js?v=20261027-pagination-custom-select"></script>
     <script src="/static/js/rbac-guards.js?v=20260907-1"></script>
-    <!-- 移动端交互层：必须最后加载，它包装 window.switchPage 并注入移动端 DOM -->
+    <!-- Mobile interaction layer: must load last; it wraps window.switchPage and injects the mobile DOM -->
     <script src="/static/js/mobile-ui.js?v=20261006-9"></script>
 </body>
 </html>

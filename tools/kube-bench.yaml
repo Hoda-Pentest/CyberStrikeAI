@@ -1,37 +1,37 @@
 name: "kube-bench"
 command: "kube-bench"
 enabled: true
-short_description: "CIS Kubernetes基准检查工具"
+short_description: "CIS Kubernetes benchmark checking tool"
 description: |
-  Kube-bench是一个CIS Kubernetes基准检查工具，用于检查Kubernetes集群是否符合CIS基准。
+  Kube-bench is a CIS Kubernetes benchmark checking tool used to check whether a Kubernetes cluster conforms to the CIS benchmark.
 
   **Key Features:**
-  - CIS基准检查
-  - 多种目标支持（master, node, etcd, policies）
+  - CIS benchmark checks
+  - Support for multiple targets (master, node, etcd, policies)
   - Detailed reporting
-  - 配置验证
+  - Configuration validation
 
   **Use Cases:**
-  - Kubernetes合规性检查
-  - 安全配置审计
-  - CIS基准验证
+  - Kubernetes compliance checks
+  - Security configuration auditing
+  - CIS benchmark validation
   - Security assessment
 parameters:
   - name: "targets"
     type: "string"
-    description: "要检查的目标（master, node, etcd, policies）"
+    description: "target to check (master, node, etcd, policies)"
     required: false
     flag: "--targets"
     format: "flag"
   - name: "version"
     type: "string"
-    description: "Kubernetes版本"
+    description: "Kubernetes version"
     required: false
     flag: "--version"
     format: "flag"
   - name: "config_dir"
     type: "string"
-    description: "配置目录"
+    description: "config directory"
     required: false
     flag: "--config-dir"
     format: "flag"

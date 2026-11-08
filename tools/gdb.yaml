@@ -1,15 +1,15 @@
 name: "gdb"
 command: "gdb"
 enabled: true
-short_description: "GNU调试器，用于二进制分析和调试"
+short_description: "GNU debugger, used for binary analysis and debugging"
 description: |
-  GDB是GNU调试器，用于调试和分析二进制程序。
+  GDB is the GNU debugger, used to debug and analyze binary programs.
 
   **Key Features:**
   - Program debugging
-  - 内存分析
+  - Memory analysis
   - Disassembly
-  - 断点设置
+  - Breakpoint setting
 
   **Use Cases:**
   - Binary analysis
@@ -25,13 +25,13 @@ parameters:
     format: "positional"
   - name: "commands"
     type: "string"
-    description: "要执行的GDB命令（分号分隔）"
+    description: "GDB commands to execute (semicolon-separated)"
     required: false
     flag: "-ex"
     format: "flag"
   - name: "script_file"
     type: "string"
-    description: "GDB脚本文件路径"
+    description: "GDB script file path"
     required: false
     flag: "-x"
     format: "flag"

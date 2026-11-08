@@ -1,18 +1,18 @@
 name: "feroxbuster"
 command: "feroxbuster"
 enabled: false
-short_description: "递归内容发现工具"
+short_description: "recursive content discovery tool"
 description: |
-  Feroxbuster是一个快速、简单的递归内容发现工具。
+  Feroxbuster is a fast and simple recursive content discovery tool.
 
   **Key Features:**
-  - 递归目录发现
+  - Recursive directory discovery
   - Multi-threading support
-  - 自动过滤
+  - Automatic filtering
   - Multiple output formats
 
   **Use Cases:**
-  - Web内容发现
+  - Web content discovery
   - Directory enumeration
   - File discovery
   - Security testing

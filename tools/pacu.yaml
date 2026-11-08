@@ -1,38 +1,38 @@
 name: "pacu"
 command: "pacu"
 enabled: false
-short_description: "AWS渗透测试框架"
+short_description: "AWS penetration testing framework"
 description: |
-  Pacu是一个AWS渗透测试框架，用于测试AWS环境的安全性。
+  Pacu is an AWS penetration testing framework used to test the security of AWS environments.
 
   **Key Features:**
-  - AWS渗透测试
-  - 权限提升
-  - 数据访问
+  - AWS penetration testing
+  - Privilege escalation
+  - Data access
   - Modular architecture
 
   **Use Cases:**
-  - AWS安全测试
+  - AWS security testing
   - Penetration testing
-  - 权限测试
+  - Permission testing
   - Security assessment
 parameters:
   - name: "session_name"
     type: "string"
-    description: "Pacu会话名称"
+    description: "Pacu session name"
     required: false
     flag: "--session"
     format: "flag"
     default: "hexstrike_session"
   - name: "modules"
     type: "string"
-    description: "要运行的模块（逗号分隔）"
+    description: "modules to run (comma-separated)"
     required: false
     flag: "--modules"
     format: "flag"
   - name: "regions"
     type: "string"
-    description: "AWS区域（逗号分隔）"
+    description: "AWS region (comma-separated)"
     required: false
     flag: "--regions"
     format: "flag"

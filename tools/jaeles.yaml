@@ -2,20 +2,20 @@ name: "jaeles"
 command: "jaeles"
 args: ["scan"]
 enabled: true
-short_description: "高级漏洞扫描器，支持自定义签名"
+short_description: "advanced vulnerability scanner, supports custom signatures"
 description: |
-  Jaeles是一个高级漏洞扫描器，支持自定义签名进行漏洞检测。
+  Jaeles is an advanced vulnerability scanner that supports custom signatures for vulnerability detection.
 
   **Key Features:**
-  - 自定义签名支持
-  - 多种漏洞检测
+  - Custom signature support
+  - Multiple vulnerability detections
   - Quick scan
   - Detailed reporting
 
   **Use Cases:**
   - Vulnerability scanning
   - Web application security testing
-  - 自定义检测规则
+  - Custom detection rules
   - Security testing
 parameters:
   - name: "url"
@@ -26,13 +26,13 @@ parameters:
     format: "flag"
   - name: "signatures"
     type: "string"
-    description: "自定义签名路径"
+    description: "custom signature path"
     required: false
     flag: "-s"
     format: "flag"
   - name: "config"
     type: "string"
-    description: "配置文件"
+    description: "config file"
     required: false
     flag: "-c"
     format: "flag"
@@ -45,7 +45,7 @@ parameters:
     default: 20
   - name: "timeout"
     type: "int"
-    description: "请求超时时间（秒）"
+    description: "request timeout (seconds)"
     required: false
     flag: "--timeout"
     format: "flag"

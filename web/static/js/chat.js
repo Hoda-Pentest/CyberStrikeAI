@@ -4369,16 +4369,16 @@ function renderProcessDetails(messageId, processDetails, options) {
                     ? window.translatePlanExecuteAgentName(data.einoAgent) : (data.einoAgent || '');
                 itemTitle = (typeof window.t === 'function'
                     ? window.t('chat.einoPlanExecuteRound', { n: n, phase: phase })
-                    : ('Plan-Execute · 第 ' + n + ' 轮 · ' + phase));
+                    : ('Plan-Execute · round ' + n + ' · ' + phase));
             } else if (data.einoScope === 'main') {
                 itemTitle = agPx + (typeof window.t === 'function'
                     ? window.t('chat.einoOrchestratorRound', { n: n })
-                    : ('主代理 · 第 ' + n + ' '));
+                    : ('Orchestrator · round ' + n + ' '));
             } else if (data.einoScope === 'sub') {
                 const agent = data.einoAgent != null ? String(data.einoAgent).trim() : '';
                 itemTitle = agPx + (typeof window.t === 'function'
                     ? window.t('chat.einoSubAgentStep', { n: n, agent: agent })
-                    : ('Sub-agent ' + agent + ' · 第 ' + n + ' '));
+                    : ('Sub-agent ' + agent + ' · step ' + n + ' '));
             } else {
                 itemTitle = agPx + (typeof window.t === 'function' ? window.t('chat.iterationRound', { n: n }) : 'Iteration ' + n + ' ');
             }
@@ -5198,11 +5198,11 @@ function syncAssistantTurnSummary(messageElementOrId) {
     if (status === 'running') {
         text = typeof window.t === 'function' ? window.t('chat.turnElapsedRunning', { duration: duration }) : 'Processed for ' + duration;
     } else if (status === 'cancelled') {
-        text = typeof window.t === 'function' ? window.t('chat.turnElapsedCancelled', { duration: duration }) : '已中断 · 耗时 ' + duration;
+        text = typeof window.t === 'function' ? window.t('chat.turnElapsedCancelled', { duration: duration }) : 'Interrupted · Took ' + duration;
     } else if (status === 'timeout') {
-        text = typeof window.t === 'function' ? window.t('chat.turnElapsedTimeout', { duration: duration }) : '已超时 · 耗时 ' + duration;
+        text = typeof window.t === 'function' ? window.t('chat.turnElapsedTimeout', { duration: duration }) : 'Timed out · Took ' + duration;
     } else if (status === 'failed') {
-        text = typeof window.t === 'function' ? window.t('chat.turnElapsedFailed', { duration: duration }) : '执行失败 · 耗时 ' + duration;
+        text = typeof window.t === 'function' ? window.t('chat.turnElapsedFailed', { duration: duration }) : 'Failed · Took ' + duration;
     } else {
         text = typeof window.t === 'function' ? window.t('chat.turnElapsedComplete', { duration: duration }) : 'Took ' + duration;
     }
@@ -7389,7 +7389,7 @@ function renderAttackChain(chainData) {
                         const typeLabel = ele.data('typeLabel') || '';
                         const label = ele.data('label') || '';
                         const badgeText = ele.data('badgeText') || '';
-                        // 第一行：TYPE_EN · 类型（小字）
+                        // Line 1: TYPE_EN · type (small text)
                         // Line 2: main title (large text)
                         // Line 3: badge text (colored hint)
                         let line1 = typeEn + '  ·  ' + typeLabel;
@@ -9625,7 +9625,7 @@ function updateConversationSidebarFilterUI() {
     const tFn = typeof window.t === 'function' ? window.t.bind(window) : null;
     if (filter && filter !== CONVERSATION_PROJECT_FILTER_NONE) {
         const name = (window.projectNameById && window.projectNameById[filter]) || filter;
-        const fullTitle = tFn ? tFn('chat.projectConversationsTitle', { name }) : `${name} · 对话`;
+        const fullTitle = tFn ? tFn('chat.projectConversationsTitle', { name }) : `${name} · Conversations`;
         titleEl.textContent = fullTitle;
         titleEl.title = fullTitle;
         titleEl.classList.add('section-title--filtered');

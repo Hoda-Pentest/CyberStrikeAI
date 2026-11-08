@@ -1,38 +1,38 @@
 name: "xxd"
 command: "xxd"
 enabled: true
-short_description: "十六进制转储工具"
+short_description: "hex dump tool"
 description: |
-  Xxd是一个十六进制转储工具，用于以十六进制格式显示文件内容。
+  Xxd is a hex dump tool used to display file content in hexadecimal format.
 
   **Key Features:**
-  - 十六进制转储
-  - 可配置偏移和长度
-  - 反向转换
+  - Hex dump
+  - Configurable offset and length
+  - Reverse conversion
   - Multiple output formats
 
   **Use Cases:**
   - Binary analysis
-  - 文件检查
+  - File inspection
   - Data extraction
   - Forensic analysis
 parameters:
   - name: "file_path"
     type: "string"
-    description: "要转储的文件路径"
+    description: "path of the file to dump"
     required: true
     position: 0
     format: "positional"
   - name: "offset"
     type: "string"
-    description: "开始读取的偏移量"
+    description: "offset to start reading from"
     required: false
     flag: "-s"
     format: "flag"
     default: "0"
   - name: "length"
     type: "string"
-    description: "要读取的字节数"
+    description: "number of bytes to read"
     required: false
     flag: "-l"
     format: "flag"

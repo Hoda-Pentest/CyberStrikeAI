@@ -1,14 +1,14 @@
 name: "waybackurls"
 command: "waybackurls"
 enabled: true
-short_description: "从Wayback Machine获取历史URL"
+short_description: "fetch historical URLs from the Wayback Machine"
 description: |
-  Waybackurls从Wayback Machine获取目标域名的历史URL。
+  Waybackurls fetches the historical URLs of a target domain from the Wayback Machine.
 
   **Key Features:**
-  - 历史URL发现
-  - 版本获取
-  - 子域名支持
+  - Historical URL discovery
+  - Version retrieval
+  - Subdomain support
 
   **Use Cases:**
   - Historical URL collection
@@ -24,14 +24,14 @@ parameters:
     format: "positional"
   - name: "get_versions"
     type: "bool"
-    description: "获取所有版本的URL"
+    description: "fetch URLs of all versions"
     required: false
     flag: "-get-versions"
     format: "flag"
     default: false
   - name: "no_subs"
     type: "bool"
-    description: "不包含子域名"
+    description: "do not include subdomains"
     required: false
     flag: "-no-subs"
     format: "flag"

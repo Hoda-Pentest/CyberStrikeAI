@@ -21,10 +21,10 @@ func newPlanExecuteAgenticExecutor(
 	modelFailoverCfg *adk.ModelFailoverConfig[*schema.AgenticMessage],
 ) (adk.Agent, error) {
 	if cfg == nil {
-		return nil, fmt.Errorf("plan_execute: ExecutorConfig 为空")
+		return nil, fmt.Errorf("plan_execute: ExecutorConfig is nil")
 	}
 	if agenticModel == nil {
-		return nil, fmt.Errorf("plan_execute: Executor AgenticModel 为空")
+		return nil, fmt.Errorf("plan_execute: the Executor AgenticModel is nil")
 	}
 	genInputFn := cfg.GenInputFn
 	if genInputFn == nil {
@@ -88,7 +88,7 @@ func newPlanExecuteAgenticExecutor(
 	return newEinoAgenticChatModelAgentAdapter(ctx, agentCfg)
 }
 
-// planExecuteDefaultGenExecutorInput 对齐 Eino planexecute.defaultGenExecutorInputFn（包外不可引用默认实现）。
+// planExecuteDefaultGenExecutorInput aligns with Eino planexecute.defaultGenExecutorInputFn (the default implementation is not referable outside the package).
 func planExecuteDefaultGenExecutorInput(ctx context.Context, in *planexecute.ExecutionContext) ([]adk.Message, error) {
 	planContent, err := in.Plan.MarshalJSON()
 	if err != nil {

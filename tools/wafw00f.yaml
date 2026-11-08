@@ -1,18 +1,18 @@
 name: "wafw00f"
 command: "wafw00f"
 enabled: true
-short_description: "WAF识别和指纹识别工具"
+short_description: "WAF identification and fingerprinting tool"
 description: |
-  Wafw00f是一个Web应用防火墙（WAF）识别和指纹识别工具。
+  Wafw00f is a web application firewall (WAF) identification and fingerprinting tool.
 
   **Key Features:**
-  - WAF检测
-  - WAF指纹识别
-  - 多种WAF支持
-  - 绕过技术检测
+  - WAF detection
+  - WAF fingerprinting
+  - Support for multiple WAFs
+  - Bypass technique detection
 
   **Use Cases:**
-  - WAF识别
+  - WAF identification
   - Security testing
   - Penetration testing
   - Security assessment

@@ -1,18 +1,18 @@
 name: "gau"
 command: "gau"
 enabled: true
-short_description: "从多个数据源获取所有URL"
+short_description: "fetch all URLs from multiple data sources"
 description: |
-  Gau (Get All URLs) 从多个数据源获取目标域名的所有URL。
+  Gau (Get All URLs) fetches all URLs of a target domain from multiple data sources.
 
   **Key Features:**
-  - 从Wayback Machine获取URL
-  - 从CommonCrawl获取URL
-  - 从OTX获取URL
-  - 从URLScan获取URL
+  - Fetch URLs from the Wayback Machine
+  - Fetch URLs from CommonCrawl
+  - Fetch URLs from OTX
+  - Fetch URLs from URLScan
 
   **Use Cases:**
-  - URL发现
+  - URL discovery
   - Historical URL collection
   - Bug bounty reconnaissance
   - Security testing
@@ -25,13 +25,13 @@ parameters:
     format: "positional"
   - name: "providers"
     type: "string"
-    description: "数据源（wayback,commoncrawl,otx,urlscan）"
+    description: "data sources (wayback,commoncrawl,otx,urlscan)"
     required: false
     flag: "--providers"
     format: "flag"
   - name: "include_subs"
     type: "bool"
-    description: "包含子域名"
+    description: "include subdomains"
     required: false
     flag: "--subs"
     format: "flag"
@@ -42,9 +42,9 @@ parameters:
       Additional Gau parameters. Used to pass Gau options not defined in the parameter list.
 
       **Example Values:**
-      - "--o output.txt": 输出到文件
+      - "--o output.txt": output to a file
       - "--threads 4": Number of threads
-      - "--blacklist ttf,woff,svg,png": 黑名单扩展
+      - "--blacklist ttf,woff,svg,png": blacklist extensions
 
       **Notes:**
       - Multiple parameters are separated by spaces

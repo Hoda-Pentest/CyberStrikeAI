@@ -57,24 +57,24 @@ args:
     fi
   - "_"
 enabled: true
-short_description: "在指定虚拟环境中编写并执行Python脚本"
+short_description: "write and execute a Python script in a specified virtual environment"
 description: |
-  在虚拟环境中执行Python脚本。
+  Execute a Python script in a virtual environment.
 
   **Key Features:**
-  - 执行Python脚本
+  - Execute a Python script
   - Virtual environment support
-  - 脚本内容执行
+  - Script content execution
 
   **Use Cases:**
-  - 脚本执行
-  - 自动化任务
-  - 数据处理
+  - Script execution
+  - Automated tasks
+  - Data processing
 parameters:
   - name: "script"
     type: "string"
     description: |
-      要执行的Python脚本内容，支持多行。
+      The Python script content to execute, supports multiple lines.
 
       **Example:**
       ```

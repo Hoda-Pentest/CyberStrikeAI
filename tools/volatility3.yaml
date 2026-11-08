@@ -1,31 +1,31 @@
 name: "volatility3"
 command: "volatility3"
 enabled: true
-short_description: "Volatility3内存取证分析工具"
+short_description: "Volatility3 memory forensic analysis tool"
 description: |
-  Volatility3是Volatility框架的下一代版本，用于内存取证分析。
+  Volatility3 is the next-generation version of the Volatility framework, used for memory forensic analysis.
 
   **Key Features:**
-  - 内存转储分析
-  - 高级插件系统
-  - 改进的性能
-  - 更好的文档
+  - Memory dump analysis
+  - Advanced plugin system
+  - Improved performance
+  - Better documentation
 
   **Use Cases:**
-  - 内存取证
+  - Memory forensics
   - Malware analysis
-  - 事件响应
+  - Incident response
   - Digital forensics
 parameters:
   - name: "memory_file"
     type: "string"
-    description: "内存转储文件路径"
+    description: "memory dump file path"
     required: true
     flag: "-f"
     format: "flag"
   - name: "plugin"
     type: "string"
-    description: "要执行的Volatility3插件"
+    description: "Volatility3 plugin to execute"
     required: true
     position: 0
     format: "positional"

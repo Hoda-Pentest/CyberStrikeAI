@@ -39,28 +39,28 @@ parameters:
   - name: "operation"
     type: "string"
     description: |
-      操作类型，支持两种操作：
-      - `get_domain`: 获取临时域名
-      - `get_records`: 查询DNS记录
+      Operation type, supports two operations:
+      - `get_domain`: obtain a temporary domain
+      - `get_records`: query DNS records
     required: true
     position: 0
     format: "positional"
   - name: "domain"
     type: "string"
     description: |
-      域名参数（仅用于get_records操作）
+      Domain parameter (only for the get_records operation)
 
-      当operation为get_records时，此参数为必填，需要提供之前获取的临时域名。
+      When operation is get_records, this parameter is required; you need to provide the temporary domain obtained earlier.
     required: false
     position: 1
     format: "positional"
   - name: "wait_time"
     type: "int"
     description: |
-      等待时间（秒，仅用于get_records操作）
+      Wait time (seconds, only for the get_records operation)
 
-      在查询DNS记录前等待的秒数。用于给目标系统足够时间执行DNS查询。
-      建议值：3-10秒，根据网络延迟和漏洞类型调整。
+      The number of seconds to wait before querying DNS records. Used to give the target system enough time to perform the DNS query.
+      Recommended value: 3-10 seconds, adjusted according to network latency and vulnerability type.
     required: false
     position: 2
     format: "positional"

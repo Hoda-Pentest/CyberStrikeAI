@@ -9,11 +9,11 @@ import (
 	"github.com/cloudwego/eino/schema"
 )
 
-// noNestedTaskMiddleware 禁止在已经处于 task(sub-agent) 执行链中再次调用 task，
-// 避免子代理再次委派子代理造成的无限委派/递归。
+// noNestedTaskMiddleware forbids calling task again while already in a task(sub-agent) execution chain,
+// avoiding infinite delegation/recursion from a sub-agent delegating to another sub-agent.
 //
-// 通过在 ctx 中设置临时标记来实现嵌套检测：外层 task 调用会先标记 ctx，
-// 子代理内再调用 task 时会命中该标记并拒绝。
+// Nesting detection is implemented by setting a temporary marker in ctx: the outer task call marks ctx first,
+// and a task call inside the sub-agent hits the marker and is rejected.
 type noNestedTaskMiddleware struct {
 	adk.BaseChatModelAgentMiddleware
 }
@@ -58,12 +58,12 @@ func wrapNoNestedTaskCall(
 	if tCtx == nil || strings.TrimSpace(tCtx.Name) == "" {
 		return endpoint, nil
 	}
-	// Deep 内置 task 工具名固定为 "task"；为兼容可能的大小写/空白，仅做不区分大小写匹配。
+	// Deep's built-in task tool name is fixed as "task"; for compatibility with possible case/whitespace, only a case-insensitive match is done.
 	if !strings.EqualFold(strings.TrimSpace(tCtx.Name), "task") {
 		return endpoint, nil
 	}
 
-	// 已在 task 执行链中：拒绝继续委派，直接报错让上层快速终止。
+	// Already in a task execution chain: refuse further delegation and error out so the upper layer terminates quickly.
 	if ctx != nil {
 		if v, ok := ctx.Value(nestedTaskCtxKey{}).(bool); ok && v {
 			return func(ctx context.Context, argumentsInJSON string, opts ...tool.Option) (string, error) {
@@ -76,7 +76,7 @@ func wrapNoNestedTaskCall(
 		}
 	}
 
-	// 标记当前 task 调用链，确保子代理内的再次 task 调用能检测到嵌套。
+	// Mark the current task call chain, to ensure a repeated task call inside the sub-agent can detect the nesting.
 	return func(ctx context.Context, argumentsInJSON string, opts ...tool.Option) (string, error) {
 		ctx2 := ctx
 		if ctx2 == nil {

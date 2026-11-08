@@ -8,14 +8,14 @@ func TestClassifyWebshellOSProbeOutput(t *testing.T) {
 		in   string
 		want string
 	}{
-		{"Windows cmd 回显完整", ":OSPROBE_Windows_NT:END\r\n", "windows"},
-		{"Windows cmd 回显带额外空行", "\r\n:OSPROBE_Windows_NT:END\r\n", "windows"},
-		{"Windows 次级线索 - ver banner", "Microsoft Windows [版本 10.0.19045]\r\n", "windows"},
-		{"Linux sh 字面量回显", ":OSPROBE_%OS%:END\n", "linux"},
-		{"Linux 紧凑输出（无换行）", ":OSPROBE_%OS%:END", "linux"},
-		{"空输出 - 无法判定", "", ""},
-		{"被过滤的输出 - 无法判定", "something weird", ""},
-		{"仅有 OSPROBE 前缀但被截断 - 保守返回空", ":OSPROBE_:END", ""},
+		{"Windows cmd full echo", ":OSPROBE_Windows_NT:END\r\n", "windows"},
+		{"Windows cmd echo with an extra blank line", "\r\n:OSPROBE_Windows_NT:END\r\n", "windows"},
+		{"Windows secondary clue - ver banner", "Microsoft Windows [版本 10.0.19045]\r\n", "windows"},
+		{"Linux sh literal echo", ":OSPROBE_%OS%:END\n", "linux"},
+		{"Linux compact output (no newline)", ":OSPROBE_%OS%:END", "linux"},
+		{"empty output - cannot determine", "", ""},
+		{"filtered output - cannot determine", "something weird", ""},
+		{"only OSPROBE prefix but truncated - conservatively return empty", ":OSPROBE_:END", ""},
 	}
 	for _, c := range cases {
 		if got := classifyWebshellOSProbeOutput(c.in); got != c.want {
@@ -43,7 +43,7 @@ func TestProbeWebshellOSViaExec_SendsOneCommandOnly(t *testing.T) {
 }
 
 func TestProbeWebshellOSViaExec_NotOkReturnsEmpty(t *testing.T) {
-	// HTTP 非 200 的场景：execFn 返回 ok=false，探活应放弃
+	// HTTP non-200 scenario: execFn returns ok=false, the liveness probe should give up
 	fn := func(cmd string) (string, bool) { return "whatever", false }
 	if got := probeWebshellOSViaExec(fn); got != "" {
 		t.Errorf("want empty when exec not ok, got %q", got)
@@ -57,8 +57,8 @@ func TestProbeWebshellOSViaExec_NilSafeguard(t *testing.T) {
 }
 
 func TestProbeWebshellOSViaExec_LinuxUname(t *testing.T) {
-	// 某些 webshell 对 `%OS%` 字面量也会过滤（例如安全规则），
-	// 但主要路径是"%OS% 字面量被原样回显"。这里覆盖标准 Linux 场景。
+	// some webshells also filter the `%OS%` literal (e.g. security rules),
+	// but the main path is "the %OS% literal is echoed back as-is". This covers the standard Linux scenario.
 	fn := func(cmd string) (string, bool) {
 		return ":OSPROBE_%OS%:END\n", true
 	}

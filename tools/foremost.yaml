@@ -1,38 +1,38 @@
 name: "foremost"
 command: "foremost"
 enabled: true
-short_description: "文件恢复工具"
+short_description: "file recovery tool"
 description: |
-  Foremost是一个基于文件头和尾的文件恢复工具。
+  Foremost is a file recovery tool based on file headers and footers.
 
   **Key Features:**
-  - 文件恢复
-  - 多种文件类型支持
-  - 磁盘镜像分析
+  - File recovery
+  - Support for multiple file types
+  - Disk image analysis
   - Data recovery
 
   **Use Cases:**
   - Data recovery
   - Forensic analysis
   - File extraction
-  - 磁盘分析
+  - Disk analysis
 parameters:
   - name: "input_file"
     type: "string"
-    description: "输入文件或设备"
+    description: "input file or device"
     required: true
     flag: "-i"
     format: "flag"
   - name: "output_dir"
     type: "string"
-    description: "输出目录"
+    description: "output directory"
     required: false
     flag: "-o"
     format: "flag"
     default: "/tmp/foremost_output"
   - name: "file_types"
     type: "string"
-    description: "要恢复的文件类型（jpg,gif,png等）"
+    description: "file types to recover (jpg,gif,png, etc.)"
     required: false
     flag: "-t"
     format: "flag"

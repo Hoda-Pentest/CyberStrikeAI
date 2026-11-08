@@ -1,15 +1,15 @@
 name: "scout-suite"
 command: "scout"
 enabled: true
-short_description: "多云安全评估工具"
+short_description: "multi-cloud security assessment tool"
 description: |
-  Scout Suite是一个多云安全评估工具，支持AWS、Azure、GCP、Aliyun和OCI。
+  Scout Suite is a multi-cloud security assessment tool that supports AWS, Azure, GCP, Aliyun, and OCI.
 
   **Key Features:**
-  - 多云安全评估
-  - 配置审计
+  - Multi-cloud security assessment
+  - Configuration auditing
   - Security best-practice checks
-  - Detailed reporting生成
+  - Detailed reporting generation
 
   **Use Cases:**
   - Cloud security audit
@@ -19,7 +19,7 @@ description: |
 parameters:
   - name: "provider"
     type: "string"
-    description: "云提供商（aws, azure, gcp, aliyun, oci）"
+    description: "cloud provider (aws, azure, gcp, aliyun, oci)"
     required: false
     flag: "--provider"
     format: "flag"
@@ -33,14 +33,14 @@ parameters:
     default: "default"
   - name: "report_dir"
     type: "string"
-    description: "报告保存目录"
+    description: "report save directory"
     required: false
     flag: "--report-dir"
     format: "flag"
     default: "/tmp/scout-suite"
   - name: "services"
     type: "string"
-    description: "要评估的特定服务"
+    description: "specific service to assess"
     required: false
     flag: "--services"
     format: "flag"

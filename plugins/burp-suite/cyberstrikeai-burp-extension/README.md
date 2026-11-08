@@ -1,6 +1,6 @@
 ## CyberStrikeAI Burp Suite Extension
 
-中文说明见：`README.zh-CN.md`
+For the Chinese version, see: `README.zh-CN.md`
 
 ### What it does
 

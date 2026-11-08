@@ -193,8 +193,8 @@ func (s *einoRunRuntimeSession) initIteratorRuntime() {
 	}
 	runnerCfg := adk.RunnerConfig{
 		Agent: s.args.DA,
-		// 启用 ADK 流式事件：plan_execute 也需要输出 reasoning/response 流，
-		// 与 deep/supervisor/eino_single 的前端体验保持一致。
+		// Enable ADK streaming events: plan_execute also needs to output the reasoning/response stream,
+		// consistent with the frontend experience of deep/supervisor/eino_single.
 		EnableStreaming: true,
 	}
 	var cpStore *fileCheckPointStore

@@ -45,10 +45,10 @@ test('project headers contain their content and all tabs receive mobile taps', a
                         });
                         document.querySelector('.projects-detail').classList.add('has-project');
                         document.querySelector('#projects-detail-inner').hidden = false;
-                        document.querySelector('#projects-detail-title').textContent = '玉米 — Long project name / '.repeat(8);
+                        document.querySelector('#projects-detail-title').textContent = 'Corn — Long project name / '.repeat(8);
                         const desc = document.querySelector('#projects-detail-desc');
                         desc.hidden = false;
-                        desc.textContent = 'Long project description / 项目描述 '.repeat(20);
+                        desc.textContent = 'Long project description / project description '.repeat(20);
                         document.querySelector('#project-stat-sparse').hidden = false;
                         document.querySelector('#projects-detail-meta-time').textContent = '2 days ago';
                     }, translations);
@@ -119,7 +119,7 @@ test('mobile project page scrolls its final row above the bottom navigation', as
             try {
                 const page = await context.newPage();
                 const projectPage = await page.evaluate(template => new DOMParser().parseFromString(template, 'text/html').querySelector('#page-projects').outerHTML, template);
-                await page.setContent(`<html><head><meta name="viewport" content="width=device-width, initial-scale=1"></head><body><div class="container"><header><div class="header-content">CyberStrikeAI</div></header><div class="main-layout"><div class="content-area">${projectPage}</div></div></div><nav id="m-tabbar">底部导航</nav></body></html>`);
+                await page.setContent(`<html><head><meta name="viewport" content="width=device-width, initial-scale=1"></head><body><div class="container"><header><div class="header-content">CyberStrikeAI</div></header><div class="main-layout"><div class="content-area">${projectPage}</div></div></div><nav id="m-tabbar">bottom nav</nav></body></html>`);
                 for (const file of ['style.css', 'mobile.css']) await page.addStyleTag({ content: read(`web/static/css/${file}`) });
                 await page.evaluate(visibleHeight => {
                     document.documentElement.style.setProperty('--m-app-height', `${visibleHeight}px`);
@@ -127,9 +127,9 @@ test('mobile project page scrolls its final row above the bottom navigation', as
                     document.querySelector('#page-projects').classList.add('active');
                     document.querySelector('.projects-detail').classList.add('has-project');
                     document.querySelector('#projects-detail-inner').hidden = false;
-                    document.querySelector('#projects-detail-title').textContent = 'Long project name / 项目名称 '.repeat(6);
-                    document.querySelector('#projects-list').innerHTML = '<div class="projects-list-item">项目一</div>'.repeat(3);
-                    document.querySelector('#projects-pagination').textContent = '1–3/3　1/1　每页 50';
+                    document.querySelector('#projects-detail-title').textContent = 'Long project name / project name '.repeat(6);
+                    document.querySelector('#projects-list').innerHTML = '<div class="projects-list-item">Project 1</div>'.repeat(3);
+                    document.querySelector('#projects-pagination').textContent = '1–3/3  1/1  50 per page';
                 }, visibleHeight);
                 await page.addScriptTag({ content: `let currentProjectTab = 'facts';
                     ${['Facts', 'FactGraph', 'Assets', 'Conversations', 'Vulnerabilities'].map(name => `function loadProject${name}() {}`).join('\n')}
@@ -217,7 +217,7 @@ test('mobile facts keep badges and actions inside their columns while scrolling 
                     document.querySelector('.projects-detail').classList.add('has-project');
                     document.querySelector('#projects-detail-inner').hidden = false;
                     window.apiFetch = async () => ({ok: true, json: async () => [
-                        {id:'note', fact_key:'note/automatic-continuation', category:'note', summary:'自动续接的项目记录 '.repeat(10), body:'详细记录', confidence:'tentative', updated_at:'2026-10-12T10:00:00Z'},
+                        {id:'note', fact_key:'note/automatic-continuation', category:'note', summary:'automatic continuation project record '.repeat(10), body:'detailed record', confidence:'tentative', updated_at:'2026-10-12T10:00:00Z'},
                         {id:'finding', fact_key:'finding/8080/exposure', category:'finding', summary:'8080 / exposed service', body:'## Steps\n1. curl http://target:8080\n## Request\nGET /', confidence:'confirmed', updated_at:'2026-10-12T10:00:00Z', link_counts:{incoming:2,outgoing:10}},
                     ]});
                     refreshProjectHeaderStats = () => {};

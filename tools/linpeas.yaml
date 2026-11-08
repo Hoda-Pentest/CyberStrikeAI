@@ -1,40 +1,40 @@
 name: "linpeas"
 command: "linpeas.sh"
 enabled: true
-short_description: "Linux 权限提升枚举脚本，自动检测常见提权路径"
+short_description: "Linux privilege-escalation enumeration script, automatically detects common privilege-escalation paths"
 description: |
-  LinPEAS (Linux Privilege Escalation Awesome Script) 是一个自动化权限提升枚举脚本，用于检测 Linux 系统中的常见提权路径。
+  LinPEAS (Linux Privilege Escalation Awesome Script) is an automated privilege-escalation enumeration script used to detect common privilege-escalation paths in Linux systems.
 
   **Key Features:**
   - System information gathering
-  - 权限和组检查
-  - 可写文件和目录检测
-  - SUID/SGID 文件查找
-  - 环境变量检查
-  - 定时任务分析
-  - 网络配置检查
-  - 敏感文件查找
+  - Permission and group checks
+  - Writable file and directory detection
+  - SUID/SGID file discovery
+  - Environment variable checks
+  - Scheduled task analysis
+  - Network configuration checks
+  - Sensitive file discovery
 
   **Use Cases:**
-  - Penetration testing中的权限提升
+  - Privilege escalation in penetration testing
   - Security audit
   - Post-exploitation testing
-  - CTF 竞赛
+  - CTF competitions
 
   **Notes:**
-  - 需要目标系统上已下载 linpeas.sh 脚本
-  - 执行时间可能较长
-  - 输出信息量大，建议保存到文件
+  - Requires the linpeas.sh script to already be downloaded on the target system
+  - Execution may take a long time
+  - The output is large; it is recommended to save it to a file
 parameters:
   - name: "output"
     type: "string"
-    description: "Output file path（可选）"
+    description: "Output file path (optional)"
     required: false
     flag: "-o"
     format: "flag"
   - name: "fast"
     type: "bool"
-    description: "快速模式，跳过耗时检查"
+    description: "fast mode, skip time-consuming checks"
     required: false
     flag: "-fast"
     format: "flag"

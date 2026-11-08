@@ -60,7 +60,7 @@ func TestCookieRecoveryThroughReductionSnapshotAndResume(t *testing.T) {
 			if !strings.Contains(notice, "<persisted-output>") || strings.Contains(notice, cookie) {
 				t.Fatalf("reduction not isolating middle credential: %s", notice)
 			}
-			findPath := regexp.MustCompile(`(?m)(?:Full output saved to: |完整输出保存到: )([^\n]+)`)
+			findPath := regexp.MustCompile(`(?m)(?:Full output saved to: )([^\n]+)`)
 			match := findPath.FindStringSubmatch(notice)
 			if len(match) != 2 {
 				t.Fatalf("missing spill reference: %s", notice)
@@ -73,7 +73,7 @@ func TestCookieRecoveryThroughReductionSnapshotAndResume(t *testing.T) {
 			emit := false
 			sumCfg := &config.MultiAgentEinoMiddlewareConfig{SummarizationEmitInternalEvents: &emit, SummarizationOutputReserveTokens: 1024}
 			original := []adk.Message{schema.SystemMessage("fresh system"), schema.UserMessage("Only authorized.example; find exact Cookie if needed"), &schema.Message{Role: schema.Assistant, ToolCalls: []schema.ToolCall{{ID: "audit-login", Type: "function", Function: schema.FunctionCall{Name: "execute", Arguments: `{"command":"synthetic login"}`}}}}, &schema.Message{Role: schema.Tool, ToolCallID: "audit-login", Content: notice}, schema.AssistantMessage(strings.Repeat("intermediate completed finding ", 15000), nil), schema.UserMessage("continue with missing authentication detail")}
-			const summary = "<summary>Login completed on authorized.example.\n## 8. 原始证据检索线索（追加）\n- authorized.example login Set-Cookie response</summary>"
+			const summary = "<summary>Login completed on authorized.example.\n## 8. Raw-evidence retrieval clues (appended)\n- authorized.example login Set-Cookie response</summary>"
 			var after []adk.Message
 			if native {
 				mw, err := newEinoAgenticSummarizationMiddleware(ctx, &capturingAgenticChatModel{output: agenticAssistantTextMessage(summary)}, cfg, sumCfg, "audit-conversation", nil, "", nil)
@@ -109,7 +109,7 @@ func TestCookieRecoveryThroughReductionSnapshotAndResume(t *testing.T) {
 			}
 			recovered := historyToMessages(agent.TraceMessagesForResume(parsed), nil, nil)
 			resumedText := joinClassicMessageContent(recovered)
-			snapshotExpr := regexp.MustCompile(`(?m)完整的对话记录位于：([^\n]+)`)
+			snapshotExpr := regexp.MustCompile(`(?m)The full conversation record is located at: ([^\n]+)`)
 			snapshotMatch := snapshotExpr.FindStringSubmatch(resumedText)
 			if len(snapshotMatch) != 2 {
 				t.Fatalf("snapshot hint lost after resume: %s", resumedText)

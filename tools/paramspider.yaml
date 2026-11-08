@@ -1,14 +1,14 @@
 name: "paramspider"
 command: "paramspider"
 enabled: true
-short_description: "从Web档案中挖掘参数"
+short_description: "mine parameters from web archives"
 description: |
-  ParamSpider从Web档案中挖掘参数，用于发现隐藏的参数。
+  ParamSpider mines parameters from web archives to discover hidden parameters.
 
   **Key Features:**
-  - 参数挖掘
-  - Web档案查询
-  - 多级深度支持
+  - Parameter mining
+  - Web archive querying
+  - Support for multiple depth levels
   - Extension filtering
 
   **Use Cases:**
@@ -25,14 +25,14 @@ parameters:
     format: "flag"
   - name: "level"
     type: "int"
-    description: "挖掘深度级别"
+    description: "mining depth level"
     required: false
     flag: "-l"
     format: "flag"
     default: 2
   - name: "exclude"
     type: "string"
-    description: "要排除的文件扩展名"
+    description: "file extensions to exclude"
     required: false
     flag: "-e"
     format: "flag"

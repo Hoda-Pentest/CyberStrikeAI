@@ -1,43 +1,43 @@
 name: "hashpump"
 command: "hashpump"
 enabled: true
-short_description: "哈希长度扩展攻击工具"
+short_description: "hash length extension attack tool"
 description: |
-  HashPump是一个用于执行哈希长度扩展攻击的工具。
+  HashPump is a tool for performing hash length extension attacks.
 
   **Key Features:**
-  - 哈希长度扩展攻击
+  - Hash length extension attacks
   - Multiple hash algorithm support
-  - 签名生成
-  - 数据追加
+  - Signature generation
+  - Data appending
 
   **Use Cases:**
-  - 密码学攻击
-  - 哈希函数测试
+  - Cryptographic attacks
+  - Hash function testing
   - CTF challenges
   - Security research
 parameters:
   - name: "signature"
     type: "string"
-    description: "原始哈希签名"
+    description: "raw hash signature"
     required: true
     flag: "-s"
     format: "flag"
   - name: "data"
     type: "string"
-    description: "原始数据"
+    description: "raw data"
     required: true
     flag: "-d"
     format: "flag"
   - name: "key_length"
     type: "int"
-    description: "密钥长度"
+    description: "key length"
     required: true
     flag: "-k"
     format: "flag"
   - name: "append_data"
     type: "string"
-    description: "要追加的数据"
+    description: "data to append"
     required: true
     flag: "-a"
     format: "flag"

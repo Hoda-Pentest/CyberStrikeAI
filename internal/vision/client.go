@@ -157,10 +157,10 @@ User question: ` + q + extra
 
 func looksLikeCaptchaQuestion(q string) bool {
 	s := strings.ToLower(q)
-	for _, kw := range []string{"验证码", "captcha", "verification code", "verify code", "vcode", "图形码"} {
+	for _, kw := range []string{"captcha", "verification code", "verify code", "vcode", "graphic code"} {
 		if strings.Contains(s, kw) {
 			return true
 		}
 	}
-	return strings.Contains(s, "只输出") && (strings.Contains(s, "字符") || strings.Contains(s, "character"))
+	return strings.Contains(s, "only output") && strings.Contains(s, "character")
 }

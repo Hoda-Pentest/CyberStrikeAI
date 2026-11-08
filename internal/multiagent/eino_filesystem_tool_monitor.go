@@ -13,8 +13,8 @@ import (
 	"github.com/cloudwego/eino/schema"
 )
 
-// einoADKFilesystemToolNames 与 cloudwego/eino/adk/middlewares/filesystem 默认 ToolName* 一致。
-// execute 已由 eino_execute_monitor 落库，此处不包含。
+// einoADKFilesystemToolNames matches the default ToolName* of cloudwego/eino/adk/middlewares/filesystem.
+// execute is already persisted by eino_execute_monitor and is not included here.
 var einoADKFilesystemToolNames = map[string]struct{}{
 	"ls":         {},
 	"read_file":  {},
@@ -75,7 +75,7 @@ func mustMarshalToolArguments(args map[string]interface{}) string {
 	return string(raw)
 }
 
-// beginEinoADKFilesystemToolMonitor 在 Eino ADK filesystem 工具开始调用时写入 running 状态。
+// beginEinoADKFilesystemToolMonitor writes the running state when an Eino ADK filesystem tool call starts.
 func beginEinoADKFilesystemToolMonitor(
 	ctx context.Context,
 	ag *agent.Agent,
@@ -109,7 +109,7 @@ func beginEinoADKFilesystemToolMonitor(
 	}
 }
 
-// recordEinoADKFilesystemToolMonitor 将 Eino ADK filesystem 中间件工具结果写入 MCP 监控（与 execute / MCP 桥芯片一致）。
+// recordEinoADKFilesystemToolMonitor writes the Eino ADK filesystem middleware tool result to MCP monitoring (consistent with execute / the MCP bridge).
 func recordEinoADKFilesystemToolMonitor(
 	ctx context.Context,
 	ag *agent.Agent,

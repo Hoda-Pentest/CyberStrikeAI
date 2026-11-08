@@ -21,10 +21,10 @@ import (
 	"go.uber.org/zap"
 )
 
-// normalizeStreamingDelta 将可能是“累计片段”的 chunk 归一化为“纯增量”。
-// 一些模型/桥接层在流式过程中会重复发送已输出前缀，前端若直接 buffer+=chunk 会出现重复文本。
+// normalizeStreamingDelta normalizes a chunk that may be a "cumulative fragment" into a "pure increment".
+// Some models/bridge layers resend the already-output prefix during streaming; if the frontend simply does buffer+=chunk, duplicate text appears.
 //
-// 注意：与 internal/openai.normalizeStreamingDelta 保持一致。
+// Note: kept consistent with internal/openai.normalizeStreamingDelta.
 func normalizeStreamingDelta(current, incoming string) (next, delta string) {
 	if incoming == "" {
 		return current, ""
@@ -102,10 +102,10 @@ func isEinoIterationLimitError(err error) bool {
 		strings.Contains(msg, "maximum iteration") ||
 		strings.Contains(msg, "maximum iterations") ||
 		strings.Contains(msg, "iteration limit") ||
-		strings.Contains(msg, "达到最大迭代")
+		strings.Contains(msg, "reached the maximum iterations")
 }
 
-// einoADKRunLoopArgs 将 Eino adk.Runner 事件循环从 RunDeepAgent / RunEinoSingleChatModelAgent 中抽出复用。
+// einoADKRunLoopArgs extracts the Eino adk.Runner event loop from RunDeepAgent / RunEinoSingleChatModelAgent for reuse.
 type einoADKRunLoopArgs struct {
 	OrchMode             string
 	OrchestratorName     string
@@ -116,47 +116,47 @@ type einoADKRunLoopArgs struct {
 	StreamsMainAssistant func(agent string) bool
 	EinoRoleTag          func(agent string) string
 	CheckpointDir        string
-	// RunRetryMaxAttempts / RunRetryMaxBackoffSec：429、5xx、网络抖动时的指数退避续跑（0=默认 4 次 / 30s 上限）。
+	// RunRetryMaxAttempts / RunRetryMaxBackoffSec: exponential-backoff continuation on 429, 5xx, network jitter (0 = default 4 attempts / 30s cap).
 	RunRetryMaxAttempts   int
 	RunRetryMaxBackoffSec int
 
 	McpIDsMu *sync.Mutex
 	McpIDs   *[]string
 
-	// FilesystemMonitorAgent / FilesystemMonitorRecord 非 nil 时，将 Eino ADK filesystem 中间件工具（ls/read_file/write_file/edit_file/glob/grep）
-	// 在完成时写入 MCP 监控；execute 仍由 eino_execute_monitor 记录，此处跳过。
+	// When FilesystemMonitorAgent / FilesystemMonitorRecord are non-nil, the Eino ADK filesystem middleware tools (ls/read_file/write_file/edit_file/glob/grep)
+	// are written to MCP monitoring on completion; execute is still recorded by eino_execute_monitor and skipped here.
 	FilesystemMonitorAgent  *agent.Agent
 	FilesystemMonitorRecord einomcp.ExecutionRecorder
 	MCPExecutionBinder      *MCPExecutionBinder
 
-	// ToolInvokeNotify 与 einomcp.ToolsFromDefinitions 共享：run loop 在迭代前 Set，execute/MCP 桥 Fire 时立即推送 tool_result（ADK 晚到经 toolResultEmitter 去重）。
+	// ToolInvokeNotify is shared with einomcp.ToolsFromDefinitions: the run loop Sets it before iterating, and the execute/MCP bridge pushes tool_result immediately on Fire (late ADK events are deduplicated via toolResultEmitter).
 	ToolInvokeNotify *einomcp.ToolInvokeNotifyHolder
 
 	DA adk.Agent
 
-	// EmptyResponseMessage 当未捕获到助手正文时的占位（多代理与单代理文案不同）。
+	// EmptyResponseMessage is the placeholder when no assistant body is captured (the wording differs between multi-agent and single-agent).
 	EmptyResponseMessage string
 
-	// ModelFacingTrace 可选：由各 ChatModelAgent Handlers 链末尾中间件写入「即将送入模型」的消息快照；
-	// 非空时优先用于 LastAgentTraceInput 序列化，使续跑与 summarization/reduction 后的上下文一致。
+	// ModelFacingTrace is optional: the middleware at the end of each ChatModelAgent Handlers chain writes the "about to be sent to the model" message snapshot;
+	// when non-nil it is preferred for LastAgentTraceInput serialization, so resumption matches the post-summarization/reduction context.
 	ModelFacingTrace *modelFacingTraceHolder
 
-	// EinoCallbacks 可选：为 ADK Runner 注入 eino [callbacks] 全链路观测（见 internal/einoobserve）。
+	// EinoCallbacks is optional: it injects eino [callbacks] full-chain observability into the ADK Runner (see internal/einoobserve).
 	EinoCallbacks *config.MultiAgentEinoCallbacksConfig
 
-	// MaxTotalTokens / ToolMaxBytes / ModelName 用于 context overflow 时的激进压缩续跑。
+	// MaxTotalTokens / ToolMaxBytes / ModelName are used for aggressive-compression continuation on context overflow.
 	MaxTotalTokens   int
 	ToolMaxBytes     int
 	ModelName        string
 	MiddlewareConfig *config.MultiAgentEinoMiddlewareConfig
 
-	// TurnLoopInterruptTimeout 仅供测试/特殊运行时覆盖；0 使用 EinoTurnLoopRuntime 默认值。
+	// TurnLoopInterruptTimeout is only for test/special-runtime override; 0 uses the EinoTurnLoopRuntime default.
 	TurnLoopInterruptTimeout time.Duration
 }
 
 func runEinoADKAgentLoop(ctx context.Context, args *einoADKRunLoopArgs, baseMsgs []adk.Message) (*RunResult, error) {
 	if args == nil || args.DA == nil {
-		return nil, fmt.Errorf("eino run loop: args 或 Agent 为空")
+		return nil, fmt.Errorf("eino run loop: args or Agent is nil")
 	}
 	if args.McpIDs == nil {
 		s := []string{}
@@ -201,14 +201,14 @@ func runEinoADKAgentLoop(ctx context.Context, args *einoADKRunLoopArgs, baseMsgs
 			return "sub"
 		}
 	}
-	// panic recovery：防止 Eino 框架内部 panic 导致整个 goroutine 崩溃、连接无法正常关闭。
+	// panic recovery: prevents an internal panic in the Eino framework from crashing the whole goroutine and leaving the connection unclosed.
 	defer func() {
 		if r := recover(); r != nil {
 			if logger != nil {
 				logger.Error("eino runner panic recovered", zap.Any("recover", r), zap.Stack("stack"))
 			}
 			if progress != nil {
-				progress("error", fmt.Sprintf("Internal error: %v / 内部错误: %v", r, r), map[string]interface{}{
+				progress("error", fmt.Sprintf("Internal error: %v / internal error: %v", r, r), map[string]interface{}{
 					"conversationId": conversationID,
 					"source":         "eino",
 				})
@@ -221,7 +221,7 @@ func runEinoADKAgentLoop(ctx context.Context, args *einoADKRunLoopArgs, baseMsgs
 	emptyHint := strings.TrimSpace(args.EmptyResponseMessage)
 	if emptyHint == "" {
 		emptyHint = "(Eino session completed but no assistant text was captured. Check process details or logs.) " +
-			"（Eino 会话已完成，但未捕获到助手文本输出。请查看过程详情或日志。）"
+			"(The Eino session completed, but no assistant text output was captured. Please check the process details or logs.)"
 	}
 
 	if args.EinoCallbacks != nil {
@@ -262,19 +262,19 @@ func runEinoADKAgentLoop(ctx context.Context, args *einoADKRunLoopArgs, baseMsgs
 	})
 	defer session.Close()
 
-	// 仅在退避重试后真正收到数据/完成一步时清零，避免重启后首个无错 ADK 事件误把计数打回 0。
+	// Only zero it when data is actually received / a step completes after a backoff retry, to avoid the first error-free ADK event after a restart wrongly resetting the counter to 0.
 	drain.BindHandlers(session.ConfirmRecovery)
 
 	for {
-		// iter.Next 可能长时间阻塞（工具执行、模型推理）；须与 ctx 联动，否则取消/超时无法及时 flush pending。
+		// iter.Next may block for a long time (tool execution, model inference); it must be linked to ctx, otherwise cancel/timeout cannot flush pending in time.
 		ev, ok, iterCtxErr := nextAgentEventWithContext(ctx, session.Iterator())
 		if iterCtxErr != nil {
 			return session.HandleIteratorContextError(iterCtxErr)
 		}
 		if !ok {
-			// iter 结束并不总是“正常完成”：
-			// 当取消/超时发生在 iter.Next() 阻塞期间时，可能直接返回 !ok。
-			// 此时必须保留 checkpoint，避免后续恢复时被误判为“无断点”而全量重跑。
+			// The end of iter is not always "normal completion":
+			// when cancel/timeout happens while iter.Next() is blocking, it may return !ok directly.
+			// In that case the checkpoint must be kept, to avoid a later restore wrongly judging it as "no checkpoint" and re-running everything.
 			completed, result, err := session.HandleIteratorEnd()
 			if result != nil || err != nil {
 				return result, err
@@ -344,8 +344,8 @@ func modelFacingTraceSnapshot(args *einoADKRunLoopArgs) []adk.Message {
 	return nil
 }
 
-// friendlyEinoExecuteInvokeTail 将 Eino execute 超时/中断/流异常转为简短提示。
-// 命令非零退出（ExecuteExitError）已有 exec 对齐的正文，不再追加「执行未正常结束」。
+// friendlyEinoExecuteInvokeTail converts an Eino execute timeout/interruption/stream exception into a short hint.
+// A non-zero command exit (ExecuteExitError) already has an exec-aligned body, so "execution did not end normally" is not appended.
 func friendlyEinoExecuteInvokeTail(invokeErr error) string {
 	if invokeErr == nil {
 		return ""
@@ -363,10 +363,10 @@ func friendlyEinoExecuteInvokeTail(invokeErr error) string {
 	if strings.Contains(invokeErr.Error(), "shell inactivity timeout") {
 		return ""
 	}
-	return "[执行未正常结束] " + invokeErr.Error()
+	return "[execution did not end normally] " + invokeErr.Error()
 }
 
-// einoToolResultIsError 统一判断 Eino 工具结果是否应标记为错误（与 MCP exec 的 IsError 对齐）。
+// einoToolResultIsError uniformly decides whether an Eino tool result should be marked as an error (aligned with the MCP exec IsError).
 func einoToolResultIsError(toolName, content string) bool {
 	if strings.HasPrefix(content, einomcp.ToolErrorPrefix) {
 		return true
@@ -386,12 +386,12 @@ func isMCPBackgroundWaitResult(content string) bool {
 	hasRunningStatus := strings.Contains(text, "status: running") || strings.Contains(text, "status: queued") ||
 		strings.Contains(text, `"status": "running"`) || strings.Contains(text, `"status":"running"`) ||
 		strings.Contains(text, `"status": "queued"`) || strings.Contains(text, `"status":"queued"`)
-	hasSoftWaitSignal := strings.Contains(text, "工具已提交到后台执行") ||
-		strings.Contains(text, "本次等待已到达") ||
+	hasSoftWaitSignal := strings.Contains(text, "The tool has been submitted to run in the background") ||
+		strings.Contains(text, "this wait has reached") ||
 		strings.Contains(text, "wait_timeout:") ||
 		strings.Contains(text, "background execution") ||
 		strings.Contains(text, "still running") ||
-		strings.Contains(text, "仍未完成")
+		strings.Contains(text, "is still not completed")
 	return hasExecutionID && hasRunningStatus && hasSoftWaitSignal
 }
 
@@ -411,7 +411,7 @@ func mcpExecutionIDFromWaitResult(content string) string {
 	return ""
 }
 
-// einoToolResultBody 去掉工具错误前缀，返回展示/持久化正文。
+// einoToolResultBody strips the tool error prefix and returns the display/persistence body.
 func einoToolResultBody(content string) string {
 	if strings.HasPrefix(content, einomcp.ToolErrorPrefix) {
 		return strings.TrimPrefix(content, einomcp.ToolErrorPrefix)
@@ -419,7 +419,7 @@ func einoToolResultBody(content string) string {
 	return content
 }
 
-// nextAgentEventWithContext 在 ctx 取消时不再无限阻塞于 iter.Next()（工具执行/模型推理期间常见）。
+// nextAgentEventWithContext no longer blocks indefinitely on iter.Next() when ctx is cancelled (common during tool execution/model inference).
 func nextAgentEventWithContext(ctx context.Context, iter *adk.AsyncIterator[*adk.AgentEvent]) (ev *adk.AgentEvent, ok bool, ctxErr error) {
 	if iter == nil {
 		return nil, false, nil
@@ -441,7 +441,7 @@ func nextAgentEventWithContext(ctx context.Context, iter *adk.AsyncIterator[*adk
 	}
 }
 
-// recvSchemaMessageStream 消费 ADK Tool 流式结果；ctx 取消时立即返回，避免 amass 等无输出时永久阻塞。
+// recvSchemaMessageStream consumes the ADK Tool streaming result; it returns immediately on ctx cancel, to avoid blocking forever when something like amass produces no output.
 func recvSchemaMessageStream(ctx context.Context, stream *schema.StreamReader[*schema.Message]) (content, toolCallID, toolName string, recvErr error) {
 	msgs, recvErr := recvSchemaToolResultMessages(ctx, stream)
 	if len(msgs) == 0 {
@@ -463,8 +463,8 @@ func recvSchemaMessageStream(ctx context.Context, stream *schema.StreamReader[*s
 	return strings.Join(parts, ""), toolCallID, toolName, recvErr
 }
 
-// recvSchemaToolResultMessages 先收齐 Tool 流，再用 Eino ConcatMessages 合并。
-// EventSender 一 call 一条流时走 ConcatMessages；并行结果被摊平进同一条流时按 CallID 分列再合并。
+// recvSchemaToolResultMessages collects the Tool stream first, then merges with Eino ConcatMessages.
+// When EventSender has one stream per call it uses ConcatMessages; when parallel results are flattened into one stream it splits by CallID into columns and then merges.
 func recvSchemaToolResultMessages(ctx context.Context, stream *schema.StreamReader[*schema.Message]) (msgs []*schema.Message, recvErr error) {
 	if stream == nil {
 		return nil, nil

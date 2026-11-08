@@ -478,8 +478,8 @@ func TestWriteVersionPreservesYAMLDocumentStart(t *testing.T) {
 	}
 }
 
-// FileVersion 用 YAML 解析（引号键认得出），WriteVersion 若只认顶格裸键，合法配置就会被追加
-// 出第二个 version 键、整个文件随后 Load 失败。这条测试钉死两者口径一致，以及"改不了就拒绝写"。
+// FileVersion uses YAML parsing (recognizes quoted keys); if WriteVersion only recognizes top-level bare keys, a valid config would get an appended
+// second version key, after which the whole file fails to Load. This test pins down that the two are consistent and that it "refuses to write if it cannot modify".
 func TestWriteVersionRewritesQuotedKeysAndRefusesWhatItCannot(t *testing.T) {
 	dir := t.TempDir()
 

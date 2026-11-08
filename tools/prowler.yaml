@@ -1,12 +1,12 @@
 name: "prowler"
 command: "prowler"
 enabled: true
-short_description: "云安全评估工具（AWS, Azure, GCP）"
+short_description: "cloud security assessment tool (AWS, Azure, GCP)"
 description: |
-  Prowler是一个全面的云安全评估工具，支持AWS、Azure和GCP。
+  Prowler is a comprehensive cloud security assessment tool that supports AWS, Azure, and GCP.
 
   **Key Features:**
-  - 云安全评估
+  - Cloud security assessment
   - Compliance checking
   - Security best-practice checks
   - Multiple output formats
@@ -19,7 +19,7 @@ description: |
 parameters:
   - name: "provider"
     type: "string"
-    description: "云提供商（aws, azure, gcp）"
+    description: "cloud provider (aws, azure, gcp)"
     required: false
     default: "aws"
     position: 0
@@ -33,7 +33,7 @@ parameters:
     default: "default"
   - name: "region"
     type: "string"
-    description: "要扫描的特定区域"
+    description: "specific region to scan"
     required: false
     flag: "-r"
     format: "flag"
@@ -45,7 +45,7 @@ parameters:
     format: "flag"
   - name: "output_format"
     type: "string"
-    description: "输出格式（json, csv, html）"
+    description: "output format (json, csv, html)"
     required: false
     flag: "-M"
     format: "flag"

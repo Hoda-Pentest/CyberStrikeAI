@@ -704,7 +704,7 @@ type RobotTelegramConfig struct {
 type RobotSlackConfig struct {
 	Enabled  bool                     `yaml:"enabled" json:"enabled"`
 	BotToken string                   `yaml:"bot_token" json:"bot_token"` // xoxb-
-	AppToken string                   `yaml:"app_token" json:"app_token"` // xapp-（connections:write）
+	AppToken string                   `yaml:"app_token" json:"app_token"` // xapp- (connections:write)
 	Auth     RobotAuthorizationConfig `yaml:"auth,omitempty" json:"auth,omitempty"`
 }
 
@@ -2209,7 +2209,7 @@ func ReloadSecurityToolsFromDir(cfg *Config, configPath string) error {
 	toolsDir := ResolveToolsDir(cfg.Security.ToolsDir, configPath)
 	merged, err := MergeToolsFromDir(toolsDir, inlineTools)
 	if err != nil {
-		return fmt.Errorf("从工具目录加载工具配置失败: %w", err)
+		return fmt.Errorf("failed to load tool configuration from the tools directory: %w", err)
 	}
 	cfg.Security.Tools = merged
 	return nil
@@ -2503,7 +2503,7 @@ type C2APIUpdate struct {
 
 // KnowledgeConfig is the knowledge-base configuration
 type KnowledgeConfig struct {
-	Enabled   bool            `yaml:"enabled" json:"enabled"`     // Whether enabled知识检索
+	Enabled   bool            `yaml:"enabled" json:"enabled"`     // Whether knowledge retrieval is enabled
 	BasePath  string          `yaml:"base_path" json:"base_path"` // Knowledge-base path
 	Embedding EmbeddingConfig `yaml:"embedding" json:"embedding"`
 	Retrieval RetrievalConfig `yaml:"retrieval" json:"retrieval"`

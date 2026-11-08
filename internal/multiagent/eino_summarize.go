@@ -22,69 +22,69 @@ import (
 	"go.uber.org/zap"
 )
 
-// einoSummarizeUserInstruction：压缩历史时保留渗透测试与用户约束关键信息。
-// 结构对齐 Eino 最佳实践（禁止工具、<analysis>+<summary>、<all_user_messages>），章节为安全测试领域化。
-const einoSummarizeUserInstruction = `关键：仅以纯文本响应。禁止调用任何工具（read_file、exec、grep、glob、write、edit 等）。
-上述对话中已包含全部待压缩上下文；不要要求用户粘贴历史，不要输出「请提供待压缩的对话历史」等占位/meta 回复。
-工具调用将被拒绝并浪费唯一一次摘要机会。
+// einoSummarizeUserInstruction: retain key penetration-testing and user-constraint information when compressing history.
+// The structure follows Eino best practices (no tools, <analysis>+<summary>, <all_user_messages>), with sections specialized for the security-testing domain.
+const einoSummarizeUserInstruction = `Key: respond with plain text only. Do not call any tool (read_file, exec, grep, glob, write, edit, etc.).
+The conversation above already contains all the context to be compressed; do not ask the user to paste history, and do not output placeholder/meta replies such as "please provide the conversation history to compress".
+A tool call would be rejected and waste the one summarization opportunity.
 
-你的任务：在保持所有关键安全测试信息完整的前提下压缩对话历史，使后续代理能无缝继续同一授权测试任务。
+Your task: compress the conversation history while keeping all key security-testing information intact, so a later agent can seamlessly continue the same authorized testing task.
 
-压缩原则：
-- 必须保留：已确认漏洞与攻击路径、工具输出核心发现、凭证与认证细节、架构与薄弱点、当前进度、失败尝试与死路、策略决策
-- 保留精确技术细节（URL、路径、参数、Payload、版本号；报错原文可摘要但要点不丢）
-- 冗长扫描输出概括为结论；重复发现合并表述
-- 已枚举资产须保留可继承摘要：主域、关键子域/主机短表（或数量+代表样例）、高价值目标、已识别服务/端口要点
+Compression principles:
+- Must retain: confirmed vulnerabilities and attack paths, core tool-output findings, credentials and authentication details, architecture and weak points, current progress, failed attempts and dead ends, strategy decisions
+- Retain precise technical details (URL, path, parameter, payload, version number; error text may be summarized but key points must not be lost)
+- Summarize verbose scan output into conclusions; merge repeated findings
+- Enumerated assets must keep an inheritable summary: main domain, a short table of key subdomains/hosts (or count + representative samples), high-value targets, identified service/port highlights
 
-输出格式（严格遵循，仅一轮回复）：
-1. 先输出 <analysis> 块：按时间顺序梳理对话，检查是否涵盖下方各章节要点；analysis 仅供自检，保持简洁（建议 ≤400 字）
-2. 再输出 <summary> 块：按以下章节写入可继承的压缩报告（无信息处写「无」，禁止留空模板占位符）
+Output format (follow strictly, only one round of reply):
+1. First output an <analysis> block: review the conversation chronologically and check whether it covers each section's key points below; analysis is for self-check only, keep it concise (suggested <=400 characters)
+2. Then output a <summary> block: write an inheritable compressed report by the sections below (write "none" where there is no information; do not leave empty template placeholders)
 
 <summary>
-## 1. 授权范围与约束
-- 目标/范围/禁止项（域名、路径、IP、环境）
-- 凭证/认证信息（账号、Token、Cookie；敏感值原文保留）
-- 用户指定的方法、工具、优先级与待办
-- 否定约束（不测什么、不用什么手法）
+## 1. Authorization scope and constraints
+- Targets/scope/prohibitions (domains, paths, IPs, environment)
+- Credentials/authentication information (accounts, tokens, cookies; sensitive values kept verbatim)
+- User-specified methods, tools, priorities, and to-dos
+- Negative constraints (what not to test, which techniques not to use)
 
-## 2. 资产与服务枚举摘要
-- 主域/核心资产、关键子域或主机短表（或数量+代表样例）
-- 高价值目标、已识别服务/端口要点
-- 资产状态（存活/可攻/已排除/待验证）
+## 2. Asset and service enumeration summary
+- Main domain/core assets, a short table of key subdomains or hosts (or count + representative samples)
+- High-value targets, identified service/port highlights
+- Asset status (alive/attackable/excluded/to be verified)
 
-## 3. 架构与已知薄弱点
-- 技术栈/部署拓扑/信任边界
-- 已识别薄弱点列表
+## 3. Architecture and known weak points
+- Tech stack/deployment topology/trust boundaries
+- List of identified weak points
 
-## 4. 已确认漏洞与攻击路径
-- 漏洞名/CVE、URL/路径、参数/Payload、PoC 要点、影响等级
-- 攻击链/利用路径（步骤化）
+## 4. Confirmed vulnerabilities and attack paths
+- Vulnerability name/CVE, URL/path, parameter/payload, PoC key points, impact level
+- Attack chain/exploitation path (step by step)
 
-## 5. 工具核心发现与扫描结论
-- 各工具结论（概括核心输出，非冗长日志）
-- 重复发现合并表述
+## 5. Core tool findings and scan conclusions
+- Per-tool conclusions (summarize the core output, not verbose logs)
+- Merge repeated findings
 
-## 6. 所有用户消息
+## 6. All user messages
 <all_user_messages>
-- [逐条列出非 tool 结果的用户消息要点；敏感约束与原文措辞尽量保留]
+- [List, one by one, the key points of non-tool-result user messages; keep sensitive constraints and original wording as much as possible]
 </all_user_messages>
 
-## 7. 当前进度、策略决策与下一步
-- 当前位置（已完成/进行中/卡点）
-- 失败尝试与死路（方法、现象/报错摘要、结论）
-- 策略决策与下一步具体操作（须与最近用户请求及未完成任务一致）
+## 7. Current progress, strategy decisions, and next steps
+- Current position (done/in progress/blocked)
+- Failed attempts and dead ends (method, symptom/error summary, conclusion)
+- Strategy decisions and the specific next step (must be consistent with the most recent user request and unfinished tasks)
 
-## 8. 原始证据检索线索（追加）
-- 只追加工具结果、关键发现与关键进展的简短检索线索，不再归纳用户输入，不改写前面各章节
-- 已取得的认证信息、重要请求、错误或其他证据：注明来源目标、工具/操作与可搜索关键词，便于缺少精确值时回读原始快照
-- 仅记录已有证据，不猜测；不重复长日志或完整凭据值；无信息写「无」
-- 不自行生成文件名、行号或复述旧快照路径，系统会附上本次实际保存的快照读取入口
+## 8. Raw-evidence retrieval clues (appended)
+- Only append short retrieval clues for tool results, key findings, and key progress; do not summarize user input again, and do not rewrite the earlier sections
+- For obtained authentication info, important requests, errors, or other evidence: note the source target, tool/operation, and searchable keywords, so the raw snapshot can be re-read when precise values are missing
+- Record only existing evidence, do not guess; do not repeat long logs or full credential values; write "none" where there is no information
+- Do not invent file names, line numbers, or restate old snapshot paths; the system attaches the read entry of the snapshot actually saved this time
 </summary>
 
-提醒：不要调用任何工具；必须基于上文已有对话直接输出 <analysis> 与 <summary>，勿输出 analysis 以外的正文。`
+Reminder: do not call any tool; you must output <analysis> and <summary> directly based on the existing conversation above, and output no body text other than analysis.`
 
-// newEinoSummarizationMiddleware 使用 Eino ADK Summarization 中间件（见 https://www.cloudwego.io/zh/docs/eino/core_modules/eino_adk/eino_adk_chatmodelagentmiddleware/middleware_summarization/）。
-// 触发阈值：估算 token 超过 openai.max_total_tokens * summarization_trigger_ratio（默认 0.8）时摘要。
+// newEinoSummarizationMiddleware uses the Eino ADK Summarization middleware (see https://www.cloudwego.io/zh/docs/eino/core_modules/eino_adk/eino_adk_chatmodelagentmiddleware/middleware_summarization/).
+// Trigger threshold: summarize when the estimated token count exceeds openai.max_total_tokens * summarization_trigger_ratio (default 0.8).
 func newEinoSummarizationMiddleware(
 	ctx context.Context,
 	summaryModel model.BaseChatModel,
@@ -97,7 +97,7 @@ func newEinoSummarizationMiddleware(
 	memoryScopes ...string,
 ) (adk.ChatModelAgentMiddleware, error) {
 	if summaryModel == nil || appCfg == nil {
-		return nil, fmt.Errorf("multiagent: summarization 需要 model 与配置")
+		return nil, fmt.Errorf("multiagent: summarization requires a model and configuration")
 	}
 	maxTotal := appCfg.OpenAI.MaxTotalTokens
 	if maxTotal <= 0 {
@@ -183,7 +183,7 @@ func newEinoSummarizationMiddleware(
 		GenModelInput: func(ctx context.Context, sysInstruction, userInstruction adk.Message, originalMsgs []adk.Message) ([]adk.Message, error) {
 			if transcriptPath != "" && len(originalMsgs) > 0 {
 				if werr := writeSummarizationTranscript(transcriptPath, originalMsgs); werr != nil && logger != nil {
-					logger.Warn("eino summarization transcript preflight 写入失败",
+					logger.Warn("eino summarization transcript preflight write failed",
 						zap.String("path", transcriptPath), zap.Error(werr))
 				}
 			}
@@ -275,7 +275,7 @@ func newEinoSummarizationMiddleware(
 		Callback: func(ctx context.Context, before, after adk.ChatModelAgentState) error {
 			if transcriptPath != "" && len(before.Messages) > 0 {
 				if werr := writeSummarizationTranscript(transcriptPath, before.Messages); werr != nil && logger != nil {
-					logger.Warn("eino summarization transcript 写入失败",
+					logger.Warn("eino summarization transcript write failed",
 						zap.String("path", transcriptPath),
 						zap.Error(werr),
 					)
@@ -284,7 +284,7 @@ func newEinoSummarizationMiddleware(
 			if logger != nil {
 				beforeTokens, _ := tokenCounter(ctx, &summarization.TokenCounterInput{Messages: before.Messages})
 				afterTokens, _ := tokenCounter(ctx, &summarization.TokenCounterInput{Messages: after.Messages})
-				logger.Info("eino summarization 已压缩上下文",
+				logger.Info("eino summarization compressed the context",
 					zap.Int("messages_before", len(before.Messages)),
 					zap.Int("messages_after", len(after.Messages)),
 					zap.Int("tokens_before_estimated", beforeTokens),
@@ -472,7 +472,7 @@ func buildPlaintextSummarizationInput(
 	return input
 }
 
-// refreshFactIndexInMessages 在 summarization 压缩后，用 DB 最新索引替换 system 中已有的项目黑板索引段。
+// refreshFactIndexInMessages, after summarization compression, replaces the existing project blackboard index section in system with the latest index from the DB.
 func refreshFactIndexInMessages(msgs []adk.Message, db *database.DB, projectID string, cfg config.ProjectConfig, logger *zap.Logger, conversationIDs ...string) []adk.Message {
 	if db == nil || !cfg.Enabled {
 		return msgs
@@ -484,7 +484,7 @@ func refreshFactIndexInMessages(msgs []adk.Message, db *database.DB, projectID s
 	freshIndex, err := project.BuildFactIndexBlock(db, projectID, cfg, conversationIDs...)
 	if err != nil {
 		if logger != nil {
-			logger.Warn("summarization: 刷新项目黑板索引失败", zap.String("projectId", projectID), zap.Error(err))
+			logger.Warn("summarization: failed to refresh the project blackboard index", zap.String("projectId", projectID), zap.Error(err))
 		}
 		return msgs
 	}
@@ -515,20 +515,20 @@ func refreshFactIndexInMessages(msgs []adk.Message, db *database.DB, projectID s
 		changed = true
 	}
 	if changed && logger != nil {
-		logger.Info("summarization: 已刷新项目黑板索引", zap.String("projectId", projectID))
+		logger.Info("summarization: refreshed the project blackboard index", zap.String("projectId", projectID))
 	}
 	return out
 }
 
-// summarizeFinalizeWithRecentAssistantToolTrail 在摘要消息后保留最近 assistant/tool 轨迹，避免压缩后执行链断裂。
+// summarizeFinalizeWithRecentAssistantToolTrail keeps the most recent assistant/tool trace after the summary message, to avoid breaking the execution chain after compression.
 //
-// 关键不变量：tool_call ↔ tool_result 的 pair 必须整体保留或整体丢弃。
-// 把消息切成 round（回合）为原子单位：
-//   - user(...) 单条为一个 round；
-//   - assistant(tool_calls=[...]) 及其后连续的 role=tool 消息合成一个 round；
-//   - 其它 assistant(reply, 无 tool_calls) 单条为一个 round。
+// Key invariant: a tool_call <-> tool_result pair must be kept or dropped as a whole.
+// Split messages into rounds as atomic units:
+//   - a single user(...) is one round;
+//   - assistant(tool_calls=[...]) plus its following consecutive role=tool messages form one round;
+//   - any other single assistant(reply, no tool_calls) is one round.
 //
-// 倒序挑 round（预算不够即放弃该 round），保证 tool 消息不会跨 round 被孤立。
+// Pick rounds in reverse order (dropping a round when the budget is insufficient), ensuring tool messages are not orphaned across rounds.
 func summarizeFinalizeWithRecentAssistantToolTrail(
 	ctx context.Context,
 	originalMessages []adk.Message,
@@ -566,8 +566,8 @@ func summarizeFinalizeWithRecentAssistantToolTrail(
 		return out, nil
 	}
 
-	// 目标：至少保留 minRounds 个 round 的执行轨迹；在预算允许时尽量多保留。
-	// 优先确保最后一个 round（通常是最新的 tool 往返或 assistant 回复）存在。
+	// Goal: keep the execution trace of at least minRounds rounds; keep as many as the budget allows.
+	// Prioritize ensuring the last round (usually the latest tool round-trip or assistant reply) is present.
 	const minRounds = 2
 
 	selectedRoundsReverse := make([]messageRound, 0, 8)
@@ -594,8 +594,8 @@ func summarizeFinalizeWithRecentAssistantToolTrail(
 		if err != nil {
 			return nil, err
 		}
-		// 预算不够：已经保留了足够 round 则停，否则跳过该 round 继续往前找
-		// （避免一个超大 round 挤占全部预算，至少保证有轨迹）。
+		// Budget insufficient: stop if enough rounds are already kept, otherwise skip this round and keep looking earlier
+		// (to avoid one huge round taking up the whole budget, ensuring there is at least a trace).
 		if totalTokens+n > recentTrailTokenBudget {
 			if selectedCount >= minRounds {
 				break
@@ -607,7 +607,7 @@ func summarizeFinalizeWithRecentAssistantToolTrail(
 		selectedCount++
 	}
 
-	// 还原时间顺序。round 内为原始 *schema.Message 指针，保留 ReasoningContent（DeepSeek 工具续跑所必需）。
+	// Restore chronological order. Within a round are the original *schema.Message pointers, keeping ReasoningContent (required for DeepSeek tool resumption).
 	selectedMsgs := make([]adk.Message, 0, 8)
 	for i := len(selectedRoundsReverse) - 1; i >= 0; i-- {
 		selectedMsgs = append(selectedMsgs, selectedRoundsReverse[i].messages...)
@@ -620,17 +620,17 @@ func summarizeFinalizeWithRecentAssistantToolTrail(
 	return out, nil
 }
 
-// messageRound 表示一个"不可分割"的消息回合。
-//   - 对 assistant(tool_calls) + 随后若干 tool 消息的组合，round 内全部 call_id 成对完整；
-//   - 对独立的 user / assistant(reply) 消息，round 仅包含该条消息。
+// messageRound represents an "indivisible" message round.
+//   - for the combination of assistant(tool_calls) + several following tool messages, all call_ids within the round are fully paired;
+//   - for a standalone user / assistant(reply) message, the round contains only that message.
 type messageRound struct {
 	messages []adk.Message
 }
 
-// splitMessagesIntoRounds 将非 system 消息切分为若干 round，保证：
-//   - 每个 assistant(tool_calls) 与其对应的 role=tool 响应消息在同一个 round；
-//   - 孤立（无对应 assistant(tool_calls)）的 role=tool 消息不会单独成为 round，
-//     而是被丢弃（这些消息在 pair 完整性层面已属孤儿，保留反而会触发 LLM 400）。
+// splitMessagesIntoRounds splits non-system messages into rounds, ensuring:
+//   - each assistant(tool_calls) and its corresponding role=tool response messages are in the same round;
+//   - an orphan role=tool message (with no corresponding assistant(tool_calls)) does not form its own round,
+//     but is discarded (such messages are already orphans in terms of pair integrity, and keeping them would trigger an LLM 400).
 func splitMessagesIntoRounds(msgs []adk.Message) []messageRound {
 	if len(msgs) == 0 {
 		return nil
@@ -645,7 +645,7 @@ func splitMessagesIntoRounds(msgs []adk.Message) []messageRound {
 		}
 		switch {
 		case msg.Role == schema.Assistant && len(msg.ToolCalls) > 0:
-			// 收集该 assistant 提供的 call_id 集合。
+			// Collect the set of call_ids provided by this assistant.
 			provided := make(map[string]struct{}, len(msg.ToolCalls))
 			for _, tc := range msg.ToolCalls {
 				if tc.ID != "" {
@@ -665,7 +665,7 @@ func splitMessagesIntoRounds(msgs []adk.Message) []messageRound {
 				}
 				if next.ToolCallID != "" {
 					if _, ok := provided[next.ToolCallID]; !ok {
-						// 下一条 tool 不属于当前 assistant，认为当前 round 结束。
+						// The next tool does not belong to the current assistant, so the current round is considered ended.
 						break
 					}
 				}
@@ -675,12 +675,12 @@ func splitMessagesIntoRounds(msgs []adk.Message) []messageRound {
 			rounds = append(rounds, round)
 			i = j
 		case msg.Role == schema.Tool:
-			// 孤儿 tool 消息：既不跟随在一个 assistant(tool_calls) 后，
-			// 说明它对应的 assistant 已被上游裁剪；直接丢弃，下一步到 orphan pruner
-			// 兜底也不会出错，但在 round 切分这里就剔除更干净。
+			// Orphan tool message: it neither follows an assistant(tool_calls),
+			// meaning its corresponding assistant has been trimmed upstream; discard it directly, and the next step to the orphan pruner
+			// would backstop it without error, but removing it here at round splitting is cleaner.
 			i++
 		default:
-			// user / assistant(reply) / 其它：单条成 round。
+			// user / assistant(reply) / other: a single message forms a round.
 			rounds = append(rounds, messageRound{messages: []adk.Message{msg}})
 			i++
 		}

@@ -1,31 +1,31 @@
 name: "msfvenom"
 command: "msfvenom"
 enabled: true
-short_description: "Metasploit载荷生成工具"
+short_description: "Metasploit payload generation tool"
 description: |
-  MSFVenom是Metasploit框架的载荷生成工具，用于创建各种类型的攻击载荷。
+  MSFVenom is the payload generation tool of the Metasploit framework, used to create various types of attack payloads.
 
   **Key Features:**
-  - 多种载荷类型
-  - 编码器支持
+  - Multiple payload types
+  - Encoder support
   - Multiple output formats
-  - 平台支持
+  - Platform support
 
   **Use Cases:**
   - Penetration testing
-  - 载荷生成
-  - 漏洞利用
+  - Payload generation
+  - Exploitation
   - Security testing
 parameters:
   - name: "payload"
     type: "string"
-    description: "要生成的载荷（如：windows/meterpreter/reverse_tcp）"
+    description: "payload to generate (e.g.: windows/meterpreter/reverse_tcp)"
     required: true
     flag: "-p"
     format: "flag"
   - name: "format_type"
     type: "string"
-    description: "输出格式（exe, elf, raw等）"
+    description: "output format (exe, elf, raw, etc.)"
     required: false
     flag: "-f"
     format: "flag"
@@ -37,13 +37,13 @@ parameters:
     format: "flag"
   - name: "encoder"
     type: "string"
-    description: "编码器（如：x86/shikata_ga_nai）"
+    description: "encoder (e.g.: x86/shikata_ga_nai)"
     required: false
     flag: "-e"
     format: "flag"
   - name: "iterations"
     type: "string"
-    description: "编码迭代次数"
+    description: "number of encoding iterations"
     required: false
     flag: "-i"
     format: "flag"

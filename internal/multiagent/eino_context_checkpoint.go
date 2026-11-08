@@ -135,7 +135,7 @@ func persistSummarizationCheckpoint(db *database.DB, projectID, conversationID, 
 	}
 	hash := sha256.Sum256([]byte(conversationID + "\x00" + memoryScope))
 	key := fmt.Sprintf("note/context-%x", hash[:16])
-	body := "## 会话续接记录（自动摘要，尚未经独立验证）\n来源对话: " + conversationID + "\n代理范围: " + memoryScope + "\n\n" + summary
+	body := "## Session continuation record (auto-summary, not yet independently verified)\nSource conversation: " + conversationID + "\nAgent scope: " + memoryScope + "\n\n" + summary
 	if snapshot != "" {
 		body = appendSummarizationSection(body, summarizationTranscriptRetrievalSection(snapshot))
 	}
@@ -174,7 +174,7 @@ func checkpointSummaryLabel(scope, summary string, cap int) string {
 			break
 		}
 	}
-	label := "自动续接（" + strings.Join(strings.Fields(scope), " ") + "）：" + strings.Join(lines, "；")
+	label := "auto-continuation (" + strings.Join(strings.Fields(scope), " ") + "): " + strings.Join(lines, "; ")
 	return truncateIndexLabel(label, cap)
 }
 
@@ -185,7 +185,7 @@ func checkpointRetrievalClues(summary string) string {
 	var clues []string
 	for _, line := range strings.Split(summary, "\n") {
 		line = strings.TrimSpace(line)
-		if strings.HasPrefix(line, "## 8.") && strings.Contains(line, "原始证据检索线索") {
+		if strings.HasPrefix(line, "## 8.") && strings.Contains(line, "Raw-evidence retrieval clues") {
 			inSection = true
 			continue
 		}
@@ -196,7 +196,7 @@ func checkpointRetrievalClues(summary string) string {
 			break
 		}
 		line = strings.TrimSpace(strings.TrimLeft(line, "- *"))
-		if line != "" && line != "无" && line != "无。" && !strings.HasPrefix(line, "<") {
+		if line != "" && line != "none" && line != "none." && !strings.HasPrefix(line, "<") {
 			clues = append(clues, line)
 		}
 		if len(clues) == 4 {
@@ -222,9 +222,9 @@ func finalizeSummarizationMemory(msg adk.Message, originals []adk.Message, trans
 	snapshot, err := writeSummarizationTranscriptSnapshot(transcriptPath, originals)
 	if err != nil && logger != nil {
 		if snapshot != "" {
-			logger.Warn("更新上下文兼容入口失败，原始快照仍可读取", zap.String("snapshot", snapshot), zap.Error(err))
+			logger.Warn("failed to update the context-compat entry; the raw snapshot is still readable", zap.String("snapshot", snapshot), zap.Error(err))
 		} else {
-			logger.Warn("保存上下文证据快照失败", zap.Error(err))
+			logger.Warn("failed to save the context evidence snapshot", zap.Error(err))
 		}
 	}
 	// Publish successful immutable evidence even if only its alias failed.
@@ -252,14 +252,14 @@ func finalizeSummarizationMemory(msg adk.Message, originals []adk.Message, trans
 	key, err := persistSummarizationCheckpoint(db, projectID, conversationID, memoryScope, text, snapshot, cfg)
 	if err != nil {
 		if logger != nil {
-			logger.Warn("保存黑板续接记录失败", zap.String("conversationId", conversationID), zap.Error(err))
+			logger.Warn("failed to save the blackboard continuation record", zap.String("conversationId", conversationID), zap.Error(err))
 		}
 		return msg
 	}
 	if key == "" || msg == nil {
 		return msg
 	}
-	section := "本轮续接摘要已保存到项目黑板 get_project_fact(" + key + ")；这是未独立验证的工作记录，使用前核对证据与当前任务范围。"
+	section := "This round's continuation summary has been saved to the project blackboard, get_project_fact(" + key + "); it is an un-independently-verified work record, so verify the evidence and current task scope before using it."
 	clone := *msg
 	if clone.Content != "" {
 		clone.Content = appendSummarizationSection(clone.Content, section)

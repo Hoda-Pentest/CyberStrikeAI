@@ -16,20 +16,20 @@ import (
 	"cyberstrike-ai/internal/security"
 )
 
-// ErrTaskCancelled 用户取消任务的错误
+// ErrTaskCancelled the error for a user-cancelled task
 var ErrTaskCancelled = errors.New("agent task cancelled by user")
 
-// ErrTaskAlreadyRunning 会话已有任务正在执行
+// ErrTaskAlreadyRunning the session already has a task running
 var ErrTaskAlreadyRunning = errors.New("agent task already running for conversation")
 
-// shouldPersistEinoAgentTraceAfterRunError：Eino 相关 Run 非成功返回时，是否仍写入 last_react_* 供下轮 loadHistoryFromAgentTrace。
-// 当前策略：无论正常结束、异常结束或用户主动停止，都尽量保留最后可用轨迹，
-// 以便在同一会话继续时可基于原始上下文续跑，而不是回退到仅消息文本历史。
+// shouldPersistEinoAgentTraceAfterRunError: when an Eino-related Run returns a non-success, whether to still write last_react_* for the next round's loadHistoryFromAgentTrace.
+// current policy: whether it ends normally, abnormally, or the user actively stops it, keep the last usable trace as much as possible,
+// so that continuing in the same session can resume from the original context, instead of falling back to a message-text-only history.
 func shouldPersistEinoAgentTraceAfterRunError(baseCtx context.Context) bool {
 	return true
 }
 
-// AgentTask 描述正在运行的Agent任务
+// AgentTask describes a running Agent task
 type AgentTask struct {
 	RunID            string `json:"runId"`
 	CleanupError     string `json:"cleanupError,omitempty"`
@@ -45,34 +45,34 @@ type AgentTask struct {
 	Message          string    `json:"message,omitempty"`
 	StartedAt        time.Time `json:"startedAt"`
 	Status           string    `json:"status"`
-	CancellingAt     time.Time `json:"-"` // 进入 cancelling 状态的时间，用于清理长时间卡住的任务
+	CancellingAt     time.Time `json:"-"` // the time of entering the cancelling state, used to clean up long-stuck tasks
 
-	// ActiveMCPExecutionID 当前正在执行的 MCP 工具 executionId（仅内存，供「中断并继续」= 仅掐当前工具）
+	// ActiveMCPExecutionID the executionId of the MCP tool currently executing (memory only, for "interrupt and continue" = only cut off the current tool)
 	ActiveMCPExecutionID string `json:"-"`
 
-	// InterruptContinueNote 无 MCP 时「中断并继续」由用户在弹窗中填写的补充说明（Cancel 前写入，续跑轮次读取后清空）
+	// InterruptContinueNote the supplementary note the user fills in the dialog for "interrupt and continue" when there is no MCP (written before Cancel, read and cleared on the resumed round)
 	InterruptContinueNote string `json:"-"`
 
-	// activeEinoExecuteCancel 当前进行中的 Eino filesystem execute 取消函数（与 MCP 工具并行，供中断并继续）
+	// activeEinoExecuteCancel the cancel function of the current in-progress Eino filesystem execute (runs in parallel with MCP tools, for interrupt and continue)
 	activeEinoExecuteCancel context.CancelFunc
-	// activeEinoExecuteAbortNote AbortActiveEinoExecute 写入的用户说明，由 execute 收尾时合并进工具结果
+	// activeEinoExecuteAbortNote the user note written by AbortActiveEinoExecute, merged into the tool result when execute finishes
 	activeEinoExecuteAbortNote string
 
-	// hitlCognition 本轮运行中供 HITL/审计 Agent 读取的上下文（用户原话 + 思考，不含会话历史）
+	// hitlCognition the context read by the HITL/audit Agent during this run (the user's original words + reasoning, no conversation history)
 	hitlCognition *hitlCognitionState
 
-	// agentRuntimeCancel 当前 Eino ADK 原生 AgentCancelFunc 包装；取消任务时先触发它，再走 context 兜底。
+	// agentRuntimeCancel the current Eino ADK native AgentCancelFunc wrapper; when cancelling a task, trigger it first, then fall back to context.
 	agentRuntimeCancel        func(error) bool
 	agentRuntimeCancelVersion uint64
 
-	// agentTurnLoopInterrupt 当前 Eino TurnLoop 用户补充 push hook；中断并继续时优先将补充作为新 turn item 入队。
+	// agentTurnLoopInterrupt the current Eino TurnLoop user-supplement push hook; on interrupt and continue, prefer enqueuing the supplement as a new turn item.
 	agentTurnLoopInterrupt        func(string) bool
 	agentTurnLoopInterruptVersion uint64
 
 	cancel func(error)
 }
 
-// RegisterRunningTool 实现 mcp.ToolRunRegistry：工具开始时登记本会话当前 executionId。
+// RegisterRunningTool implements mcp.ToolRunRegistry: registers the current executionId of this session when the tool starts.
 func (m *AgentTaskManager) RegisterRunningTool(conversationID, executionID string) {
 	conversationID = strings.TrimSpace(conversationID)
 	executionID = strings.TrimSpace(executionID)
@@ -86,7 +86,7 @@ func (m *AgentTaskManager) RegisterRunningTool(conversationID, executionID strin
 	}
 }
 
-// UnregisterRunningTool 工具结束时清除登记（仅当 id 仍匹配时清除，避免并发串单）。
+// UnregisterRunningTool clears the registration when the tool ends (only when the id still matches, to avoid cross-wiring under concurrency).
 func (m *AgentTaskManager) UnregisterRunningTool(conversationID, executionID string) {
 	conversationID = strings.TrimSpace(conversationID)
 	executionID = strings.TrimSpace(executionID)
@@ -102,7 +102,7 @@ func (m *AgentTaskManager) UnregisterRunningTool(conversationID, executionID str
 	}
 }
 
-// RegisterActiveEinoExecute 登记进行中的 Eino filesystem execute（每会话同时仅一条）。
+// RegisterActiveEinoExecute registers an in-progress Eino filesystem execute (only one per session at a time).
 func (m *AgentTaskManager) RegisterActiveEinoExecute(conversationID string, cancel context.CancelFunc) {
 	conversationID = strings.TrimSpace(conversationID)
 	if conversationID == "" || cancel == nil {
@@ -116,7 +116,7 @@ func (m *AgentTaskManager) RegisterActiveEinoExecute(conversationID string, canc
 	}
 }
 
-// UnregisterActiveEinoExecute execute 正常结束或已取消后清除登记。
+// UnregisterActiveEinoExecute clears the registration after execute ends normally or is cancelled.
 func (m *AgentTaskManager) UnregisterActiveEinoExecute(conversationID string) {
 	conversationID = strings.TrimSpace(conversationID)
 	if conversationID == "" {
@@ -130,7 +130,7 @@ func (m *AgentTaskManager) UnregisterActiveEinoExecute(conversationID string) {
 	}
 }
 
-// ConversationIDForActiveMCPExecution 根据当前登记的工具 executionId 反查会话 ID（供 MCP 监控页按 executionId 终止）。
+// ConversationIDForActiveMCPExecution looks up the session ID by the currently registered tool executionId (for the MCP monitoring page to terminate by executionId).
 func (m *AgentTaskManager) ConversationIDForActiveMCPExecution(executionID string) string {
 	executionID = strings.TrimSpace(executionID)
 	if executionID == "" {
@@ -146,7 +146,7 @@ func (m *AgentTaskManager) ConversationIDForActiveMCPExecution(executionID strin
 	return ""
 }
 
-// ConversationIDForActiveEinoExecute 返回当前唯一进行 Eino execute 的会话 ID；多会话并行时返回空。
+// ConversationIDForActiveEinoExecute returns the session ID of the only session currently running an Eino execute; returns empty when multiple sessions run in parallel.
 func (m *AgentTaskManager) ConversationIDForActiveEinoExecute() (string, bool) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -164,7 +164,7 @@ func (m *AgentTaskManager) ConversationIDForActiveEinoExecute() (string, bool) {
 	return "", false
 }
 
-// AbortActiveEinoExecute 终止当前 Eino execute 并暂存用户说明（与 MCP 工具终止一致）。
+// AbortActiveEinoExecute terminates the current Eino execute and stores the user's note (consistent with MCP tool termination).
 func (m *AgentTaskManager) AbortActiveEinoExecute(conversationID, note string) bool {
 	conversationID = strings.TrimSpace(conversationID)
 	if conversationID == "" {
@@ -183,7 +183,7 @@ func (m *AgentTaskManager) AbortActiveEinoExecute(conversationID, note string) b
 	return true
 }
 
-// TakeEinoExecuteAbortNote 读取并清空 execute 终止说明（execute 收尾时调用一次）。
+// TakeEinoExecuteAbortNote reads and clears the execute termination note (called once when execute finishes).
 func (m *AgentTaskManager) TakeEinoExecuteAbortNote(conversationID string) string {
 	conversationID = strings.TrimSpace(conversationID)
 	if conversationID == "" {
@@ -199,7 +199,7 @@ func (m *AgentTaskManager) TakeEinoExecuteAbortNote(conversationID string) strin
 	return ""
 }
 
-// SetInterruptContinueNote 在发起 ErrInterruptContinue 取消前写入用户补充说明（仅内存）。
+// SetInterruptContinueNote writes the user's supplementary note before issuing an ErrInterruptContinue cancel (memory only).
 func (m *AgentTaskManager) SetInterruptContinueNote(conversationID, note string) {
 	conversationID = strings.TrimSpace(conversationID)
 	if conversationID == "" {
@@ -212,7 +212,7 @@ func (m *AgentTaskManager) SetInterruptContinueNote(conversationID, note string)
 	}
 }
 
-// TakeInterruptContinueNote 读取并清空补充说明（续跑开始时调用一次）。
+// TakeInterruptContinueNote reads and clears the supplementary note (called once when the resumed round starts).
 func (m *AgentTaskManager) TakeInterruptContinueNote(conversationID string) string {
 	conversationID = strings.TrimSpace(conversationID)
 	if conversationID == "" {
@@ -228,7 +228,7 @@ func (m *AgentTaskManager) TakeInterruptContinueNote(conversationID string) stri
 	return ""
 }
 
-// BindTaskCancel 在同一运行任务内替换与 context 绑定的 cancel 函数（用于中断后继续时换新 baseCtx）。
+// BindTaskCancel replaces the context-bound cancel function within the same running task (used to swap in a new baseCtx when continuing after an interrupt).
 func (m *AgentTaskManager) BindTaskCancel(conversationID string, cancel context.CancelCauseFunc) {
 	conversationID = strings.TrimSpace(conversationID)
 	if conversationID == "" || cancel == nil {
@@ -243,7 +243,7 @@ func (m *AgentTaskManager) BindTaskCancel(conversationID string, cancel context.
 	}
 }
 
-// BindAgentRuntimeCancel 登记当前运行段的 Eino 原生 cancel hook。
+// BindAgentRuntimeCancel registers the current run segment's Eino native cancel hook.
 func (m *AgentTaskManager) BindAgentRuntimeCancel(conversationID string, cancel func(error) bool) func() {
 	conversationID = strings.TrimSpace(conversationID)
 	if conversationID == "" || cancel == nil {
@@ -269,7 +269,7 @@ func (m *AgentTaskManager) BindAgentRuntimeCancel(conversationID string, cancel 
 	}
 }
 
-// BindAgentTurnLoopInterrupt 登记当前运行任务的 Eino TurnLoop 用户补充入队 hook。
+// BindAgentTurnLoopInterrupt registers the current running task's Eino TurnLoop user-supplement enqueue hook.
 func (m *AgentTaskManager) BindAgentTurnLoopInterrupt(conversationID string, push func(string) bool) func() {
 	conversationID = strings.TrimSpace(conversationID)
 	if conversationID == "" || push == nil {
@@ -295,7 +295,7 @@ func (m *AgentTaskManager) BindAgentTurnLoopInterrupt(conversationID string, pus
 	}
 }
 
-// ActiveMCPExecutionID 返回当前会话进行中的工具 executionId，无则空串。
+// ActiveMCPExecutionID returns the in-progress tool executionId of the current session, or an empty string if none.
 func (m *AgentTaskManager) ActiveMCPExecutionID(conversationID string) string {
 	conversationID = strings.TrimSpace(conversationID)
 	if conversationID == "" {
@@ -309,7 +309,7 @@ func (m *AgentTaskManager) ActiveMCPExecutionID(conversationID string) string {
 	return ""
 }
 
-// CompletedTask 已完成的任务（用于历史记录）
+// CompletedTask a completed task (used for history)
 type CompletedTask struct {
 	CleanupError     string    `json:"cleanupError,omitempty"`
 	IsolationBackend string    `json:"isolationBackend,omitempty"`
@@ -322,15 +322,15 @@ type CompletedTask struct {
 	Status           string    `json:"status"`
 }
 
-// AgentTaskManager 管理正在运行的Agent任务
+// AgentTaskManager manages running Agent tasks
 type AgentTaskManager struct {
 	mu               sync.RWMutex
 	tasks            map[string]*AgentTask
-	completedTasks   []*CompletedTask // 最近完成的任务历史
-	maxHistorySize   int              // 最大历史记录数
-	historyRetention time.Duration    // 历史记录保留时间
-	eventBus         *TaskEventBus    // 可选：任务结束时关闭镜像 SSE 订阅
-	// toolCanceler 在用户整轮停止任务或会话结束时终止该会话仍在运行的 MCP 工具（非「中断并继续」）。
+	completedTasks   []*CompletedTask // history of recently completed tasks
+	maxHistorySize   int              // maximum number of history records
+	historyRetention time.Duration    // how long to retain history records
+	eventBus         *TaskEventBus    // optional: closes the mirrored SSE subscription when the task ends
+	// toolCanceler terminates the MCP tools still running in a session when the user stops the whole-round task or the session ends (not "interrupt and continue").
 	toolCanceler func(conversationID string)
 	shuttingDown bool
 	shutdown     chan struct{}
@@ -338,49 +338,49 @@ type AgentTaskManager struct {
 }
 
 const (
-	// cancellingStuckThreshold 处于「取消中」超过此时长则强制从运行列表移除。正常取消会在当前步骤内返回，
-	// 超过则视为卡住，尽快释放会话。常见做法多为 30–60s 内释放。
+	// cancellingStuckThreshold if "cancelling" lasts longer than this, forcibly remove it from the running list. A normal cancel returns within the current step,
+	// if it exceeds this, treat it as stuck and release the session as soon as possible. The common practice is to release within 30-60s.
 	cancellingStuckThreshold = 45 * time.Second
-	// cancellingStuckThresholdLegacy 未记录 CancellingAt 时用 StartedAt 判断的兜底时长
+	// cancellingStuckThresholdLegacy the fallback duration judged by StartedAt when CancellingAt is not recorded
 	cancellingStuckThresholdLegacy = 2 * time.Minute
-	cleanupInterval                = 15 * time.Second // 与上面阈值配合，最长约 60s 内移除
+	cleanupInterval                = 15 * time.Second // works with the threshold above, removed within about 60s at most
 )
 
-// NewAgentTaskManager 创建任务管理器
+// NewAgentTaskManager creates a task manager
 func NewAgentTaskManager() *AgentTaskManager {
 	m := &AgentTaskManager{
 		tasks:            make(map[string]*AgentTask),
 		shutdown:         make(chan struct{}),
 		completedTasks:   make([]*CompletedTask, 0),
-		maxHistorySize:   50,             // 最多保留50条历史记录
-		historyRetention: 24 * time.Hour, // 保留24小时
+		maxHistorySize:   50,             // keep at most 50 history records
+		historyRetention: 24 * time.Hour, // retain for 24 hours
 	}
 	go m.runStuckCancellingCleanup()
 	return m
 }
 
-// SetTaskEventBus 设置任务事件总线（与 AgentHandler 共用同一实例）。
+// SetTaskEventBus sets the task event bus (shares the same instance as AgentHandler).
 func (m *AgentTaskManager) SetTaskEventBus(b *TaskEventBus) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.eventBus = b
 }
 
-// SetToolCanceler 设置整轮停止任务/会话结束时终止仍在运行 MCP 工具的回调（由 AgentHandler 注入）。
+// SetToolCanceler sets the callback that terminates MCP tools still running when a whole round stops a task/the session ends (injected by AgentHandler).
 func (m *AgentTaskManager) SetToolCanceler(fn func(conversationID string)) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.toolCanceler = fn
 }
 
-// GetTask 返回运行中任务（无则 nil）。
+// GetTask returns the running task (nil if none).
 func (m *AgentTaskManager) GetTask(conversationID string) *AgentTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.tasks[conversationID]
 }
 
-// GetTaskSnapshot 返回运行任务的只读副本，供状态展示使用，避免锁外读取可变任务字段。
+// GetTaskSnapshot returns a read-only copy of the running task for status display, avoiding reading mutable task fields outside the lock.
 func (m *AgentTaskManager) GetTaskSnapshot(conversationID string) *AgentTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -393,7 +393,7 @@ func (m *AgentTaskManager) GetTaskSnapshot(conversationID string) *AgentTask {
 	return &snapshot
 }
 
-// runStuckCancellingCleanup 定期将长时间处于「取消中」的任务强制结束，避免卡住无法发新消息
+// runStuckCancellingCleanup periodically forces tasks stuck in "cancelling" for a long time to finish, to avoid being stuck and unable to send new messages
 func (m *AgentTaskManager) runStuckCancellingCleanup() {
 	ticker := time.NewTicker(cleanupInterval)
 	defer ticker.Stop()
@@ -440,7 +440,7 @@ func (m *AgentTaskManager) cleanupStuckCancelling() {
 	}
 }
 
-// StartTask 注册并开始一个新的任务
+// StartTask registers and starts a new task
 func (m *AgentTaskManager) StartTask(conversationID, message string, cancel context.CancelCauseFunc) (*AgentTask, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -471,7 +471,7 @@ func (m *AgentTaskManager) StartTask(conversationID, message string, cancel cont
 	return task, nil
 }
 
-// CancelTask 取消指定会话的任务。若任务已在取消中，仍返回 (true, nil) 以便接口幂等、前端不报错。
+// CancelTask cancels the task of the specified session. If the task is already being cancelled, still returns (true, nil) so the API is idempotent and the frontend does not error.
 func (m *AgentTaskManager) CancelTask(conversationID string, cause error) (bool, error) {
 	m.mu.Lock()
 	task, exists := m.tasks[conversationID]
@@ -480,7 +480,7 @@ func (m *AgentTaskManager) CancelTask(conversationID string, cause error) (bool,
 		return false, nil
 	}
 
-	// 如果已经处于取消流程，视为成功（幂等），避免前端重复点击报「未找到任务」
+	// if it is already in the cancellation flow, treat it as success (idempotent), to avoid the frontend showing "task not found" on repeated clicks
 	if task.Status == "cancelling" || task.finishing != nil {
 		m.mu.Unlock()
 		return true, nil
@@ -491,7 +491,7 @@ func (m *AgentTaskManager) CancelTask(conversationID string, cause error) (bool,
 		task.finalStatus = "cancelled"
 	}
 
-	// ErrInterruptContinue：仅掐断当前推理步骤，随后由处理器续跑，不进入长时间「取消中」态。
+	// ErrInterruptContinue: only cuts off the current reasoning step; the handler then resumes, without entering a long-lasting "cancelling" state.
 	if cause != nil && errors.Is(cause, multiagent.ErrInterruptContinue) {
 		task.Status = "running"
 	} else {
@@ -534,9 +534,9 @@ func (m *AgentTaskManager) CancelTask(conversationID string, cause error) (bool,
 	if runtimeCancel != nil {
 		runtimeHandled = runtimeCancel(cause)
 	}
-	// 「彻底停止」必须同时取消宿主 context：原生 Agent Cancel 即使已受理，
-	// 也可能只在安全点返回或报告超时，不能据此让整条任务继续存活。
-	// 中断并继续仍保留原语义：原生取消已处理时由运行时负责恢复。
+	// "Hard stop" must also cancel the host context: even if the native Agent Cancel has been accepted,
+	// it may also only return at a safe point or report a timeout, which must not keep the whole task alive.
+	// interrupt and continue still keeps the original semantics: when the native cancel has been handled, the runtime is responsible for resuming.
 	if cancel != nil && (!runtimeHandled || errors.Is(cause, ErrTaskCancelled)) {
 		cancel(cause)
 	}
@@ -553,7 +553,7 @@ func (m *AgentTaskManager) CancelTask(conversationID string, cause error) (bool,
 	return true, nil
 }
 
-// UpdateTaskStatus 更新任务状态但不删除任务（用于在发送事件前更新状态）
+// UpdateTaskStatus updates the task status but does not delete the task (used to update status before sending an event)
 func (m *AgentTaskManager) UpdateTaskStatus(conversationID string, status string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -585,8 +585,8 @@ func (m *AgentTaskManager) UpdateTaskStatus(conversationID string, status string
 // BindProcessScope snapshots ownership once at task start. Continuations must
 // derive from this context, never resolve ownership again using conversation ID.
 func (m *AgentTaskManager) BindProcessScope(ctx context.Context, conversationID, runID string) context.Context {
-	// 把对话 ID 放进 ctx：自定义请求头的 %session_id% 占位符据此替换，
-	// 保证每次对话发出的 x-opencode-session 等头对应当前 session。
+	// put the conversation ID into ctx: the %session_id% placeholder in custom request headers is replaced accordingly,
+	// ensure the x-opencode-session and other headers sent on each conversation correspond to the current session.
 	ctx = openai.WithSessionID(ctx, conversationID)
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -740,12 +740,12 @@ func (m *AgentTaskManager) Shutdown() {
 	wg.Wait()
 }
 
-// cleanupHistory 清理过期的历史记录
+// cleanupHistory cleans up expired history records
 func (m *AgentTaskManager) cleanupHistory() {
 	now := time.Now()
 	cutoffTime := now.Add(-m.historyRetention)
 
-	// 过滤掉过期的记录
+	// filter out expired records
 	validTasks := make([]*CompletedTask, 0, len(m.completedTasks))
 	for _, task := range m.completedTasks {
 		if task.CompletedAt.After(cutoffTime) {
@@ -753,10 +753,10 @@ func (m *AgentTaskManager) cleanupHistory() {
 		}
 	}
 
-	// 如果仍然超过最大数量，只保留最新的
+	// if it still exceeds the maximum count, keep only the most recent ones
 	if len(validTasks) > m.maxHistorySize {
-		// 按完成时间排序，保留最新的
-		// 由于是追加的，最新的在最后，所以直接取最后N个
+		// sort by completion time, keeping the newest
+		// since it is appended, the newest is at the end, so take the last N directly
 		start := len(validTasks) - m.maxHistorySize
 		validTasks = validTasks[start:]
 	}
@@ -764,7 +764,7 @@ func (m *AgentTaskManager) cleanupHistory() {
 	m.completedTasks = validTasks
 }
 
-// GetActiveTasks 返回所有正在运行的任务
+// GetActiveTasks returns all running tasks
 func (m *AgentTaskManager) GetActiveTasks() []*AgentTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -788,14 +788,14 @@ func (m *AgentTaskManager) GetActiveTasks() []*AgentTask {
 	return result
 }
 
-// GetCompletedTasks 返回最近完成的任务历史
+// GetCompletedTasks returns the recent completed-task history
 func (m *AgentTaskManager) GetCompletedTasks() []*CompletedTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	// 清理过期记录（只读锁，不影响其他操作）
-	// 注意：这里不能直接调用cleanupHistory，因为需要写锁
-	// 所以返回时过滤过期记录
+	// clean up expired records (read lock only, does not affect other operations)
+	// note: cleanupHistory cannot be called directly here, because a write lock is needed
+	// so filter out expired records when returning
 	now := time.Now()
 	cutoffTime := now.Add(-m.historyRetention)
 
@@ -806,13 +806,13 @@ func (m *AgentTaskManager) GetCompletedTasks() []*CompletedTask {
 		}
 	}
 
-	// 按完成时间倒序排序（最新的在前）
-	// 由于是追加的，最新的在最后，需要反转
+	// sort by completion time descending (newest first)
+	// since it is appended, the newest is at the end, so it needs to be reversed
 	for i, j := 0, len(result)-1; i < j; i, j = i+1, j-1 {
 		result[i], result[j] = result[j], result[i]
 	}
 
-	// 限制返回数量
+	// limit the number of returned results
 	if len(result) > m.maxHistorySize {
 		result = result[:m.maxHistorySize]
 	}

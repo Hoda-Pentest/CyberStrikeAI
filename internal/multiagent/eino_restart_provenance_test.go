@@ -14,7 +14,7 @@ import (
 )
 
 func TestRunRestartPreservesOnlyCanonicalHumanLedger(t *testing.T) {
-	const original = "ONLY_AUTHORIZED_SCOPE，禁止本机"
+	const original = "ONLY_AUTHORIZED_SCOPE, the local machine is forbidden"
 	ledger := buildOriginalUserIntentLedgerMessage([]adk.Message{schema.UserMessage(original)}, 96000, 16000)
 	merged := mergeMessageIntoLeadingSystem([]adk.Message{schema.SystemMessage("OLD_INSTRUCTION\nOLD_PROJECT_INDEX")}, ledger)[0]
 	summary := schema.UserMessage("GENERATED_SCOPE working progress")

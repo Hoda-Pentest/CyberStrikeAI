@@ -147,7 +147,7 @@ vision:
   jpeg_quality: 82
   max_payload_bytes: 524288 # Limit sent to the VL API after encoding, default 512KB
   skip_preprocess_below_bytes: 2097152 # Send the original image directly when below 2MB and long edge <= max_dimension and <= max_payload; 0 = always compress
-  detail: auto # low | high | auto（Eino ImageURLDetail）
+  detail: auto # low | high | auto (Eino ImageURLDetail)
   timeout_seconds: 60
 # ============================================
 # Asset management (cyberspace-mapping search) configuration (optional)
@@ -357,7 +357,7 @@ multi_agent:
     tool_search_enable: true # true: enable tool_search when the tool count >= min, keeping only the first N tools resident and unlocking the rest on demand by regex, saving tokens and reducing wrong picks; false: put all tools into the context
     tool_search_min_tools: 20 # Enable tool_search only when this count is reached (to avoid pointless overhead when there are few tools); used together with always_visible
     tool_search_always_visible: 12 # Number of tools always exposed directly to the model (in the same order as the role tool list); the remaining tools enter the dynamic pool and require tool_search to unlock
-    tool_search_always_visible_tools: [read_file, glob, grep, analyze_image, write_file, edit_file, execute, task, transfer_to_agent, exit, write_todos, skill, tool_search, TaskCreate, TaskGet, TaskUpdate, TaskList, record_vulnerability, list_vulnerabilities, get_vulnerability, get_tool_execution, wait_tool_execution, cancel_tool_execution, list_knowledge_risk_types, search_knowledge_base, webshell_exec, webshell_file_list, webshell_file_read, webshell_file_write, manage_webshell_list, manage_webshell_add, manage_webshell_update, manage_webshell_delete, manage_webshell_test, batch_task_list, batch_task_get, batch_task_start, batch_task_rerun, batch_task_pause, batch_task_update_metadata, batch_task_update_schedule, batch_task_schedule_enabled, batch_task_update_task, batch_task_remove_task, batch_task_delete, batch_task_create, batch_task_add_task, http-framework-test, exec] # 后端内置常驻工具白名单（优先于 always_visible 数量策略）
+    tool_search_always_visible_tools: [read_file, glob, grep, analyze_image, write_file, edit_file, execute, task, transfer_to_agent, exit, write_todos, skill, tool_search, TaskCreate, TaskGet, TaskUpdate, TaskList, record_vulnerability, list_vulnerabilities, get_vulnerability, get_tool_execution, wait_tool_execution, cancel_tool_execution, list_knowledge_risk_types, search_knowledge_base, webshell_exec, webshell_file_list, webshell_file_read, webshell_file_write, manage_webshell_list, manage_webshell_add, manage_webshell_update, manage_webshell_delete, manage_webshell_test, batch_task_list, batch_task_get, batch_task_start, batch_task_rerun, batch_task_pause, batch_task_update_metadata, batch_task_update_schedule, batch_task_schedule_enabled, batch_task_update_task, batch_task_remove_task, batch_task_delete, batch_task_create, batch_task_add_task, http-framework-test, exec] # Backend built-in always-resident tool allowlist (takes precedence over the always_visible count policy)
     plantask_enable: true # P0: the main agent mounts the TaskCreate/Get/Update/List structured task board; requires eino_skills available and skills_dir present
     plantask_rel_dir: .eino/plantask # Task files relative to skills_dir, with a subdirectory per conversation: skills/.eino/plantask/<conversationId>/
     reduction_enable: true # true: truncate large tool output and write it to a local file (tmp/reduction/.../trunc/<id>), keeping only a <persisted-output> preview in the context; does not depend on eino_skills
@@ -400,7 +400,7 @@ multi_agent:
       service_name: cyberstrike-ai
       exporter: stdout # none | stdout (development/local) | otlphttp (production, connected to a Collector)
       otlp_endpoint: localhost:4318 # Used when otlphttp, host:port, with the fixed path /v1/traces
-      sample_ratio: 1.0 # 0~1，ParentBased+TraceIDRatio
+      sample_ratio: 1.0 # 0-1, ParentBased+TraceIDRatio
 # Database configuration
 database:
   path: data/conversations.db # SQLite database file path, used to store conversation history and messages

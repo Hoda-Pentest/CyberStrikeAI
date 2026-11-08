@@ -7,7 +7,7 @@ import (
 	"golang.org/x/text/transform"
 )
 
-// mustEncode 使用指定编码对 UTF-8 字符串做编码，得到原始字节，用于构造测试输入
+// mustEncode encodes a UTF-8 string with the specified encoding to get the raw bytes, used to build test input
 func mustEncode(t *testing.T, s string, enc string) []byte {
 	t.Helper()
 	var tr transform.Transformer
@@ -38,7 +38,7 @@ func TestNormalizeWebshellEncoding(t *testing.T) {
 		"gbk":      "gbk",
 		"GBK":      "gbk",
 		"gb18030":  "gb18030",
-		"big5":     "auto", // 未支持的回退到 auto
+		"big5":     "auto", // unsupported, fall back to auto
 		"anything": "auto",
 	}
 	for in, want := range cases {
@@ -49,23 +49,23 @@ func TestNormalizeWebshellEncoding(t *testing.T) {
 }
 
 func TestDecodeWebshellOutput_AutoDetectsGBK(t *testing.T) {
-	// 模拟 Windows 中文 cmd 输出的 GBK 字节流
+	// simulate the GBK byte stream of a Chinese Windows cmd output
 	want := "用户名                        SID                                            类型"
 	raw := mustEncode(t, want, "gbk")
 
-	// auto 模式：UTF-8 校验失败后应当回退 GB18030 解码，得到原始中文
+	// auto mode: after a UTF-8 validation failure, should fall back to GB18030 decoding to get the original Chinese
 	got := decodeWebshellOutput(raw, "auto")
 	if got != want {
 		t.Errorf("decodeWebshellOutput(auto) = %q, want %q", got, want)
 	}
 
-	// 显式 GBK 模式：同样应当正确解码
+	// explicit GBK mode: should also decode correctly
 	got = decodeWebshellOutput(raw, "gbk")
 	if got != want {
 		t.Errorf("decodeWebshellOutput(gbk) = %q, want %q", got, want)
 	}
 
-	// 显式 GB18030 模式：GBK 是 GB18030 子集，也应正确解码
+	// explicit GB18030 mode: GBK is a subset of GB18030 and should also decode correctly
 	got = decodeWebshellOutput(raw, "gb18030")
 	if got != want {
 		t.Errorf("decodeWebshellOutput(gb18030) = %q, want %q", got, want)
@@ -73,7 +73,7 @@ func TestDecodeWebshellOutput_AutoDetectsGBK(t *testing.T) {
 }
 
 func TestDecodeWebshellOutput_PassthroughUTF8(t *testing.T) {
-	// 已经是 UTF-8 的中文字符串，各模式都应返回原串（不破坏）
+	// an already-UTF-8 Chinese string should be returned as-is in all modes (without corruption)
 	want := "hello 世界"
 	for _, enc := range []string{"", "auto", "utf-8"} {
 		if got := decodeWebshellOutput([]byte(want), enc); got != want {
@@ -83,7 +83,7 @@ func TestDecodeWebshellOutput_PassthroughUTF8(t *testing.T) {
 }
 
 func TestDecodeWebshellOutput_ASCIIStable(t *testing.T) {
-	// 纯 ASCII 在任何模式下都必须保持原样
+	// pure ASCII must stay unchanged in all modes
 	want := "whoami\nAdministrator\n"
 	for _, enc := range []string{"", "auto", "utf-8", "gbk", "gb18030"} {
 		if got := decodeWebshellOutput([]byte(want), enc); got != want {
@@ -93,7 +93,7 @@ func TestDecodeWebshellOutput_ASCIIStable(t *testing.T) {
 }
 
 func TestDecodeWebshellOutput_EmptyInput(t *testing.T) {
-	// 空输入直接返回空串，不做额外分配
+	// an empty input returns an empty string directly, with no extra allocation
 	if got := decodeWebshellOutput(nil, "gbk"); got != "" {
 		t.Errorf("decodeWebshellOutput(nil) = %q, want empty", got)
 	}

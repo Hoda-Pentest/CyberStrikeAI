@@ -42,8 +42,8 @@ func WithHITLToolInterceptor(ctx context.Context, fn HITLToolInterceptor) contex
 	return context.WithValue(ctx, hitlInterceptorKey{}, fn)
 }
 
-// hitlToolCallMiddleware 同时注册 Invokable 与 Streamable。
-// Eino filesystem 的 execute 为流式工具（StreamableTool），仅挂 Invokable 时人机协同不会拦截，会直接执行。
+// hitlToolCallMiddleware registers both Invokable and Streamable.
+// Eino filesystem's execute is a streaming tool (StreamableTool); if only Invokable is attached, human-in-the-loop does not intercept and it executes directly.
 func hitlToolCallMiddleware() compose.ToolMiddleware {
 	return compose.ToolMiddleware{
 		Invokable:  hitlInvokableToolCallMiddleware(),
@@ -107,11 +107,11 @@ func hitlInvokableToolCallMiddleware() compose.InvokableToolMiddleware {
 					if err != nil {
 						if IsHumanRejectError(err) {
 							// Human rejection should be a soft tool result so the model can continue iterating.
-							// tool_search 须保持 JSON，否则 Eino toolsearch 中间件解析历史时会硬崩 ChatModel。
+							// tool_search must stay JSON, otherwise the Eino toolsearch middleware hard-crashes the ChatModel when parsing history.
 							msg := HitlRejectToolResult(input.Name, err.Error())
-							// transfer_to_agent 在 Eino 中标记为 returnDirectly：工具成功后 ReAct 子图会直接 END，
-							// 并依赖真实工具内的 SendToolGenAction 触发移交。HITL 拒绝时不会执行真实工具，
-							// 若仍走 returnDirectly 分支，监督者会在无 Transfer 动作的情况下结束，模型不再迭代。
+							// transfer_to_agent is marked returnDirectly in Eino: after the tool succeeds, the ReAct subgraph goes straight to END,
+							// and relies on SendToolGenAction inside the real tool to trigger the handover. On HITL rejection the real tool is not executed,
+							// so if the returnDirectly branch is still taken, the supervisor ends without a Transfer action and the model stops iterating.
 							hitlClearReturnDirectlyIfTransfer(ctx, input.Name)
 							return &compose.ToolOutput{Result: msg}, nil
 						}

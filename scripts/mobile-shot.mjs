@@ -71,9 +71,9 @@ const ev = async expr => {
   return r.result?.value;
 };
 
-/* 主题要先落进本站点的 localStorage，about:blank 上写是写给另一个 origin。
-   换主题用 Page.navigate 重新进，不要在 eval 里 location.reload()——awaitPromise
-   会等一个永远不回来的执行上下文。 */
+/* The theme must first be written into this site's localStorage; writing on about:blank writes to a different origin.
+   To switch the theme, re-enter via Page.navigate; do not location.reload() inside eval -- awaitPromise
+   would wait on an execution context that never returns. */
 await send('Page.navigate', { url: BASE + '/' }, sessionId);
 await sleep(1500);
 const theme = argv.theme || (argv.dark === '1' ? 'dark' : '');
@@ -84,7 +84,7 @@ if (theme) {
 await sleep(3000);
 
 if (STATE !== 'login') {
-  /* 藏掉登录遮罩会触发 mobile-ui.js 的 MutationObserver，把底部栏显示回来 */
+  /* Hiding the login overlay triggers mobile-ui.js's MutationObserver, which brings the bottom bar back */
   await ev(`document.getElementById('login-overlay').style.display='none'`);
   await sleep(600);
   if (STATE === 'drawer') await ev(`window.CSAMobile && CSAMobile.openDrawer()`);
@@ -103,8 +103,8 @@ const state = await ev(`(()=>({
 }))()`);
 console.log(JSON.stringify(state));
 
-/* 带凭据时真的登进去：未登录时对话/列表页的容器根本不渲染，看不到真东西。
-   凭据同样只从参数或环境变量来，绝不写进文件。 */
+/* With credentials, actually log in: when not logged in, the chat/list page containers do not render at all, so you see nothing real.
+   Credentials likewise come only from arguments or environment variables, never written to a file. */
 const USER = argv.user || process.env.CSAI_AUDIT_USER || '';
 const PASS = argv.pass || process.env.CSAI_AUDIT_PASS || '';
 const COOKIE = argv.cookie || process.env.CSAI_AUDIT_COOKIE || '';
@@ -116,20 +116,20 @@ if (USER && PASS) {
 }
 if (argv.route) { await ev(`location.hash=${JSON.stringify(argv.route)}`); await sleep(3000); }
 
-/* --eval='...' 用来在同一个已登录/已注入的页面上量一把真实计算样式 */
+/* --eval='...' is used to measure the real computed style on the same logged-in/injected page */
 if (argv.eval) {
   const probe = await ev(`(function(){${argv.eval}})()`);
   console.log(JSON.stringify(probe, null, 2));
 }
 
 /* --why='.notification-btn' --prop=border-radius
-   规则写了却不生效时，用 CDP 的匹配样式表分清：没命中，还是被更高优先级压住。 */
+   When a rule is written but has no effect, use CDP's matched stylesheets to tell apart: not matched, or overridden by a higher priority. */
 if (argv.why) {
   await send('DOM.enable', {}, sessionId);
   await send('CSS.enable', {}, sessionId);
   const { root } = await send('DOM.getDocument', { depth: -1 }, sessionId);
   const { nodeId } = await send('DOM.querySelector', { nodeId: root.nodeId, selector: argv.why }, sessionId);
-  if (!nodeId) { console.log('selector 未命中任何节点:', argv.why); }
+  if (!nodeId) { console.log('selector matched no node:', argv.why); }
   else {
     const matched = await send('CSS.getMatchedStylesForNode', { nodeId }, sessionId);
     const want = (argv.prop || 'border-radius,border,background').split(',');
@@ -146,15 +146,15 @@ if (argv.why) {
         decls: decl.map(d => `${d.name}:${d.value}${d.important ? ' !important' : ''}`),
       });
     }
-    console.log(`== ${argv.why} 上命中且声明了 [${want.join(', ')}] 的规则，按级联顺序（后=更优先）==`);
+    console.log(`== rules on ${argv.why} that match and declare [${want.join(', ')}], in cascade order (later = higher priority) ==`);
     rows.forEach((r, i) => console.log(`${String(i).padStart(2)} ${r.origin.padEnd(10)} ${r.decls.join(' | ')}\n     ${r.selector}`));
     const cs = await ev(`(()=>{const e=document.querySelector(${JSON.stringify(argv.why)});const c=getComputedStyle(e);return JSON.stringify(${JSON.stringify(want)}.reduce((o,k)=>(o[k]=c[k],o),{}),null,1)})()`);
-    console.log('最终计算值:', cs);
+    console.log('final computed value:', cs);
   }
 }
 
-/* --tap='SEL' 用真手指（只发 touch）点一个选择器，配合 --shots=3 连拍，
-   用来看"点下去之后屏幕上闪出来的那块是什么"。 */
+/* --tap='SEL' taps a selector with a real finger (touch only), combined with --shots=3 for burst capture,
+   to see "what flashes on screen after the tap". */
 async function fingerTap(x, y) {
   const t = { x: Math.round(x), y: Math.round(y) };
   await send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [t] }, sessionId);
@@ -163,7 +163,7 @@ async function fingerTap(x, y) {
 }
 if (argv.tap) {
   const box = await ev(`(()=>{const e=document.querySelector(${JSON.stringify(argv.tap)});if(!e)return null;const r=e.getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2}})()`);
-  if (!box) console.log('tap 目标不存在:', argv.tap);
+  if (!box) console.log('tap target does not exist:', argv.tap);
   else {
     await fingerTap(box.x, box.y);
     const shots = Number(argv.shots || 3);
@@ -171,7 +171,7 @@ if (argv.tap) {
       const png = await send('Page.captureScreenshot', { format: 'png' }, sessionId);
       fs.writeFileSync(OUT.replace(/\.png$/, '') + `-t${i}.png`, Buffer.from(png.data, 'base64'));
       const who = await ev(`(()=>{const e=document.elementFromPoint(innerWidth/2,innerHeight/2);if(!e)return null;var s=e.tagName.toLowerCase()+(e.id?"#"+e.id:"")+(typeof e.className==="string"&&e.className?"."+e.className.trim().split(/\s+/)[0]:"");var r=e.getBoundingClientRect();var c=getComputedStyle(e);return JSON.stringify({el:s,z:c.zIndex,pos:c.position,box:[Math.round(r.width),Math.round(r.height)],bg:c.backgroundColor})})()`);
-      console.log(`t${i} 视口中央:`, who);
+      console.log(`t${i} viewport center:`, who);
       await sleep(Number(argv.shotDelay || 300));
     }
     process.exit(0);

@@ -1,14 +1,14 @@
 name: "x8"
 command: "x8"
 enabled: true
-short_description: "隐藏参数发现工具"
+short_description: "hidden parameter discovery tool"
 description: |
-  X8是一个用于发现Web应用中隐藏参数的工具。
+  X8 is a tool for discovering hidden parameters in web applications.
 
   **Key Features:**
-  - 隐藏参数发现
-  - 多种HTTP方法支持
-  - 自定义字典
+  - Hidden parameter discovery
+  - Support for multiple HTTP methods
+  - Custom dictionaries
   - Quick scan
 
   **Use Cases:**
@@ -25,27 +25,27 @@ parameters:
     format: "flag"
   - name: "wordlist"
     type: "string"
-    description: "参数字典"
+    description: "parameter dictionary"
     required: false
     flag: "--wordlist"
     format: "flag"
     default: "/usr/share/wordlists/x8/params.txt"
   - name: "method"
     type: "string"
-    description: "HTTP方法"
+    description: "HTTP method"
     required: false
     flag: "--method"
     format: "flag"
     default: "GET"
   - name: "body"
     type: "string"
-    description: "请求体"
+    description: "request body"
     required: false
     flag: "--body"
     format: "flag"
   - name: "headers"
     type: "string"
-    description: "自定义请求头"
+    description: "custom request headers"
     required: false
     flag: "--headers"
     format: "flag"

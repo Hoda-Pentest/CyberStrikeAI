@@ -3,13 +3,13 @@ command: "terrascan"
 enabled: true
 short_description: "Infrastructure as Code security scanning tool"
 description: |
-  Terrascan是一个Infrastructure as Code security scanning tool，用于检测IaC配置中的安全问题。
+  Terrascan is an Infrastructure as Code security scanning tool used to detect security issues in IaC configurations.
 
   **Key Features:**
   - IaC security scanning
-  - 多种框架支持
-  - 策略检查
-  - 合规性验证
+  - Support for multiple frameworks
+  - Policy checking
+  - Compliance validation
 
   **Use Cases:**
   - IaC security scanning
@@ -19,34 +19,34 @@ description: |
 parameters:
   - name: "scan_type"
     type: "string"
-    description: "扫描类型（all, terraform, k8s等）"
+    description: "scan type (all, terraform, k8s, etc.)"
     required: false
     flag: "--scan-type"
     format: "flag"
     default: "all"
   - name: "iac_dir"
     type: "string"
-    description: "IaC目录"
+    description: "IaC directory"
     required: false
     flag: "-d"
     format: "flag"
     default: "."
   - name: "policy_type"
     type: "string"
-    description: "要使用的策略类型"
+    description: "policy type to use"
     required: false
     flag: "--policy-type"
     format: "flag"
   - name: "output_format"
     type: "string"
-    description: "输出格式（json, yaml, xml）"
+    description: "output format (json, yaml, xml)"
     required: false
     flag: "--output"
     format: "flag"
     default: "json"
   - name: "severity"
     type: "string"
-    description: "严重程度过滤（high, medium, low）"
+    description: "severity filter (high, medium, low)"
     required: false
     flag: "--severity"
     format: "flag"

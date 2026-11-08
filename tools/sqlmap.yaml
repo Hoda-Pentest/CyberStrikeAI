@@ -2,51 +2,51 @@ name: "sqlmap"
 command: "sqlmap"
 enabled: true
 # Short description (used in tool listings, reduces token usage)
-short_description: "自动化SQL注入检测和利用工具，用于发现和利用SQL注入漏洞"
+short_description: "automated SQL injection detection and exploitation tool, used to discover and exploit SQL injection vulnerabilities"
 # Detailed tool description
 description: |
-  自动化SQL注入检测和利用工具，用于发现和利用SQL注入漏洞。
+  Automated SQL injection detection and exploitation tool, used to discover and exploit SQL injection vulnerabilities.
 
   **Key Features:**
-  - 自动检测SQL注入漏洞
-  - 支持多种数据库类型（MySQL, PostgreSQL, Oracle, MSSQL等）
-  - 自动提取数据库信息（表、列、数据）
-  - 支持多种注入技术（布尔盲注、时间盲注、联合查询等）
-  - 支持文件上传/下载、命令执行等高级功能
+  - Automatically detect SQL injection vulnerabilities
+  - Supports multiple database types (MySQL, PostgreSQL, Oracle, MSSQL, etc.)
+  - Automatically extract database information (tables, columns, data)
+  - Supports multiple injection techniques (boolean-based blind, time-based blind, union query, etc.)
+  - Supports advanced features such as file upload/download and command execution
 
   **Use Cases:**
   - Web application security testing
-  - SQL注入漏洞检测
-  - 数据库信息收集
-  - Penetration testing和漏洞验证
+  - SQL injection vulnerability detection
+  - Database information gathering
+  - Penetration testing and vulnerability verification
 
   **Notes:**
   - For authorized security testing only
-  - 某些操作可能对目标系统造成影响
-  - 建议在测试环境中先验证
-  - 使用 --batch 参数避免交互式提示
+  - Some operations may affect the target system
+  - It is recommended to verify in a test environment first
+  - Use the --batch parameter to avoid interactive prompts
 # Parameter definitions
 parameters:
   - name: "url"
     type: "string"
     description: |
-      目标URL，包含可能存在SQL注入的参数。
+      Target URL, containing parameters that may be vulnerable to SQL injection.
 
       **Format Requirements:**
-      - 完整的URL，包含协议（http:// 或 https://）
-      - 必须包含查询参数，参数值用 * 标记注入点
-      - 或者直接提供完整的URL，sqlmap会自动检测参数
+      - A full URL, including the protocol (http:// or https://)
+      - Must include query parameters; mark the injection point in the parameter value with *
+      - Or provide a full URL directly, and sqlmap will automatically detect parameters
 
       **Example Values:**
-      - 标记注入点: "http://example.com/page?id=1*"
-      - 完整URL: "http://example.com/page?id=1"
-      - POST数据: "http://example.com/login" (需要配合data参数)
-      - Cookie注入: "http://example.com/page" (需要配合cookie参数)
+      - Mark the injection point: "http://example.com/page?id=1*"
+      - Full URL: "http://example.com/page?id=1"
+      - POST data: "http://example.com/login" (requires the data parameter)
+      - Cookie injection: "http://example.com/page" (requires the cookie parameter)
 
       **Notes:**
-      - URL必须可访问
-      - 确保URL格式正确，包含协议前缀
-      - 如果使用POST请求，需要配合data参数
+      - the URL must be accessible
+      - Ensure the URL format is correct and includes the protocol prefix
+      - If using a POST request, the data parameter must be used
       - Required parameter, cannot be empty
     required: true
     flag: "-u"
@@ -54,16 +54,16 @@ parameters:
   - name: "batch"
     type: "bool"
     description: |
-      非交互模式，自动选择默认选项，不需要用户输入。
+      Non-interactive mode, automatically selects the default options, no user input required.
 
       **Use Cases:**
-      - Automated testing脚本
-      - 批量扫描
-      - 避免交互式提示
+      - Automated testing scripts
+      - Batch scanning
+      - Avoid interactive prompts
 
       **Notes:**
-      - 建议始终设置为true，避免工具等待用户输入
-      - 默认值为true
+      - It is recommended to always set this to true to avoid the tool waiting for user input
+      - The default value is true
     required: false
     default: true
     flag: "--batch"
@@ -71,23 +71,23 @@ parameters:
   - name: "level"
     type: "int"
     description: |
-      测试级别，范围1-5，级别越高测试越全面但耗时越长。
+      Test level, range 1-5; the higher the level, the more comprehensive the test but the longer it takes.
 
       **Level Description:**
-      - Level 1: 基本测试，快速但可能遗漏漏洞
-      - Level 2: 默认级别，平衡速度和覆盖率
-      - Level 3: 扩展测试，更全面的检测
-      - Level 4: 深度测试，包含更多payload
-      - Level 5: 最全面测试，包含所有已知技术
+      - Level 1: basic testing, fast but may miss vulnerabilities
+      - Level 2: default level, balances speed and coverage
+      - Level 3: extended testing, more comprehensive detection
+      - Level 4: deep testing, includes more payloads
+      - Level 5: most comprehensive testing, includes all known techniques
 
       **Recommendations:**
-      - Quick scan使用1-2
-      - 常规测试使用3（默认）
-      - 深度测试使用4-5
+      - Quick scan uses 1-2
+      - Use 3 for regular testing (default)
+      - Use 4-5 for deep testing
 
       **Notes:**
-      - 级别越高，请求数量越多，可能被WAF拦截
-      - 默认值为3
+      - The higher the level, the more requests, which may be blocked by a WAF
+      - The default value is 3
     required: false
     default: 3
     flag: "--level"
@@ -95,28 +95,28 @@ parameters:
   - name: "data"
     type: "string"
     description: |
-      POST数据字符串，用于POST请求的SQL注入检测。
+      POST data string, used for SQL injection detection of POST requests.
 
       **Format:**
-      - 表单数据格式，例如: "username=admin&password=123"
-      - JSON格式，例如: '{"username":"admin","password":"123"}'
+      - Form data format, for example: "username=admin&password=123"
+      - JSON format, for example: '{"username":"admin","password":"123"}'
 
       **Notes:**
-      - 如果URL使用POST方法，需要提供此参数
-      - 参数值中的注入点用 * 标记
+      - If the URL uses the POST method, this parameter must be provided
+      - Mark injection points in parameter values with *
     required: false
     flag: "--data"
     format: "flag"
   - name: "cookie"
     type: "string"
     description: |
-      Cookie字符串，用于Cookie注入检测。
+      Cookie string, used for Cookie injection detection.
 
       **Format:**
-      - 标准Cookie格式，例如: "sessionid=abc123; user=admin"
+      - Standard Cookie format, for example: "sessionid=abc123; user=admin"
 
       **Notes:**
-      - 如果存在Cookie注入，需要提供此参数
+      - If Cookie injection exists, this parameter must be provided
     required: false
     flag: "--cookie"
     format: "flag"
@@ -126,13 +126,13 @@ parameters:
       Additional SQLMap parameters. Used to pass SQLMap options not defined in the parameter list.
 
       **Example Values:**
-      - "--dbs": 列出所有数据库
-      - "--tables -D database": 列出指定数据库的表
-      - "--dump -D database -T table": 导出表数据
-      - "--os-shell": 获取操作系统shell
-      - "--risk 2": 风险级别（1-3）
-      - "--threads 10": 并发线程数
-      - "--tamper space2comment": 使用tamper脚本绕过WAF
+      - "--dbs": list all databases
+      - "--tables -D database": list tables of the specified database
+      - "--dump -D database -T table": dump table data
+      - "--os-shell": get an operating system shell
+      - "--risk 2": risk level (1-3)
+      - "--threads 10": number of concurrent threads
+      - "--tamper space2comment": use a tamper script to bypass the WAF
 
       **Notes:**
       - Multiple parameters are separated by spaces

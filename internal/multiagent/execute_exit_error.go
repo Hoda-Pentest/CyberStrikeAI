@@ -2,7 +2,7 @@ package multiagent
 
 import "fmt"
 
-// ExecuteExitError 表示 execute 命令非零退出（预期失败，非超时/中断/流异常）。
+// ExecuteExitError indicates a non-zero exit of the execute command (an expected failure, not a timeout/interruption/stream exception).
 type ExecuteExitError struct {
 	Code int
 }

@@ -1,15 +1,15 @@
 name: "trivy"
 command: "trivy"
 enabled: true
-short_description: "容器和文件系统漏洞扫描器"
+short_description: "container and filesystem vulnerability scanner"
 description: |
-  Trivy是一个简单而全面的容器和文件系统漏洞扫描器。
+  Trivy is a simple and comprehensive container and filesystem vulnerability scanner.
 
   **Key Features:**
   - Container image scanning
-  - 文件系统扫描
-  - 代码仓库扫描
-  - 配置文件扫描
+  - File system scanning
+  - Code repository scanning
+  - Configuration file scanning
 
   **Use Cases:**
   - Container security scanning
@@ -19,26 +19,26 @@ description: |
 parameters:
   - name: "scan_type"
     type: "string"
-    description: "扫描类型（image, fs, repo, config）"
+    description: "scan type (image, fs, repo, config)"
     required: false
     default: "image"
     position: 0
     format: "positional"
   - name: "target"
     type: "string"
-    description: "扫描目标（镜像名、目录、仓库）"
+    description: "scan target (image name, directory, repository)"
     required: true
     position: 1
     format: "positional"
   - name: "severity"
     type: "string"
-    description: "严重程度过滤（UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL）"
+    description: "severity filter (UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL)"
     required: false
     flag: "--severity"
     format: "flag"
   - name: "output_format"
     type: "string"
-    description: "输出格式（json, table, sarif）"
+    description: "output format (json, table, sarif)"
     required: false
     flag: "--format"
     format: "flag"
@@ -49,10 +49,10 @@ parameters:
       Additional Trivy parameters. Used to pass Trivy options not defined in the parameter list.
 
       **Example Values:**
-      - "--exit-code 1": 发现漏洞时退出码为1
-      - "--skip-dirs": 跳过目录
-      - "--skip-files": 跳过文件
-      - "--no-progress": 不显示进度条
+      - "--exit-code 1": exit code is 1 when a vulnerability is found
+      - "--skip-dirs": skip directories
+      - "--skip-files": skip files
+      - "--no-progress": do not show the progress bar
 
       **Notes:**
       - Multiple parameters are separated by spaces

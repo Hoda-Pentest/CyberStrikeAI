@@ -9,24 +9,24 @@ import (
 	"go.uber.org/zap"
 )
 
-// SessionWatchdog 会话心跳看门狗：周期扫描所有 active/sleeping 会话，
-// 把超过 (sleep * (1 + jitter%) * graceFactor + minGrace) 仍未心跳的标为 dead。
+// SessionWatchdog is the session heartbeat watchdog: it periodically scans all active/sleeping sessions,
+// and marks as dead those that have not heartbeated beyond (sleep * (1 + jitter%) * graceFactor + minGrace).
 //
-// 设计要点：
-//   - 单 goroutine + ticker，避免对每个会话开 timer，session 数量大时也线性 OK；
-//   - 阈值随会话自身 sleep/jitter 自适应（sleep=300s 的会话不能用 sleep=5s 的判定）；
-//   - 全局最小宽限期 minGrace 避免 sleep 配置错误的会话被误判；
-//   - 不读 implant_uuid，纯按 last_check_in 字段，与 listener 类型解耦。
+// Design notes:
+//   - a single goroutine + ticker, avoiding a timer per session, so it scales linearly even with many sessions;
+//   - the threshold adapts to each session's own sleep/jitter (a sleep=300s session cannot be judged like a sleep=5s one);
+//   - a global minimum grace period minGrace prevents sessions with a misconfigured sleep from being misjudged;
+//   - it does not read implant_uuid, relying purely on the last_check_in field, decoupled from the listener type.
 type SessionWatchdog struct {
 	manager  *Manager
 	logger   *zap.Logger
-	interval time.Duration // 扫描周期，默认 15s
-	minGrace time.Duration // 最小宽限期，默认 30s
-	gracePct float64       // 心跳超时倍数，默认 3.0（即 3 倍 sleep 周期没心跳算掉线）
+	interval time.Duration // scan period, default 15s
+	minGrace time.Duration // minimum grace period, default 30s
+	gracePct float64       // heartbeat-timeout multiplier, default 3.0 (i.e. no heartbeat for 3x the sleep period counts as offline)
 	stopCh   chan struct{}
 }
 
-// NewSessionWatchdog 创建看门狗
+// NewSessionWatchdog creates the watchdog
 func NewSessionWatchdog(m *Manager) *SessionWatchdog {
 	return &SessionWatchdog{
 		manager:  m,
@@ -38,7 +38,7 @@ func NewSessionWatchdog(m *Manager) *SessionWatchdog {
 	}
 }
 
-// Run 阻塞执行，直到 ctx.Done() 或 Stop()
+// Run blocks until ctx.Done() or Stop()
 func (w *SessionWatchdog) Run(ctx context.Context) {
 	t := time.NewTicker(w.interval)
 	defer t.Stop()
@@ -54,7 +54,7 @@ func (w *SessionWatchdog) Run(ctx context.Context) {
 	}
 }
 
-// Stop 停止
+// Stop stops it
 func (w *SessionWatchdog) Stop() {
 	select {
 	case <-w.stopCh:
@@ -68,20 +68,20 @@ func (w *SessionWatchdog) tick() {
 	for _, status := range []string{string(SessionActive), string(SessionSleeping)} {
 		sessions, err := w.manager.DB().ListC2Sessions(database.ListC2SessionsFilter{Status: status})
 		if err != nil {
-			w.logger.Warn("watchdog 列表查询失败", zap.Error(err))
+			w.logger.Warn("watchdog list query failed", zap.Error(err))
 			continue
 		}
 		for _, s := range sessions {
 			if w.isStale(s, now) {
 				if err := w.manager.MarkSessionDead(s.ID); err != nil {
-					w.logger.Warn("标记会话掉线失败", zap.String("session_id", s.ID), zap.Error(err))
+					w.logger.Warn("failed to mark session offline", zap.String("session_id", s.ID), zap.Error(err))
 				}
 			}
 		}
 	}
 	sessions, err := w.manager.DB().ListC2Sessions(database.ListC2SessionsFilter{Status: string(SessionDead)})
 	if err != nil {
-		w.logger.Warn("离线任务查询失败", zap.Error(err))
+		w.logger.Warn("offline-task query failed", zap.Error(err))
 		return
 	}
 	for _, session := range sessions {
@@ -92,7 +92,7 @@ func (w *SessionWatchdog) tick() {
 func (w *SessionWatchdog) expireOfflineCommands(session *database.C2Session, now time.Time) {
 	tasks, err := w.manager.DB().ListC2Tasks(database.ListC2TasksFilter{SessionID: session.ID, Status: string(TaskSent)})
 	if err != nil {
-		w.logger.Warn("离线命令查询失败", zap.Error(err))
+		w.logger.Warn("offline-command query failed", zap.Error(err))
 		return
 	}
 	for _, task := range tasks {
@@ -114,25 +114,25 @@ func (w *SessionWatchdog) expireOfflineCommands(session *database.C2Session, now
 			continue
 		}
 		status := string(TaskFailed)
-		errText := "会话已离线且任务结果超过执行期限；远端进程是否终止尚未确认"
+		errText := "the session is offline and the task result exceeded the execution deadline; whether the remote process terminated is not yet confirmed"
 		if err := w.manager.DB().UpdateC2Task(task.ID, database.C2TaskUpdate{ExpectedStatus: &task.Status, Status: &status, Error: &errText, CompletedAt: &now}); err != nil {
-			w.logger.Warn("收尾离线命令失败", zap.Error(err))
+			w.logger.Warn("failed to finalize offline command", zap.Error(err))
 			continue
 		}
 		w.manager.publishEvent("warn", "task", session.ID, task.ID, errText, nil)
 	}
 }
 
-// isStale 判断会话是否超时
+// isStale decides whether a session has timed out
 func (w *SessionWatchdog) isStale(s *database.C2Session, now time.Time) bool {
-	// 无心跳记录：以 first_seen_at 兜底
+	// No heartbeat record: fall back to first_seen_at
 	last := s.LastCheckIn
 	if last.IsZero() {
 		last = s.FirstSeenAt
 	}
 	sleep := s.SleepSeconds
 	if sleep <= 0 {
-		// TCP reverse 模式 sleep=0 → 用最小宽限期判定
+		// TCP reverse mode sleep=0 -> judge using the minimum grace period
 		return now.Sub(last) > w.minGrace*2
 	}
 	jitter := s.JitterPercent
@@ -142,7 +142,7 @@ func (w *SessionWatchdog) isStale(s *database.C2Session, now time.Time) bool {
 	if jitter > 100 {
 		jitter = 100
 	}
-	// 阈值 = sleep * (1 + jitter%) * gracePct，再加 minGrace 兜底
+	// threshold = sleep * (1 + jitter%) * gracePct, plus minGrace as a backstop
 	expected := time.Duration(float64(sleep)*(1+float64(jitter)/100.0)*w.gracePct) * time.Second
 	if expected < w.minGrace {
 		expected = w.minGrace

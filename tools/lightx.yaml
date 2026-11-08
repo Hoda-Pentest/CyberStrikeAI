@@ -1,40 +1,40 @@
 name: "lightx"
 command: "lightx"
 enabled: false
-short_description: "轻量级资产发现与漏洞扫描工具"
+short_description: "lightweight asset discovery and vulnerability scanning tool"
 description: |
-  Lightx 是一个高效的轻量级扫描工具，支持对单个目标、IP 段或文件列表进行快速探测。
+  Lightx is an efficient lightweight scanning tool that supports fast probing of a single target, an IP range, or a file list.
 
   **Key Features:**
-  - 支持多种目标格式（URL, IP, CIDR, 域名）
-  - 支持从文件批量读取目标
-  - 快速资产发现与服务识别
-  - 轻量级并发扫描
+  - Supports multiple target formats (URL, IP, CIDR, domain)
+  - Supports batch reading of targets from a file
+  - Fast asset discovery and service identification
+  - Lightweight concurrent scanning
 
   **Use Cases:**
-  - 批量资产存活检测
-  - 网段快速扫描
-  - 域名信息收集
-  - Penetration testing前期侦察
+  - Batch asset liveness detection
+  - Fast subnet scanning
+  - Domain information gathering
+  - Early-stage reconnaissance in penetration testing
 
-  **目标格式Example:**
-  - 单个 URL: http://example.com
-  - 单个 IP: 192.168.1.1
-  - IP 段: 192.168.1.1/24
+  **Target format examples:**
+  - Single URL: http://example.com
+  - Single IP: 192.168.1.1
+  - IP range: 192.168.1.1/24
   - Domain: example.com
-  - 文件: targets.txt
+  - File: targets.txt
 parameters:
   - name: "target"
     type: "string"
     description: |
-      扫描目标，支持多种格式。
+      Scan target, supports multiple formats.
 
-      **支持的格式：**
-      - **URL**: "http://example.com" 或 "https://target.com/path"
-      - **IP 地址**: "192.168.1.1"
-      - **IP 段 (CIDR)**: "192.168.1.0/24", "10.0.0.0/8"
-      - **域名**: "example.com" (不带协议头)
-      - **文件路径**: "/path/to/targets.txt" (文件中每行一个目标)
+      **Supported formats:**
+      - **URL**: "http://example.com" or "https://target.com/path"
+      - **IP address**: "192.168.1.1"
+      - **IP range (CIDR)**: "192.168.1.0/24", "10.0.0.0/8"
+      - **Domain**: "example.com" (without the protocol prefix)
+      - **File path**: "/path/to/targets.txt" (one target per line in the file)
 
       **Example Values:**
       - "http://172.16.0.4:9000"

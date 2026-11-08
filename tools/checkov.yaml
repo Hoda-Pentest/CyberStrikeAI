@@ -3,12 +3,12 @@ command: "checkov"
 enabled: true
 short_description: "Infrastructure as Code security scanning tool"
 description: |
-  Checkov是一个静态代码分析工具，用于基础设施即代码（IaC）的安全扫描。
+  Checkov is a static code analysis tool used for security scanning of infrastructure as code (IaC).
 
   **Key Features:**
-  - 支持多种IaC框架（Terraform, CloudFormation, Kubernetes等）
-  - 数百个内置策略
-  - 自定义策略支持
+  - Supports multiple IaC frameworks (Terraform, CloudFormation, Kubernetes, etc.)
+  - Hundreds of built-in policies
+  - Custom policy support
   - CI/CD integration
 
   **Use Cases:**
@@ -19,14 +19,14 @@ description: |
 parameters:
   - name: "directory"
     type: "string"
-    description: "要扫描的目录"
+    description: "directory to scan"
     required: false
     flag: "-d"
     format: "flag"
     default: "."
   - name: "framework"
     type: "string"
-    description: "要扫描的框架（terraform, cloudformation, kubernetes等）"
+    description: "framework to scan (terraform, cloudformation, kubernetes, etc.)"
     required: false
     flag: "--framework"
     format: "flag"
@@ -38,7 +38,7 @@ parameters:
     format: "flag"
   - name: "output_format"
     type: "string"
-    description: "输出格式（json, yaml, cli）"
+    description: "output format (json, yaml, cli)"
     required: false
     flag: "--output"
     format: "flag"

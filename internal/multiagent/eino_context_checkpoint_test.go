@@ -126,7 +126,7 @@ func TestFinalizeMemorySupportsMultipartSummaryAndReportsOnlySuccessfulWrites(t 
 		t.Fatal("input summary was mutated")
 	}
 	bad := finalizeSummarizationMemory(schema.UserMessage("still usable summary"), original, "", db, "wrong-project", cid, "main", config.ProjectConfig{Enabled: true}, nil)
-	if strings.Contains(bad.Content, "已保存") || !strings.Contains(bad.Content, "still usable summary") {
+	if strings.Contains(bad.Content, "has been saved") || !strings.Contains(bad.Content, "still usable summary") {
 		t.Fatalf("failed write claimed success or lost summary: %s", bad.Content)
 	}
 }
@@ -195,7 +195,7 @@ func TestSummarizationMiddlewaresAutomaticallySaveCheckpoint(t *testing.T) {
 				t.Fatalf("wrong working memory: %#v", checkpoint)
 			}
 			joined := joinClassicMessageContent(after)
-			if !strings.Contains(joined, checkpoint.FactKey) || strings.Contains(joined, "（暂无事实）") || strings.Contains(joined, "FOREIGN_PROGRESS") || strings.Contains(joined, "note/context-other") {
+			if !strings.Contains(joined, checkpoint.FactKey) || strings.Contains(joined, "(no facts yet)") || strings.Contains(joined, "FOREIGN_PROGRESS") || strings.Contains(joined, "note/context-other") {
 				t.Fatalf("live index did not refresh after save: %s", joined)
 			}
 			snapshots, err := filepath.Glob(filepath.Join(filepath.Dir(cfg.Database.Path), "conversation_artifacts", cid, "summarization", "snapshots", "*.txt"))
@@ -243,7 +243,7 @@ func TestSuccessfulEmptyFactIndexRemovesOldBlockButRetainsLedger(t *testing.T) {
 }
 
 func TestCheckpointLabelUsesExistingEvidenceCluesWithoutChangingSummary(t *testing.T) {
-	const summary = "## 1. 授权范围与约束\n- authorized.example\n- COOKIE_SECRET\n- user method\n- user todo\n## 7. 当前进度、策略决策与下一步\n- progress\n## 8. 原始证据检索线索（追加）\n- authorized.example /login request Cookie clue\n- response 403 exact error\n"
+	const summary = "## 1. Authorization scope and constraints\n- authorized.example\n- COOKIE_SECRET\n- user method\n- user todo\n## 7. Current progress, strategy decisions, and next steps\n- progress\n## 8. Raw-evidence retrieval clues (appended)\n- authorized.example /login request Cookie clue\n- response 403 exact error\n"
 	label := checkpointSummaryLabel("main", summary, 10000)
 	if !strings.Contains(label, "/login") || !strings.Contains(label, "403") || strings.Contains(label, "COOKIE_SECRET") || strings.Contains(label, "user method") || len([]rune(label)) > 200 {
 		t.Fatalf("unhelpful or excessive index label: %s", label)
@@ -260,7 +260,7 @@ func TestCheckpointLabelUsesExistingEvidenceCluesWithoutChangingSummary(t *testi
 	if !strings.HasSuffix(fact.Body, summary) {
 		t.Fatal("index label changed original summary body")
 	}
-	fallback := checkpointSummaryLabel("main", "## 1. 授权范围\n- authorized.example\n## 8. 原始证据检索线索（追加）\n- 无", 1000)
+	fallback := checkpointSummaryLabel("main", "## 1. Authorization scope\n- authorized.example\n## 8. Raw-evidence retrieval clues (appended)\n- none", 1000)
 	if !strings.Contains(fallback, "authorized.example") {
 		t.Fatalf("empty-clue legacy fallback lost: %s", fallback)
 	}

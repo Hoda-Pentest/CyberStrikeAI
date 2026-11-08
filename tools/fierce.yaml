@@ -1,18 +1,18 @@
 name: "fierce"
 command: "fierce"
 enabled: true
-short_description: "DNS侦察工具"
+short_description: "DNS reconnaissance tool"
 description: |
-  Fierce是一个DNS侦察工具，用于发现目标域名的子域名。
+  Fierce is a DNS reconnaissance tool used to discover subdomains of a target domain.
 
   **Key Features:**
   - Subdomain discovery
-  - DNS暴力破解
+  - DNS brute-forcing
   - Zone transfer testing
   - Network mapping
 
   **Use Cases:**
-  - DNS侦察
+  - DNS reconnaissance
   - Subdomain enumeration
   - Network mapping
   - Penetration testing

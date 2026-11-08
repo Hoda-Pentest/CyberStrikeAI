@@ -8,7 +8,7 @@ args:
     import sys
 
     if len(sys.argv) < 2:
-        sys.stderr.write("缺少操作类型（find/dump/download）\n")
+        sys.stderr.write("Missing operation type (find/dump/download)\n")
         sys.exit(1)
 
     action = sys.argv[1]
@@ -34,15 +34,15 @@ args:
         sys.stderr.write(proc.stderr)
     sys.exit(proc.returncode)
 enabled: true
-short_description: "libc识别和偏移查找工具"
+short_description: "libc identification and offset lookup tool"
 description: |
-  Libc-database是一个用于libc识别和偏移查找的工具。
+  Libc-database is a tool for libc identification and offset lookup.
 
   **Key Features:**
   - libc identification
-  - 符号偏移查找
-  - libc下载
-  - 数据库查询
+  - Symbol offset lookup
+  - libc download
+  - Database querying
 
   **Use Cases:**
   - CTF challenges
@@ -52,20 +52,20 @@ description: |
 parameters:
   - name: "action"
     type: "string"
-    description: "要执行的操作（find, dump, download）"
+    description: "operation to perform (find, dump, download)"
     required: true
     position: 0
     format: "positional"
   - name: "symbols"
     type: "string"
-    description: "符号和偏移（格式：symbol1:offset1 symbol2:offset2）"
+    description: "symbols and offsets (format: symbol1:offset1 symbol2:offset2)"
     required: false
     default: ""
     position: 1
     format: "positional"
   - name: "libc_id"
     type: "string"
-    description: "Libc ID（用于dump/download操作）"
+    description: "Libc ID (for dump/download operations)"
     required: false
     default: ""
     position: 2

@@ -1,21 +1,21 @@
 name: "exiftool"
 command: "exiftool"
 enabled: true
-short_description: "元数据提取工具"
+short_description: "metadata extraction tool"
 description: |
-  ExifTool用于读取、写入和编辑各种文件格式的元数据。
+  ExifTool is used to read, write, and edit metadata of various file formats.
 
   **Key Features:**
-  - 元数据提取
-  - 多种文件格式支持
-  - 元数据编辑
-  - 批量处理
+  - Metadata extraction
+  - Support for multiple file formats
+  - Metadata editing
+  - Batch processing
 
   **Use Cases:**
   - Forensic analysis
-  - 元数据检查
-  - 隐私保护
-  - 文件分析
+  - Metadata inspection
+  - Privacy protection
+  - File analysis
 parameters:
   - name: "file_path"
     type: "string"
@@ -25,28 +25,28 @@ parameters:
     format: "positional"
   - name: "output_json"
     type: "bool"
-    description: "以JSON格式输出（等同于 -json）"
+    description: "output in JSON format (equivalent to -json)"
     required: false
     flag: "-json"
     format: "flag"
     default: false
   - name: "output_xml"
     type: "bool"
-    description: "以XML格式输出（等同于 -X）"
+    description: "output in XML format (equivalent to -X)"
     required: false
     flag: "-X"
     format: "flag"
     default: false
   - name: "output_csv"
     type: "bool"
-    description: "以CSV格式输出（等同于 -csv）"
+    description: "output in CSV format (equivalent to -csv)"
     required: false
     flag: "-csv"
     format: "flag"
     default: false
   - name: "tags"
     type: "string"
-    description: "要提取的特定标签"
+    description: "specific tag to extract"
     required: false
     format: "template"
     template: "-{value}"

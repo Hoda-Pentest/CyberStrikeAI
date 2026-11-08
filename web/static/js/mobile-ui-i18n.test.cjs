@@ -2,9 +2,10 @@ const fs = require('node:fs');
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-/* 移动端注入层的文案键契约：mobile-ui.js 引用的每个 i18n 键必须在三种语言里都存在，
-   否则手机上会出现「点开关却看到 mobile.openNav」这类内部键名裸露。
-   遍历域 = 传播域：凡是能写出 data-i18n 的三种入口都要抽，缺一个入口就会漏检。 */
+/* The copy-key contract for the mobile injection layer: every i18n key referenced by mobile-ui.js must exist in all three
+   languages, or the phone would show an internal key name leaking through, like tapping a toggle and seeing mobile.openNav.
+   Traversal domain = propagation domain: all three entry points capable of writing data-i18n must be extracted, or missing
+   one entry point means missing a detection. */
 
 const LOCALES = ['zh-CN', 'en-US', 'ru-RU'];
 const js = fs.readFileSync('web/static/js/mobile-ui.js', 'utf8');
@@ -32,44 +33,44 @@ function referencedKeys(source) {
 
 const keys = referencedKeys(js);
 
-test('至少抽到一批键，防止正则整体失配后空集通过', () => {
+test('extracts at least a batch of keys, guarding against the regexes all failing to match and an empty set passing', () => {
     assert.ok(keys.size >= 16, `expected >=20 referenced keys, got ${keys.size}`);
     assert.ok(keys.has('mobile.conversations'), 'tab labels must go through i18n');
 });
 
 for (const locale of LOCALES) {
-    test(`${locale} 覆盖移动端引用的每一个键`, () => {
+    test(`${locale} covers every key referenced by the mobile layer`, () => {
         const dict = JSON.parse(fs.readFileSync(`web/static/i18n/${locale}.json`, 'utf8'));
         const missing = [...keys].filter(k => typeof lookup(dict, k) !== 'string' || !lookup(dict, k).trim());
-        assert.deepEqual(missing, [], `${locale} 缺少可用译文: ${missing.join(', ')}`);
+        assert.deepEqual(missing, [], `${locale} is missing usable translations: ${missing.join(', ')}`);
     });
 }
 
-test('三种语言的 mobile 命名空间键集完全一致', () => {
+test('the mobile namespace key set is exactly the same across all three languages', () => {
     const sets = LOCALES.map(l => Object.keys(JSON.parse(fs.readFileSync(`web/static/i18n/${l}.json`, 'utf8')).mobile).sort());
-    assert.deepEqual(sets[1], sets[0], 'en-US 与 zh-CN 键集不同');
-    assert.deepEqual(sets[2], sets[0], 'ru-RU 与 zh-CN 键集不同');
+    assert.deepEqual(sets[1], sets[0], 'en-US and zh-CN have different key sets');
+    assert.deepEqual(sets[2], sets[0], 'ru-RU and zh-CN have different key sets');
 });
 
-test('带插值的文案在三种语言里都保留占位符', () => {
+test('copy with interpolation keeps its placeholder in all three languages', () => {
     for (const locale of LOCALES) {
         const dict = JSON.parse(fs.readFileSync(`web/static/i18n/${locale}.json`, 'utf8'));
-        assert.match(lookup(dict, 'mobile.themeNow'), /\{\{\s*name\s*\}\}/, `${locale} 的 themeNow 丢了 {{name}}`);
+        assert.match(lookup(dict, 'mobile.themeNow'), /\{\{\s*name\s*\}\}/, `${locale}'s themeNow lost {{name}}`);
     }
 });
 
-test('语言与主题动作复用桌面端既有键，不另立一套', () => {
-    assert.ok(keys.has('header.apiDocs'), 'API 文档应复用 header.apiDocs');
-    assert.ok(keys.has('header.github'), 'GitHub 应复用 header.github 而不是另立键');
-    assert.ok(keys.has('nav.dashboard'), '底部标签应复用 nav.* 分组名');
+test('language and theme actions reuse the desktop\'s existing keys instead of establishing a separate set', () => {
+    assert.ok(keys.has('header.apiDocs'), 'API docs should reuse header.apiDocs');
+    assert.ok(keys.has('header.github'), 'GitHub should reuse header.github rather than a separate key');
+    assert.ok(keys.has('nav.dashboard'), 'bottom tabs should reuse the nav.* group names');
 });
 
-test('注入层不再残留会直接显示给用户的硬编码中文', () => {
-    /* 判据与函数名无关：helper 区之外不许出现任何"裸写用户可见文本"的 API。
-       helper 区 = 从文案注释块起到 toast 定义前，四件套 label/translate/setAttrI18n/ariaLabel 都在里面。 */
-    const from = js.indexOf('/* 注入节点的文案');
+test('the injection layer no longer has leftover hardcoded Chinese shown directly to the user', () => {
+    /* The criterion is independent of function names: no "bare-written user-visible text" API may appear outside the helper zone.
+       helper zone = from the copy comment block to right before the toast definition; the four-piece set label/translate/setAttrI18n/ariaLabel are all inside it. */
+    const from = js.indexOf('/* Text for injected nodes');
     const to = js.indexOf('function toast(msg, ms)');
-    assert.ok(from !== -1 && to > from, '找不到文案 helper 区，说明 helper 被搬散或改名');
+    assert.ok(from !== -1 && to > from, 'could not find the copy helper zone, meaning the helper was moved apart or renamed');
     const outside = js.slice(0, from) + js.slice(to);
 
     const bypasses = [
@@ -82,6 +83,6 @@ test('注入层不再残留会直接显示给用户的硬编码中文', () => {
     ];
     for (const re of bypasses) {
         const hit = outside.match(re);
-        assert.equal(hit, null, `绕过 i18n 通道的写法: ${hit && hit[0]}`);
+        assert.equal(hit, null, `a way of bypassing the i18n channel: ${hit && hit[0]}`);
     }
 });
