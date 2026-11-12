@@ -20,14 +20,14 @@ const UPDATE_FAILURE_KEYS = {
     restart: 'restartFailed',
 };
 
-let updateConsoleState = null;   // The whole payload of GET /api/system/update: {status, job, canRestart, supervised, needsRestart}
+let updateConsoleState = null;
 let updateCheck = { done: false, error: '' };
 let updateBusy = false;          // Action request the page itself has in flight (check / start update / rollback / restart)
 let updateChecking = false;      // Only affects the wording of the "Check for updates" button
 let updatePollTimer = null;
-let updateRestartChoice = true;  // The checkbox must still be checked after a polling redraw; its default follows supervised
-let updateRestartChoiceSet = false; // Once the operator has changed it manually in this session, the default no longer overrides their choice
-let updateRestartPending = false;   // Restart requested: the process exiting / the new process taking over is imminent
+let updatePollInFlight = null;
+let updateRestartExpected = false;  // A restart is expected once the update finishes; progress is still read as usual during the build
+let updateRestartPending = false;   // Waiting for the service to come back
 let updateWatchdogTimer = null;     // The restart guard's own timer, independent of the job progress polling
 let updateWatchdogDeadline = 0;
 let updateWatchdogSlow = null;      // null = not timed out yet; 'running' = still answered by the old process; 'down' = the service did not come back
@@ -75,8 +75,8 @@ function scheduleUpdateAutoCheck() {
     if (!status || !status.installed || isUpdateJobRunning()) return false;
     updateAutoCheckDone = true;
     setTimeout(() => {
-        if (!isUpdateConsoleActive()) return;
-        checkForUpdates();
+        if (!isUpdateConsoleActive() || isUpdateJobRunning() || updateRestartPending) return;
+        checkForUpdates({ quiet: true });
     }, 1200);
     return true;
 }
@@ -122,8 +122,8 @@ function resetUpdateCheck() {
 // ok is not the same as the status code: in the halfway case where rollback restored the source but not the binary, it answers with 202 and carries
 // an error field (statusForError in the handler maps no_toolchain to 202); trusting resp.ok alone
 // would announce success for a rollback that was not finished.
-async function runUpdateRequest(method, url, body) {
-    const resp = await apiFetch(url, {
+async function runUpdateRequest(method, url, body, request = apiFetch) {
+    const resp = await request(url, {
         method: method,
         headers: { 'Content-Type': 'application/json' },
         body: body === undefined ? undefined : JSON.stringify(body),
@@ -138,6 +138,20 @@ async function runUpdateRequest(method, url, body) {
     };
 }
 
+// A proxy 401 or a dropped connection during the switch must not clear the session.
+function fetchDuringUpdate(url, options = {}) {
+    const headers = { Accept: 'application/json', ...options.headers };
+    if (typeof authToken === 'string' && authToken) headers.Authorization = 'Bearer ' + authToken;
+    return fetch(url, {
+        ...options,
+        credentials: 'same-origin',
+        cache: 'no-store',
+        redirect: 'error',
+        headers,
+        signal: typeof AbortSignal !== 'undefined' && AbortSignal.timeout ? AbortSignal.timeout(5000) : undefined,
+    });
+}
+
 async function fetchUpdateStatus() {
     const r = await runUpdateRequest('GET', '/api/system/update');
     if (!r.ok) throw new Error(r.error);
@@ -145,20 +159,12 @@ async function fetchUpdateStatus() {
         status: r.data.status || {},
         job: r.data.job || null,
         canRestart: !!r.data.canRestart,
-        supervised: !!r.data.supervised,
+        bootID: r.data.bootID || '',
         needsRestart: !!r.data.needsRestart,
         binaryBuiltAt: r.data.binaryBuiltAt || '',
         source: r.data.source || { repo: '', configured: false, defaultRepo: '' },
     };
-    noteRestartDefault();
     return updateConsoleState;
-}
-
-// Default of the checkbox: it is checked by default only when there is a supervisor (launchd/systemd start marker) - checking it by default when nobody supervises
-// amounts to "one click to stop the service". Once the operator has touched the checkbox themselves, the server's value no longer overrides their choice.
-function noteRestartDefault() {
-    if (updateRestartChoiceSet) return;
-    updateRestartChoice = !!(updateConsoleState && updateConsoleState.supervised);
 }
 
 // notify only acts when the platform really loaded showNotification. It must never become the reason an "operation looks failed":
@@ -212,8 +218,6 @@ async function loadUpdateConsole() {
         return;
     }
     resetUpdateCheck();
-    updateRestartChoiceSet = false;
-    updateRestartChoice = true; // Afterwards noteRestartDefault corrects it according to supervised
     updateActionError = '';     // Re-entering the page = a clean screen; the red text from the previous action does not follow
     const el = document.getElementById('update-console');
     if (!el) return;
@@ -226,7 +230,12 @@ async function loadUpdateConsole() {
         return;
     }
     renderUpdateConsole();
-    // An update is already running when the page opens (for example one clicked in another tab): keep watching it, so nobody thinks nothing is happening.
+    const job = updateJobOf();
+    updateRestartExpected = !!(job && job.restartRequested && job.state === 'running');
+    if (job && job.state === 'succeeded' && job.restartRequested && job.result?.binaryBuilt) {
+        startUpdateWatchdog();
+        return;
+    }
     if (isUpdateJobRunning()) startUpdatePolling();
     scheduleUpdateAutoCheck();
 }
@@ -246,8 +255,7 @@ function stopUpdatePolling() {
 // Restart guard: after a restart is requested, watch "whether the new process has taken over yet", and refresh the whole page once it has
 // ---------------------------------------------------------------------------
 
-// Only trust the fact that a new process has answered: the session lives only in the old process's memory, and the new process answers 401 to the old token.
-// A 200 means we are still talking to the old process (it has not exited yet); unreachable / 502 means it is exiting or has not started yet - keep waiting in both cases.
+// Refresh only when the service start marker has changed. An expired session or a proxy error page does not mean the version switched.
 // Stop the timer silently once the user leaves the console: do not drag a user who has already moved on back to the update page from another page.
 let updateWatchdogProbing = false;
 
@@ -259,28 +267,41 @@ async function watchdogProbe() {
     if (updateWatchdogProbing) return;
     updateWatchdogProbing = true;
     let status = 0;
+    let bootID = '';
+    let legacyUnauthorized = false;
+    const previousBoot = updateConsoleState && updateConsoleState.bootID;
     try {
-        const resp = await fetch('/api/system/update', {
-            method: 'GET',
-            credentials: 'same-origin',
-            cache: 'no-store',
-            headers: { Accept: 'application/json' },
-        });
+        const resp = await fetchDuringUpdate('/api/auth/validate');
         status = resp.status;
+        bootID = resp.headers?.get('X-CyberStrike-Boot-ID') || '';
+        if (status === 401 && !bootID) {
+            // A downgrade may return to a build that predates the boot header.
+            const data = await resp.json().catch(() => null);
+            legacyUnauthorized = data?.error === 'unauthorized access, please log in first';
+        }
     } catch (err) {
         status = 0;
     } finally {
         updateWatchdogProbing = false;
     }
-    if (status === 401) {
-        // The new process has taken over and does not recognize our session: refresh the whole page to land on the new version, returning to this page via the hash.
-        // Stop the timer first: the page is about to be replaced wholesale, and the timer must not act a second time.
+    if (!isUpdateConsoleActive() || !updateWatchdogTimer) return;
+    if ((bootID && bootID !== previousBoot && (status === 200 || status === 401)) || legacyUnauthorized) {
         stopUpdateWatchdog();
-        location.replace(location.pathname + '?restarted=' + Date.now() + '#system-update');
+        const params = new URLSearchParams(location.search);
+        params.set('restarted', Date.now());
+        location.replace(location.pathname + '?' + params + '#system-update');
+        return;
+    }
+    if (updateRestartExpected && previousBoot && bootID === previousBoot && status === 200) {
+        // The progress request may have hit a transient network error during the build.
+        stopUpdateWatchdog();
+        updateRestartPending = false;
+        renderUpdateConsole();
+        startUpdatePolling();
         return;
     }
     if (updateWatchdogSlow === null && Date.now() > updateWatchdogDeadline) {
-        updateWatchdogSlow = status === 200 ? 'running' : 'down';
+        updateWatchdogSlow = bootID || status === 200 ? 'running' : 'down';
         renderUpdateWatchdog();
     }
 }
@@ -306,18 +327,25 @@ async function pollUpdateJob() {
         stopUpdatePolling();
         return;
     }
-    // Transport-layer death (connection refused, process already exited) is a reject rather than a response with a status code: here the two are
-    // unified - while a restart is in progress it means "the process exited", otherwise it is a read failure that must be announced.
+    const timer = updatePollTimer;
+    if (!timer || updatePollInFlight === timer) return;
+    updatePollInFlight = timer;
+    // Transport-level death (connection refused, process already exited) is a reject rather than a response with a status code: the two are
+    // unified here - while a restart is in progress it means "the process exited", otherwise it is a read failure that must be announced.
     let r;
     try {
-        r = await runUpdateRequest('GET', '/api/system/update/job');
+        r = await runUpdateRequest('GET', '/api/system/update/job', undefined,
+            updateRestartExpected ? fetchDuringUpdate : apiFetch);
     } catch (err) {
         r = { ok: false, error: err && err.message ? err.message : String(err) };
+    } finally {
+        if (updatePollInFlight === timer) updatePollInFlight = null;
     }
+    if (timer !== updatePollTimer || !isUpdateConsoleActive()) return;
     if (!r.ok) {
         stopUpdatePolling();
-        if (updateRestartPending) {
-            // The process exited as requested: this is not a "failed to read progress", the restart has moved on to the next act.
+        if (updateRestartExpected) {
+            // The page may have missed the last progress response before handoff.
             startUpdateWatchdog();
             return;
         }
@@ -327,12 +355,16 @@ async function pollUpdateJob() {
     const job = r.data && r.data.job ? r.data.job : null;
     if (updateConsoleState) updateConsoleState.job = job;
     renderUpdateConsole();
+    if (job && job.state === 'running') updateRestartExpected = !!job.restartRequested;
+    if (!job && updateRestartExpected) {
+        stopUpdatePolling();
+        startUpdateWatchdog();
+        return;
+    }
     if (job && job.state !== 'running') {
         stopUpdatePolling();
-        if (job.state === 'succeeded' && job.restartRequested) {
-            // The process is about to yield to the new binary: announce the conclusion first, then enter the self-recovering view; do not look back
-            // to read a service that is about to disappear (reportFinishedJob would read it, so it is skipped here).
-            notify(updateDoneToast(job.result || null), 'success');
+        updateRestartExpected = false;
+        if (job.state === 'succeeded' && job.restartRequested && job.result?.binaryBuilt) {
             startUpdateWatchdog();
             return;
         }
@@ -357,7 +389,10 @@ function reportFinishedJob(job) {
     const result = job.result || null;
     if (job.state === 'succeeded') {
         notify(updateDoneToast(result), 'success');
-        if (result && result.needsRestart) notify(updateT('needsRestartToast'), 'info');
+        if (job.restartError) {
+            updateActionError = updateT('restartFailed', { reason: job.restartError });
+            notify(updateActionError, 'error');
+        } else if (result && result.needsRestart) notify(updateT('needsRestartToast'), 'info');
     } else {
         const reason = (job.failure && job.failure.message) ? job.failure.message : updateT('failureNoMessage');
         notify(updateT('jobFailedToast') + ': ' + reason, 'error');
@@ -373,7 +408,7 @@ function reportFinishedJob(job) {
 // Actions
 // ---------------------------------------------------------------------------
 
-async function checkForUpdates() {
+async function checkForUpdates({ quiet = false } = {}) {
     await withUpdateBusy(async () => {
         updateChecking = true;
         renderUpdateConsole();
@@ -397,6 +432,8 @@ async function checkForUpdates() {
         renderUpdateConsole();
         if (updateCheck.error) {
             notify(updateT(UPDATE_FAILURE_KEYS.check, { reason: updateCheck.error }), 'error');
+        } else if (quiet) {
+            return;
         } else if (status.updateAvailable) {
             notify(updateT('behindCount', { n: updateBehindCount(status) }), 'info');
         } else {
@@ -430,32 +467,6 @@ function updateApplyBlockers(status, job) {
     return blockers;
 }
 
-function updateRestartChoiceChanged(checked) {
-    updateRestartChoice = !!checked;
-    updateRestartChoiceSet = true; // Once the operator has decided themselves, the server's default no longer overrides it
-    renderUpdateConsole();
-}
-
-// The checkbox is the only source of truth; the copy in the module is just a memory for polling redraws.
-function updateRestartRequested() {
-    const box = document.getElementById('update-restart-choice');
-    if (box && typeof box.checked === 'boolean') return box.checked;
-    return updateRestartChoice;
-}
-
-function updateConfirmText(status, restart) {
-    // A rebuild-only run and "update N commits" are two different things: a confirm dialog saying "0 new commits" would make people think they clicked in vain.
-    const base = (!status.updateAvailable && status.buildPending)
-        ? updateT('confirmBuildPending', { commit: status.commit || '-' })
-        : updateT('confirmApply', {
-            repo: status.repo || '-',
-            target: status.remoteCommit || '-',
-            commit: status.commit || '-',
-            n: updateBehindCount(status),
-        });
-    return base + ' ' + (restart ? updateT('confirmRestartYes') : updateT('confirmRestartNo'));
-}
-
 async function startUpdateApply() {
     if (updateBusy) return;
     const status = updateStatusOf();
@@ -466,22 +477,21 @@ async function startUpdateApply() {
         notify(blockers[0], 'error');
         return;
     }
-    const restart = updateRestartRequested();
-    if (!window.confirm(updateConfirmText(status, restart))) return;
+    const restart = updateCanRestart();
 
     await withUpdateBusy(async () => {
         const r = await runUpdateRequest('POST', '/api/system/update/apply', { restart: restart });
         if (r.status === 409 && r.data.job) {
             // Another update is really running: pick up its progress and keep watching it, which is the "current state".
             if (updateConsoleState) updateConsoleState.job = r.data.job;
+            updateRestartExpected = !!r.data.job.restartRequested;
             renderUpdateConsole();
             startUpdatePolling();
         }
         if (!r.ok) throw new Error(r.error);
         resetUpdateCheck();
-        if (restart) updateRestartPending = true;
+        updateRestartExpected = restart;
         startUpdatePolling();
-        notify(updateT('applyAccepted', { id: r.data.job_id || '-' }), 'success');
         await pollUpdateJob();
     }, 'apply');
 }
@@ -496,6 +506,7 @@ async function startRestartNow() {
         const r = await runUpdateRequest('POST', '/api/system/update/restart');
         if (!r.ok) throw new Error(r.error);
         stopUpdatePolling();
+        updateRestartExpected = false;
         notify(updateT('restartRequestedToast'), 'info');
         startUpdateWatchdog();
     }, 'restart');
@@ -574,7 +585,7 @@ async function previewAdoptSource() {
 
 async function confirmAdoptSource() {
     if (updateBusy || !updateAdoptPlan) return;
-    const restart = updateRestartRequested();
+    const restart = updateCanRestart();
     const text = updateT('adoptConfirmText', {
         incoming: updateAdoptPlan.incoming,
         overwritten: updateAdoptPlan.overwrittenTotal,
@@ -587,7 +598,7 @@ async function confirmAdoptSource() {
         if (!r.ok) throw new Error(r.error);
         updateAdoptPlan = null;
         resetUpdateCheck();
-        if (restart) updateRestartPending = true;
+        updateRestartExpected = restart;
         startUpdatePolling();
         notify(updateT('adoptAccepted', { id: r.data.job_id || '-' }), 'success');
         await pollUpdateJob();
@@ -670,7 +681,7 @@ function renderAdoptBody() {
     parts.push(list(plan.overwritten, updateT('adoptOverwrittenTitle')));
     parts.push(list(plan.protected, updateT('adoptProtectedTitle')));
     parts.push('<div class="update-hint">' + escapeHtml(updateT('adoptBackupNote')) + '</div>');
-    parts.push(renderUpdateRestartChoice());
+    parts.push(renderUpdateSwitchHint());
     parts.push('<div class="update-actions"><button class="btn-primary update-adopt-confirm-btn"' + disabled +
         ' data-require-permission="update:apply" onclick="confirmAdoptSource()">' +
         escapeHtml(updateT('adoptConfirmBtn')) + '</button></div>');
@@ -755,18 +766,9 @@ function renderUpdateChangesTable(list) {
         '</tr></thead><tbody>' + rows + '</tbody></table>';
 }
 
-function renderUpdateRestartChoice() {
-    if (!updateCanRestart()) {
-        // If the backend provides no restart hook, the checkbox should not appear: ticking an option that will not be honored is deceiving.
-        return '<div class="update-hint">' + escapeHtml(updateT('restartNotWired')) + '</div>';
-    }
-    const preview = updateRestartChoice ? updateT('confirmRestartYes') : updateT('confirmRestartNo');
-    return '<label class="update-restart-choice">' +
-        '<input type="checkbox" id="update-restart-choice"' +
-        (updateRestartChoice ? ' checked' : '') +
-        ' onchange="updateRestartChoiceChanged(this.checked)">' +
-        '<span>' + escapeHtml(updateT('restartChoiceLabel')) + '</span></label>' +
-        '<div class="update-hint update-restart-preview">' + escapeHtml(preview) + '</div>';
+function renderUpdateSwitchHint() {
+    return '<div class="update-hint">' +
+        escapeHtml(updateT(updateCanRestart() ? 'confirmRestartYes' : 'restartNotWired')) + '</div>';
 }
 
 function renderUpdateApplyBody(status, job) {
@@ -804,7 +806,7 @@ function renderUpdateApplyBody(status, job) {
         escapeHtml(updateChecking ? updateT('checking') : updateT('checkBtn')) + '</button>' +
         '</div>');
 
-    parts.push(renderUpdateRestartChoice());
+    parts.push(renderUpdateSwitchHint());
 
     if (blocked) {
         parts.push('<ul class="update-blocker-list">' + blockers.map(b =>
@@ -949,8 +951,10 @@ function renderRestartBanner() {
     });
     return '<div class="update-restart-banner">' +
         '<div class="update-restart-banner-text">' + escapeHtml(text) + '</div>' +
-        '<button class="btn-primary update-restart-btn" data-require-permission="update:apply" onclick="startRestartNow()">' +
-        escapeHtml(updateT('restartNowBtn')) + '</button></div>';
+        (updateCanRestart() ?
+            '<button class="btn-primary update-restart-btn" data-require-permission="update:apply" onclick="startRestartNow()">' +
+            escapeHtml(updateT('restartNowBtn')) + '</button>' : '') +
+        '</div>';
 }
 
 // Self-recovering view: after the restart request is sent, this is what the console draws, until the new process answers and triggers a full page refresh.
@@ -964,10 +968,10 @@ function renderUpdateWatchdog() {
     if (updateWatchdogSlow) {
         parts.push('<div class="update-overlay-slow">' + escapeHtml(updateT(
             updateWatchdogSlow === 'running' ? 'restartOverlaySlowRunning' : 'restartOverlaySlowDown')) + '</div>');
+        parts.push('<div class="update-overlay-actions">' +
+            '<button class="btn-secondary" type="button" onclick="refreshUpdatePage()">' +
+            escapeHtml(updateT('restartOverlayRefresh')) + '</button></div>');
     }
-    parts.push('<div class="update-overlay-actions">' +
-        '<button class="btn-secondary" type="button" onclick="refreshUpdatePage()">' +
-        escapeHtml(updateT('restartOverlayRefresh')) + '</button></div>');
     parts.push('</div>');
     el.innerHTML = parts.join('');
 }
@@ -1007,7 +1011,6 @@ window.startUpdateApply = startUpdateApply;
 window.startRestartNow = startRestartNow;
 window.refreshUpdatePage = refreshUpdatePage;
 window.rollbackUpdate = rollbackUpdate;
-window.updateRestartChoiceChanged = updateRestartChoiceChanged;
 window.stopUpdatePolling = stopUpdatePolling;
 window.renderUpdateConsole = renderUpdateConsole;
 window.saveUpdateSource = saveUpdateSource;

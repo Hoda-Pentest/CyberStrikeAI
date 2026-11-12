@@ -3457,7 +3457,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 									"type": "object",
 									"properties": map[string]interface{}{
 										"confirm": map[string]interface{}{"type": "boolean", "description": "false/default = preview only; true = confirm and execute"},
-										"restart": map[string]interface{}{"type": "boolean", "description": "After a successful connection, exit the process and let an external supervisor restart it; default false"},
+										"restart": map[string]interface{}{"type": "boolean", "description": "After a successful connection and build, automatically switch to the new binary; requires canRestart, default false"},
 									},
 								},
 							},
@@ -6549,7 +6549,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 									"properties": map[string]interface{}{
 										"restart": map[string]interface{}{
 											"type":        "boolean",
-											"description": "Gracefully shut down and exit the process after a successful update; it is restarted only when an external supervisor exists, default false",
+											"description": "After a successful update and build, automatically switch to the new binary; requires canRestart, default false",
 										},
 									},
 								},
