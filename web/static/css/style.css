@@ -6459,11 +6459,11 @@ html[data-theme="dark"] .chat-input-container .send-btn:disabled::before {
     text-overflow: ellipsis;
 }
 
-/* Login overlay */
+/* Login overlay: an opaque, unbranded screen so nothing of the app shows through before sign-in */
 .login-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(245, 245, 245, 0.85);
+    background: var(--bg-secondary);
     display: none;
     align-items: center;
     justify-content: center;
@@ -6503,28 +6503,39 @@ html[data-theme="dark"] .chat-input-container .send-btn:disabled::before {
     animation: loginCardIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
+/* Signed out (set before first paint in index.html, toggled by auth.js): only the sign-in card is rendered. */
+html.auth-locked body > :not(#login-overlay) {
+    visibility: hidden;
+}
+
+html.auth-locked #login-overlay {
+    display: flex !important;
+}
+
 .login-brand {
-    padding: 32px 28px 24px;
+    padding: 32px 28px 0;
     text-align: center;
-    background: linear-gradient(180deg, rgba(0, 102, 255, 0.07) 0%, rgba(124, 58, 237, 0.04) 50%, transparent 100%);
-    border-bottom: 1px solid var(--border-color);
+}
+
+.login-mark {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
 }
 
 .login-title {
     margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    justify-content: center;
-    gap: 0.35em;
     font-size: 1.25rem;
     font-weight: 500;
     color: var(--text-secondary);
     letter-spacing: -0.01em;
-}
-
-.login-title .brand-wordmark {
-    font-size: 1.375rem;
 }
 
 .login-brand h2 {
@@ -36471,10 +36482,14 @@ html[data-theme="dark"] .modal,
 html[data-theme="dark"] .modal-overlay,
 html[data-theme="dark"] .projects-modal-overlay,
 html[data-theme="dark"] .info-collect-cell-modal,
-html[data-theme="dark"] .chat-files-form-modal,
+html[data-theme="dark"] .chat-files-form-modal {
+    background: rgba(2, 6, 23, 0.72);
+}
+
+/* The login screen stays opaque in dark mode too, so the app never shows through it. */
 html[data-theme="dark"] .login-overlay,
 html[data-theme="dark"] #login-overlay {
-    background: rgba(2, 6, 23, 0.72);
+    background: var(--bg-secondary);
 }
 
 html[data-theme="dark"] .btn-secondary {

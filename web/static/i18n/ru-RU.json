@@ -91,11 +91,11 @@
   "login": {
     "showPassword": "Показать пароль",
     "hidePassword": "Скрыть пароль",
-    "title": "Вход в CyberStrikeAI",
-    "titlePrefix": "Вход в",
-    "subtitle": "Войдите с учётной записью платформы. Администратор по умолчанию — admin.",
+    "pageTitle": "Вход",
+    "heading": "Вход",
+    "subtitle": "Введите учётные данные, чтобы продолжить.",
     "usernameLabel": "Имя пользователя",
-    "usernamePlaceholder": "admin",
+    "usernamePlaceholder": "Введите имя пользователя",
     "passwordLabel": "Пароль",
     "passwordPlaceholder": "Введите пароль",
     "submit": "Войти"

@@ -91,11 +91,11 @@
   "login": {
     "showPassword": "إظهار كلمة المرور",
     "hidePassword": "إخفاء كلمة المرور",
-    "title": "تسجيل الدخول إلى CyberStrikeAI",
-    "titlePrefix": "تسجيل الدخول إلى",
-    "subtitle": "سجّل الدخول بحساب المنصّة. المسؤول الافتراضي هو admin.",
+    "pageTitle": "تسجيل الدخول",
+    "heading": "تسجيل الدخول",
+    "subtitle": "أدخل بيانات الاعتماد للمتابعة.",
     "usernameLabel": "اسم المستخدم",
-    "usernamePlaceholder": "admin",
+    "usernamePlaceholder": "أدخل اسم المستخدم",
     "passwordLabel": "كلمة المرور",
     "passwordPlaceholder": "أدخل كلمة المرور",
     "submit": "تسجيل الدخول"

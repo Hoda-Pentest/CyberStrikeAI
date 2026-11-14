@@ -11,9 +11,23 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="CyberStrikeAI">
-    <title>CyberStrikeAI</title>
-    <link rel="icon" type="image/x-icon" href="/static/favicon.ico?v=20260728">
-    <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico?v=20260728">
+    <!-- Signed out, the tab shows a neutral title and icon; auth.js switches to the product title and favicon after sign-in. -->
+    <title>Sign in</title>
+    <link id="app-favicon" rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2364748b'/%3E%3Cpath d='M12 14v-3a4 4 0 0 1 8 0v3' fill='none' stroke='%23fff' stroke-width='2.5'/%3E%3Crect x='9' y='14' width='14' height='11' rx='2.5' fill='%23fff'/%3E%3C/svg%3E" data-brand-href="/static/favicon.ico?v=20260728">
+    <script>
+        (function () {
+            // Decide before first paint whether the sign-in screen is up, so the app shell never flashes for signed-out visitors.
+            var locked = true;
+            try {
+                var saved = JSON.parse(localStorage.getItem('cyberstrike-auth') || 'null');
+                var expiry = saved && saved.token ? Date.parse(saved.expiresAt) : NaN;
+                locked = !(expiry > Date.now());
+            } catch (e) { /* storage unavailable: treat as signed out */ }
+            if (locked) {
+                document.documentElement.classList.add('auth-locked');
+            }
+        })();
+    </script>
     <script>
         (function () {
             try {
@@ -39,32 +53,33 @@
             }
         })();
     </script>
-    <link rel="stylesheet" href="/static/css/style.css?v=20261027-pagination-custom-select">
+    <link rel="stylesheet" href="/static/css/style.css?v=20261115-neutral-login">
     <link rel="stylesheet" href="/static/css/vulnerability-download.css?v=20261030-2">
     <link rel="stylesheet" href="/static/css/tool-guard.css?v=20260907-7">
     <link rel="stylesheet" href="/static/css/chat-plan-progress.css?v=20260813-4">
     <link rel="stylesheet" href="/static/css/c2.css">
     <link rel="stylesheet" href="/static/vendor/xterm.css">
     <!-- Mobile style layer: all rules are limited to 767.98px and below, with zero impact on desktop -->
-    <link rel="stylesheet" href="/static/css/mobile.css?v=20261015-project-table-3">
+    <link rel="stylesheet" href="/static/css/mobile.css?v=20261115-neutral-login">
     <script src="/static/js/router.js?v=20261011-token-settings"></script>
 </head>
 <body>
     <div id="login-overlay" class="login-overlay" style="display: none;">
         <div class="login-card">
             <div class="login-brand">
-                <h2 class="login-title">
-                    <span data-i18n="login.titlePrefix">Sign in to</span>
-                    <span class="brand-wordmark brand-wordmark--sm" aria-label="CyberStrikeAI">
-                        <span class="brand-wordmark__core">CyberStrike</span><span class="brand-wordmark__ai">AI</span>
-                    </span>
-                </h2>
-                <p class="login-subtitle" data-i18n="login.subtitle">Sign in with a platform account. The default administrator is admin.</p>
+                <div class="login-mark" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                        <rect x="4" y="11" width="16" height="10" rx="2" />
+                        <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+                    </svg>
+                </div>
+                <h2 class="login-title" data-i18n="login.heading">Sign in</h2>
+                <p class="login-subtitle" data-i18n="login.subtitle">Enter your credentials to continue.</p>
             </div>
             <form id="login-form" class="login-form" novalidate>
                 <div class="form-group">
                     <label for="login-username" data-i18n="login.usernameLabel">Username</label>
-                    <input type="text" id="login-username" placeholder="admin" required maxlength="64" autocomplete="username" data-i18n="login.usernamePlaceholder" data-i18n-attr="placeholder" />
+                    <input type="text" id="login-username" placeholder="Enter username" required maxlength="64" autocomplete="username" data-i18n="login.usernamePlaceholder" data-i18n-attr="placeholder" />
                 </div>
                 <div class="form-group">
                     <label for="login-password" data-i18n="login.passwordLabel">Password</label>
@@ -7034,7 +7049,7 @@ Enumerate subdomains of example.com" style="font-family: 'Monaco', 'Menlo', 'Ubu
     <script src="/static/js/i18n.js"></script>
     <script src="/static/js/theme.js"></script>
     <script src="/static/js/builtin-tools.js"></script>
-    <script src="/static/js/auth.js?v=20261008-password-eye-1"></script>
+    <script src="/static/js/auth.js?v=20261115-neutral-login"></script>
     <script src="/static/js/modal.js"></script>
     <dialog id="vulnerability-download-dialog" aria-labelledby="vulnerability-download-heading" aria-describedby="vulnerability-download-hint">
         <div class="vulnerability-download-content">
