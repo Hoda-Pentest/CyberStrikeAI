@@ -632,7 +632,7 @@ let toolsLoadSequence = 0;
 
 let c2NavSyncedOnce = false;
 
-/** 根据是否启用多代理，禁用/启用机器人模式中的 Pi 编排选项 */
+/** Disable/enable the Pi orchestration options in robot mode depending on whether multi-agent is enabled */
 function syncRobotAgentModeSelectOptions(multiEnabled) {
     const sel = document.getElementById('multi-agent-robot-mode');
     if (!sel) return;
@@ -3298,7 +3298,7 @@ async function probeSelectedAIChannels() {
                 okCount += 1;
                 const latency = result.latency_ms ? ` ${result.latency_ms}ms` : '';
                 const context = result.context_window ? ` · ${result.context_window} tokens` : '';
-                aiChannelProbeResults[id] = { status: 'ready', message: settingsT('settingsBasic.aiChannelReadyWithLatency', '可用{latency}').replace('{latency}', latency) + context };
+                aiChannelProbeResults[id] = { status: 'ready', message: settingsT('settingsBasic.aiChannelReadyWithLatency', 'Available{latency}').replace('{latency}', latency) + context };
             } else {
                 aiChannelProbeResults[id] = { status: 'failed', message: formatConnectionTestError(result.error || settingsT('settingsBasic.testFailed', 'Connection failed')).message };
             }
@@ -3954,28 +3954,28 @@ function showConnectionTestFailure(resultEl, errorText) {
     );
 }
 
-// 测试OpenAI连接
+// Test the OpenAI connection
 function contextWarningText(code) {
     const messages = {
-        local_context_window_unknown: settingsT('settingsBasic.contextWarnWindowUnknown', '本地档位未填写窗口，按 32768 估算'),
-        local_context_window_small: settingsT('settingsBasic.contextWarnWindowSmall', '窗口小于 16384，带工具的 agent 可能无法稳定运行'),
-        max_total_tokens_clamped: settingsT('settingsBasic.contextWarnBudgetClamped', '最大上下文预算已按模型窗口收紧'),
-        max_completion_tokens_clamped: settingsT('settingsBasic.contextWarnCompletionClamped', '最大输出 Token 数已按模型窗口收紧'),
-        configured_budget_exceeds_context_window: settingsT('settingsBasic.contextWarnBudgetExceedsWindow', '填写的预算超过模型窗口，运行时会自动收紧'),
-        ollama_v1_ignores_num_ctx: settingsT('settingsBasic.contextWarnOllamaV1', 'Ollama 的 /v1 接口忽略 num_ctx，请在服务端设置 OLLAMA_CONTEXT_LENGTH 或 Modelfile'),
-        ollama_runtime_context_unknown: settingsT('settingsBasic.contextWarnOllamaRuntime', 'Ollama 可能按显存把窗口压到模型上限以下，建议启动后查看 ollama ps'),
-        context_runtime_unknown: settingsT('settingsBasic.contextWarnRuntimeUnknown', '无法确认运行时窗口，可能小于模型上限'),
-        llamacpp_parallel_slots: settingsT('settingsBasic.contextWarnLlamaCppSlots', 'llama.cpp 配置了多个并行槽位，单请求可用窗口可能小于 n_ctx；请按 --parallel/KV 模式确认'),
-        context_window_unknown: settingsT('settingsBasic.contextWarnUnknown', '未检测到上下文窗口，请手动填写')
+        local_context_window_unknown: settingsT('settingsBasic.contextWarnWindowUnknown', 'No window set for the local profile; estimating 32768'),
+        local_context_window_small: settingsT('settingsBasic.contextWarnWindowSmall', 'Window is below 16384; a tool-using agent may not run reliably'),
+        max_total_tokens_clamped: settingsT('settingsBasic.contextWarnBudgetClamped', 'Max context budget was clamped to the model window'),
+        max_completion_tokens_clamped: settingsT('settingsBasic.contextWarnCompletionClamped', 'Max output tokens were clamped to the model window'),
+        configured_budget_exceeds_context_window: settingsT('settingsBasic.contextWarnBudgetExceedsWindow', 'The configured budget exceeds the model window and will be clamped at runtime'),
+        ollama_v1_ignores_num_ctx: settingsT('settingsBasic.contextWarnOllamaV1', 'Ollama\'s /v1 endpoint ignores num_ctx; set OLLAMA_CONTEXT_LENGTH or a Modelfile on the server'),
+        ollama_runtime_context_unknown: settingsT('settingsBasic.contextWarnOllamaRuntime', 'Ollama may shrink the window below the model limit based on VRAM; check ollama ps after startup'),
+        context_runtime_unknown: settingsT('settingsBasic.contextWarnRuntimeUnknown', 'Cannot confirm the runtime window; it may be smaller than the model limit'),
+        llamacpp_parallel_slots: settingsT('settingsBasic.contextWarnLlamaCppSlots', 'llama.cpp has multiple parallel slots configured; the window per request may be smaller than n_ctx. Check the --parallel/KV mode'),
+        context_window_unknown: settingsT('settingsBasic.contextWarnUnknown', 'No context window detected; please fill it in manually')
     };
     return messages[code] || code;
 }
 
 function formatDetectedContext(result) {
     if (!result || !result.context_window) return '';
-    const parts = [settingsT('settingsBasic.detectedContext', '检测到 {tokens} tokens').replace('{tokens}', String(result.context_window))];
+    const parts = [settingsT('settingsBasic.detectedContext', 'Detected {tokens} tokens').replace('{tokens}', String(result.context_window))];
     if (result.effective_max_total_tokens) {
-        parts.push(settingsT('settingsBasic.effectiveBudget', '有效预算 {tokens} tokens').replace('{tokens}', String(result.effective_max_total_tokens)));
+        parts.push(settingsT('settingsBasic.effectiveBudget', 'Effective budget {tokens} tokens').replace('{tokens}', String(result.effective_max_total_tokens)));
     }
     if (result.context_backend) parts.push(result.context_backend);
     if (result.context_source) parts.push(result.context_source);
@@ -4017,7 +4017,7 @@ async function detectAIContext() {
         document.getElementById('openai-model')?.value.trim() === model;
     if (!baseUrl || !model) {
         if (resultEl) {
-            resultEl.textContent = settingsT('settingsBasic.detectContextFillRequired', '请先填写 Base URL 和模型');
+            resultEl.textContent = settingsT('settingsBasic.detectContextFillRequired', 'Please fill in the Base URL and model first');
             resultEl.className = 'form-inline-result is-error';
         }
         return;
@@ -4027,7 +4027,7 @@ async function detectAIContext() {
         btn.style.opacity = '0.5';
     }
     if (resultEl) {
-        resultEl.textContent = settingsT('settingsBasic.testing', '测试中...');
+        resultEl.textContent = settingsT('settingsBasic.testing', 'Testing...');
         resultEl.className = 'form-inline-result is-muted';
     }
     try {
@@ -4058,7 +4058,7 @@ async function detectAIContext() {
         }
     } catch (error) {
         if (resultEl) {
-            resultEl.textContent = formatConnectionTestError(error.message || '测试出错').message;
+            resultEl.textContent = formatConnectionTestError(error.message || 'Test error').message;
             resultEl.className = 'form-inline-result is-error';
         }
     } finally {
@@ -4126,7 +4126,7 @@ async function testOpenAIConnection() {
             const latency = result.latency_ms ? ` (${result.latency_ms}ms)` : '';
             const modelInfo = result.model ? ` [${result.model}]` : '';
             const contextInfo = result.context_window ? ` · ${result.context_window} tokens` : '';
-            const message = (typeof window.t === 'function' ? window.t('settingsBasic.testSuccess') : '连接成功') + modelInfo + latency + contextInfo;
+            const message = (typeof window.t === 'function' ? window.t('settingsBasic.testSuccess') : 'Connection successful') + modelInfo + latency + contextInfo;
             aiChannelProbeResults[channelId] = { status: 'ready', message };
             if (isTestingSameChannel()) {
                 applyDetectedContext(result);

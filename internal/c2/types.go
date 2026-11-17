@@ -1,15 +1,15 @@
 // Package c2 implements CyberStrikeAI's built-in C2 (Command & Control) framework.
 //
-// 设计概述：
-//   - Manager 作为统一入口，被 internal/app 实例化并注入到所有需要操控 C2 的组件
-//     （HTTP handler、MCP 工具、HITL 桥、攻击链记录器等）。
-//   - Listener 是抽象接口，下挂 tcp_reverse / http_beacon / https_beacon / websocket
-//     等不同传输方式的具体实现，全部通过 listener.Registry 工厂创建。
-//   - 任务调度走数据库（c2_tasks 表）+ 内存事件总线（EventBus）混合：
-//   - 状态变化与历史记录靠 SQLite 实现持久化与重启恢复；
-//   - 高频实时通知（如新任务结果）通过 EventBus 推送给 SSE/WS 订阅者，避免轮询。
-//   - Crypto 层固定 AES-256-GCM，每个 Listener 独立 32 字节密钥；密钥仅服务端持有
-//     和编译期注入到 implant，事件流不允许导出明文密钥。
+// Design overview:
+//   - Manager is the single entry point, instantiated by internal/app and injected into every component that controls C2
+//     (HTTP handlers, MCP tools, the HITL bridge, the attack-chain recorder, etc.).
+//   - Listener is an abstract interface with concrete implementations for different transports such as tcp_reverse / http_beacon / https_beacon / websocket,
+//     all created through the listener.Registry factory.
+//   - Task scheduling mixes the database (c2_tasks table) and an in-memory event bus (EventBus):
+//   - state changes and history are persisted in SQLite and recovered after restart;
+//   - high-frequency real-time notifications (such as new task results) are pushed to SSE/WS subscribers via EventBus, avoiding polling.
+//   - The crypto layer is fixed to AES-256-GCM with an independent 32-byte key per Listener; keys are held only by the server
+//     and injected into the implant at compile time; the event stream must never export plaintext keys.
 package c2
 
 import (
@@ -122,20 +122,20 @@ func IsDangerousTaskType(t TaskType) bool {
 
 // ListenerConfig is the decoded listener runtime configuration (from c2_listeners.config_json)
 type ListenerConfig struct {
-	// HTTP/HTTPS Beacon 公共字段
-	BeaconCheckInPath string `json:"beacon_check_in_path,omitempty"` // 默认 "/check_in"
-	BeaconTasksPath   string `json:"beacon_tasks_path,omitempty"`    // 默认 "/tasks"
-	BeaconResultPath  string `json:"beacon_result_path,omitempty"`   // 默认 "/result"
-	BeaconUploadPath  string `json:"beacon_upload_path,omitempty"`   // 默认 "/upload"
-	BeaconFilePath    string `json:"beacon_file_path,omitempty"`     // 默认 "/file/"
-	// HTTPS 专属
+	// Common HTTP/HTTPS Beacon fields
+	BeaconCheckInPath string `json:"beacon_check_in_path,omitempty"` // default "/check_in"
+	BeaconTasksPath   string `json:"beacon_tasks_path,omitempty"`    // default "/tasks"
+	BeaconResultPath  string `json:"beacon_result_path,omitempty"`   // default "/result"
+	BeaconUploadPath  string `json:"beacon_upload_path,omitempty"`   // default "/upload"
+	BeaconFilePath    string `json:"beacon_file_path,omitempty"`     // default "/file/"
+	// HTTPS only
 	TLSCertPath     string `json:"tls_cert_path,omitempty"`
 	TLSKeyPath      string `json:"tls_key_path,omitempty"`
-	TLSAutoSelfSign bool   `json:"tls_auto_self_sign,omitempty"` // true：找不到证书时自动生成自签
-	// 客户端默认参数（写到 c2_sessions 初值，beacon 也可在 check-in 时覆写）
-	DefaultSleep  int `json:"default_sleep,omitempty"`  // 秒，默认 5
-	DefaultJitter int `json:"default_jitter,omitempty"` // 0-100，默认 0
-	// OPSEC：可选命令黑名单（正则）
+	TLSAutoSelfSign bool   `json:"tls_auto_self_sign,omitempty"` // true: auto-generate a self-signed certificate when none is found
+	// Client default parameters (written as c2_sessions initial values; beacons may also override them at check-in)
+	DefaultSleep  int `json:"default_sleep,omitempty"`  // seconds, default 5
+	DefaultJitter int `json:"default_jitter,omitempty"` // 0-100, default 0
+	// OPSEC: optional command denylist (regex)
 	CommandDenyRegex []string `json:"command_deny_regex,omitempty"`
 	// Task concurrency limit (the maximum number of tasks dispatched simultaneously per session; 0 means no limit)
 	MaxConcurrentTasks int `json:"max_concurrent_tasks,omitempty"`
@@ -214,8 +214,8 @@ type TaskResultReport struct {
 	OutputB64  string `json:"output_b64,omitempty"` // raw console bytes (base64), to avoid JSON corrupting non-UTF-8 output
 	Error      string `json:"error,omitempty"`
 	ErrorB64   string `json:"error_b64,omitempty"`
-	BlobBase64 string `json:"blob_b64,omitempty"`    // 如截图二进制
-	BlobSuffix string `json:"blob_suffix,omitempty"` // 如 ".png"
+	BlobBase64 string `json:"blob_b64,omitempty"`    // e.g. screenshot binary
+	BlobSuffix string `json:"blob_suffix,omitempty"` // e.g. ".png"
 	StartedAt  int64  `json:"started_at"`
 	EndedAt    int64  `json:"ended_at"`
 }

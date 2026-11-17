@@ -1,21 +1,21 @@
 ---
 name: cyberstrike-pi-demo
-description: 满配示例技能包：SKILL.md + scripts/、references/、assets/ 等可选目录；验证 Pi skill 与 HTTP 包内路径（仅授权安全测试与教学）。
+description: "Full-featured example skill package: SKILL.md + optional directories such as scripts/, references/, assets/; verifies the Pi skill and HTTP in-package paths (authorized security testing and teaching only)."
 ---
 
-# CyberStrike × Pi 满配技能演示
+# CyberStrike × Pi full-featured skill demo
 
-本包与 [Agent Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview) 一致：**`SKILL.md` 为清单 + 主说明**（无单独 `SKILL.yaml`）。同目录可有 **`scripts/`**、**`references/`**、**`assets/`** 等任意子目录（只要路径安全、未触达包深度/文件数上限），由 **`ListPackageFiles` / `resource_path`** 与 Pi 本机工具读取。补充说明见 `FORMS.md`、`REFERENCE.md`。
+This package follows [Agent Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview): **`SKILL.md` is the manifest + main instructions** (no separate `SKILL.yaml`). The same directory may contain any subdirectories such as **`scripts/`**, **`references/`**, **`assets/`** (as long as the paths are safe and within the package depth/file-count limits), read via **`ListPackageFiles` / `resource_path`** and Pi local tools. See `FORMS.md` and `REFERENCE.md` for more.
 
 ## Overview
 
 Used to verify, in one pass:
 
-- HTTP `GET /api/skills` 列表（`script_count`、`file_count`、`progressive` 等为推导/扫描结果）
+- HTTP `GET /api/skills` listing (`script_count`, `file_count`, `progressive`, etc. are derived/scanned results)
 - `GET /api/skills/cyberstrike-pi-demo?depth=summary|full`
-- `section=` 对应 `SKILL.md` 中 **`##` 标题**或 ASCII 标题的短 id（例如 `## Payload 样例` 常对应 `section=payload`）
-- 多代理内原生 **`skill`** 工具（及可选本机文件工具）读取包内相对路径资源
-- 原生 `skill` 工具对技能正文、脚本与参考资料的读取
+- `section=` maps to the short id of a **`##` heading** or ASCII heading in `SKILL.md` (e.g. `## Payload samples` usually maps to `section=payload`)
+- Native **`skill`** tool inside multi-agent (and optional local file tools) reading relative-path resources in the package
+- Native `skill` tool reading the skill body, scripts and reference material
 
 **Hard requirement**: any testing must obtain written authorization and be limited to the agreed scope and time window.
 

@@ -19,7 +19,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// MultiAgentLoopStream Agent DeepAgent 流式对话（需 config.multi_agent.enabled）。
+// MultiAgentLoopStream is the Agent DeepAgent streaming chat (requires config.multi_agent.enabled).
 func (h *AgentHandler) MultiAgentLoopStream(c *gin.Context) {
 	c.Header("Content-Type", "text/event-stream; charset=utf-8")
 	c.Header("Cache-Control", "no-cache")
@@ -60,8 +60,8 @@ func (h *AgentHandler) MultiAgentLoopStream(c *gin.Context) {
 	var sseWriteMu sync.Mutex
 	var ssePublishConversationID string
 	sendEvent := func(eventType, message string, data interface{}) {
-		// 用户主动停止时，Agent 可能仍会并发上报 eventType=="error"。
-		// 为避免 UI 看到“取消错误 + cancelled 文案”两条回复，这里直接丢弃取消对应的 error。
+		// When the user stops on purpose, Agent may still concurrently report eventType=="error".
+		// To avoid the UI showing two replies ("cancel error" + "cancelled" text), the error for the cancellation is dropped here.
 		if eventType == "error" && baseCtx != nil {
 			cause := context.Cause(baseCtx)
 			if errors.Is(cause, ErrTaskCancelled) || errors.Is(cause, multiagent.ErrInterruptContinue) {
@@ -104,7 +104,7 @@ func (h *AgentHandler) MultiAgentLoopStream(c *gin.Context) {
 		sseWriteMu.Unlock()
 	}
 
-	h.logger.Info("收到 Agent DeepAgent 流式请求",
+	h.logger.Info("received Agent DeepAgent streaming request",
 		zap.String("conversationId", req.ConversationID),
 	)
 
@@ -156,7 +156,7 @@ func (h *AgentHandler) MultiAgentLoopStream(c *gin.Context) {
 		}
 	}()
 
-	sendEvent("progress", "正在启动 Agent 多代理...", map[string]interface{}{
+	sendEvent("progress", "Starting Agent multi-agent...", map[string]interface{}{
 		"conversationId": conversationID,
 	})
 
@@ -391,11 +391,11 @@ func (h *AgentHandler) MultiAgentLoopStream(c *gin.Context) {
 			return
 		}
 
-		h.logger.Error("Agent DeepAgent 执行失败", zap.Error(runErr))
+		h.logger.Error("Agent DeepAgent execution failed", zap.Error(runErr))
 		taskStatus = "failed"
 		h.tasks.UpdateTaskStatus(conversationID, taskStatus)
 		clientErr := multiagent.ClientRunErrorMessage(runErr)
-		errMsg := "执行失败: " + clientErr
+		errMsg := "Execution failed: " + clientErr
 		if assistantMessageID != "" {
 			_, _ = h.db.Exec("UPDATE messages SET content = ?, updated_at = ? WHERE id = ?", errMsg, time.Now(), assistantMessageID)
 			_ = h.db.AddProcessDetail(assistantMessageID, conversationID, "error", errMsg, nil)
@@ -444,7 +444,7 @@ func (h *AgentHandler) MultiAgentLoopStream(c *gin.Context) {
 	sendEvent("done", "", map[string]interface{}{"conversationId": conversationID})
 }
 
-// MultiAgentLoop Agent DeepAgent 非流式对话（需 multi_agent.enabled）。
+// MultiAgentLoop is the Agent DeepAgent non-streaming chat (requires multi_agent.enabled).
 func (h *AgentHandler) MultiAgentLoop(c *gin.Context) {
 	if h.config == nil || !h.config.MultiAgent.Enabled {
 		c.JSON(http.StatusNotFound, gin.H{"error": "multi-agent is not enabled; please set multi_agent.enabled: true in config.yaml"})
@@ -457,7 +457,7 @@ func (h *AgentHandler) MultiAgentLoop(c *gin.Context) {
 		return
 	}
 
-	h.logger.Info("收到 Agent DeepAgent 非流式请求", zap.String("conversationId", req.ConversationID))
+	h.logger.Info("received Agent DeepAgent non-streaming request", zap.String("conversationId", req.ConversationID))
 
 	releaseAdmission := h.lockAgentAdmission()
 	defer releaseAdmission()
@@ -496,7 +496,7 @@ func (h *AgentHandler) MultiAgentLoop(c *gin.Context) {
 	h.runMultiJSON(taskCtx, baseCtx, cancelWithCause, &req, prep, &jsonTaskStatus, respond)
 }
 
-// persistAgentAgentTraceForResume 在 Agent 运行异常结束时写入代理轨迹（库列 last_react_*），供下一请求 loadHistoryFromAgentTrace 软续跑。
+// persistAgentAgentTraceForResume writes the agent trace (DB columns last_react_*) when an Agent run ends abnormally, so the next request can soft-resume via loadHistoryFromAgentTrace.
 func (h *AgentHandler) persistAgentAgentTraceForResume(conversationID string, result *multiagent.RunResult) {
 	if h == nil || result == nil {
 		return
@@ -505,7 +505,7 @@ func (h *AgentHandler) persistAgentAgentTraceForResume(conversationID string, re
 		return
 	}
 	if err := h.db.SaveAgentTrace(conversationID, result.LastAgentTraceInput, result.LastAgentTraceOutput); err != nil {
-		h.logger.Warn("保存 Agent 续跑上下文失败", zap.String("conversationId", conversationID), zap.Error(err))
+		h.logger.Warn("failed to save Agent resume context", zap.String("conversationId", conversationID), zap.Error(err))
 	}
 }
 

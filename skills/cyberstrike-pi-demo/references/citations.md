@@ -4,9 +4,9 @@ This file verifies whether the in-package **`references/`** directory is correct
 
 ## How to test (within an authorized environment)
 
-1. `GET /api/skills/cyberstrike-pi-demo` 响应中的 `package_files` 应包含 `references/citations.md`。
-2. `GET /api/skills/cyberstrike-pi-demo?resource_path=references/citations.md` 应返回本文内容。
-3. 多代理且开启 `skills.filesystem_tools` 时，可通过相对路径读取本文件。
+1. The `package_files` in the `GET /api/skills/cyberstrike-pi-demo` response should include `references/citations.md`.
+2. `GET /api/skills/cyberstrike-pi-demo?resource_path=references/citations.md` should return this content.
+3. In multi-agent mode with `skills.filesystem_tools` enabled, this file can be read via a relative path.
 
 ## Placeholder references
 

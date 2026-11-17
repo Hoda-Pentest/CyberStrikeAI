@@ -32,9 +32,9 @@ const (
 	ScopeProject
 )
 
-// Paths 汇总各类别根目录。
-// 由 app 层按既有解析规则注入（与 database.SetAgentConversationDirs 使用同一批值），
-// 避免本包重复推导路径导致清理目录与实际写入目录不一致。
+// Paths collects the root directory of each category.
+// Injected by the app layer using the existing resolution rules (the same values as database.SetAgentConversationDirs),
+// so this package does not re-derive paths and end up cleaning a directory different from where data is actually written.
 type Paths struct {
 	Workspace            string
 	Reduction            string
@@ -123,8 +123,8 @@ func categories() []category {
 		},
 		{
 			key:   config.StorageCategoryPlantask,
-			label: "计划任务看板",
-			hint:  "Agent 多代理计划看板 JSON（skills/.pi/plantask），属纯派生数据。",
+			label: "Plan task board",
+			hint:  "Agent multi-agent plan board JSON (skills/.pi/plantask); purely derived data.",
 			root:  func(p Paths) string { return p.Plantask },
 			scan:  func(root string) ([]Unit, error) { return scanSessionDirs(root, ScopeConversation) },
 		},

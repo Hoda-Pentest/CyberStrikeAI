@@ -419,9 +419,9 @@ func (h *AgentHandler) handleBatchSubTaskRunError(
 		return
 	}
 
-	h.logger.Error("批量任务执行失败", zap.String("queueId", queueID), zap.String("taskId", task.ID), zap.String("conversationId", conversationID), zap.Error(runErr))
+	h.logger.Error("batch task execution failed", zap.String("queueId", queueID), zap.String("taskId", task.ID), zap.String("conversationId", conversationID), zap.Error(runErr))
 	clientErr := multiagent.ClientRunErrorMessage(runErr)
-	errorMsg := "执行失败: " + clientErr
+	errorMsg := "Execution failed: " + clientErr
 	if assistantMessageID != "" {
 		if _, updateErr := h.db.Exec(
 			"UPDATE messages SET content = ?, updated_at = ? WHERE id = ?",

@@ -1,33 +1,33 @@
-# 界面样式约定
+# UI style conventions
 
-主应用的公共样式位于 `web/static/css/design-system.css`，在模块与移动端 CSS 后加载。
-颜色沿用现有主题变量；抽屉外框统一为直角，卡片圆角 16px，控件圆角 10px，桌面正文内边距 24px，移动端 16px。
-状态色、选中态、图表、终端和工作流画布保留各自的业务语义。
+The main app's shared styles live in `web/static/css/design-system.css`, loaded after the module and mobile CSS.
+Colors reuse the existing theme variables; drawer outer frames are uniformly square, cards use a 16px radius, controls a 10px radius, desktop body padding 24px, and mobile 16px.
+Status colors, selected states, charts, the terminal and the workflow canvas keep their own business semantics.
 
-## 容器选择
+## Container choice
 
-- 详情、日志、长表单：右侧抽屉，默认 720px；代码、长文本等宽编辑面板 960px；标题栏可展开至 1440px。
-- 手机（小于 768px）：抽屉全屏，适配安全区，正文单独滚动，底部操作保持可见。
-- 确认、重命名、简短绑定：居中短弹窗，手机上同样保持紧凑。
-- 数据比较和批量操作继续使用表格；终端、工作流、会话工作区不强制改成卡片列表。
+- Details, logs, long forms: right-side drawer, 720px by default; monospace editing panels for code and long text at 960px; the title bar can expand to 1440px.
+- Phones (below 768px): the drawer is full-screen, adapts to the safe area, the body scrolls on its own, and the bottom actions stay visible.
+- Confirmations, renames, short bindings: a centered short dialog, kept compact on phones too.
+- Data comparison and bulk operations continue to use tables; the terminal, workflow and session workspace are not forced into card lists.
 
-`web/static/js/modal.js` 的 `DRAWER_IDS` 和 `WIDE_IDS` 管理既有模块迁移清单。
-新模块应通过 `openAppModal` / `closeAppModal` 开关容器，关闭时保留原有清理和未保存提示逻辑。
-共用生命周期负责嵌套层级、背景滚动锁定、焦点返回、Tab 焦点约束和 Escape 触发原关闭按钮。
-异步更新的标题栏会自动补齐展开按钮。短 C2 休眠设置仍为弹窗。
+`DRAWER_IDS` and `WIDE_IDS` in `web/static/js/modal.js` manage the migration list of existing modules.
+New modules should open/close their container via `openAppModal` / `closeAppModal`, keeping the existing cleanup and unsaved-changes prompt logic on close.
+The shared lifecycle handles nesting levels, background scroll locking, focus return, Tab focus trapping, and Escape triggering the original close button.
+A title bar that updates asynchronously automatically gets its expand button added. The short C2 sleep setting remains a dialog.
 
-不要再为单个抽屉添加独立的定位、遮罩、圆角或主题色覆盖。
-现阶段公共布局中少量 `!important` 用于覆盖历史内联宽高和移动端旧规则；后续修改这些模块时可逐步去除对应历史声明。
+Do not add per-drawer positioning, backdrop, corner radius or theme-color overrides anymore.
+At this stage a few `!important` rules in the shared layout override legacy inline widths/heights and old mobile rules; these legacy declarations can be removed gradually as those modules are revised.
 
-## 验证
+## Verification
 
-前端回归：
+Frontend regression:
 
 ```sh
 node --test web/static/js/*.test.cjs
 ```
 
-浏览器验证需要外部安装的 Playwright 和 Chromium，例如：
+Browser verification requires an externally installed Playwright and Chromium, for example:
 
 ```sh
 npm install --prefix /tmp/csai-ui-tools playwright
@@ -35,33 +35,33 @@ npm install --prefix /tmp/csai-ui-tools playwright
 NODE_PATH=/tmp/csai-ui-tools/node_modules node scripts/check-ui-design-system.cjs
 ```
 
-脚本使用真实模板、样式和选定模块的真实渲染函数，配以合成数据；不启动后端或访问测试目标。
-检查 1440、1024、390、360px 四档屏宽和深浅主题，验证抽屉边界、内部横向溢出、底栏、嵌套层级、展开、键盘关闭、焦点返回，以及主页面横向溢出。
-截图与结果默认写入系统临时目录，也可通过 `CSAI_UI_ARTIFACTS` 指定目录。
-这覆盖界面布局和公共交互，不等同于真实后端数据、保存操作、所有下拉菜单状态或物理手机软键盘的完整验收。
+The script uses the real templates, styles and the real render functions of the selected modules with synthetic data; it does not start the backend or access any test target.
+It checks the four screen widths 1440, 1024, 390, 360px and the light/dark themes, verifying drawer boundaries, internal horizontal overflow, the bottom bar, nesting levels, expansion, keyboard close, focus return, and horizontal overflow on the main page.
+Screenshots and results are written to the system temp directory by default, or to a directory set via `CSAI_UI_ARTIFACTS`.
+This covers the UI layout and shared interactions; it is not equivalent to full acceptance of real backend data, save operations, all dropdown states, or a physical phone's on-screen keyboard.
 
-### 真实数据形态回归
+### Realistic data-shape regression
 
-`check-ui-design-system.cjs` 现在调用 `ui-realistic-scenarios.cjs`，并加载真实 i18next/翻译实现。
-回归数据依据实际页面的数量、文本长度和按钮状态匿名构造，不复制目标地址、凭据或业务证据。
+`check-ui-design-system.cjs` now calls `ui-realistic-scenarios.cjs` and loads the real i18next/translation implementation.
+The regression data is built anonymously from the real pages' counts, text lengths and button states; it does not copy target addresses, credentials or business evidence.
 
-- 365 条队列任务，分别渲染暂停、运行、完成状态；验证真实操作按钮不会挤压标题或越界。
-- 626 个工具、614 个已启用工具及长描述；使用真实角色编辑入口检查统计换行和正文滚动。
-- 角色与多文件 Skill 的新增/编辑切换，以及打开编辑后跨越桌面/手机断点；验证翻译刷新不改变编辑标题。
-- 50 条长漏洞记录和三页分页：验证手机整页滚动，标题与分页不会固定占用记录区。
+- 365 queue tasks, rendered in paused, running and completed states; verifies that the real action buttons do not squeeze the title or overflow.
+- 626 tools, 614 enabled tools and long descriptions; uses the real role editing entry to check statistics wrapping and body scrolling.
+- Create/edit switching for roles and multi-file Skills, and crossing the desktop/phone breakpoint after opening the editor; verifies that a translation refresh does not change the editing title.
+- 50 long vulnerability records and three pages of pagination: verifies full-page scrolling on phones, and that the title and pagination do not permanently occupy the record area.
 
-所有场景都在四档屏宽与两种主题下运行；夹具请求拒绝非 GET 操作。
-需要定位单个断点时可设置 `CSAI_UI_WIDTHS=390`；提交前省略该变量运行完整矩阵。
+All scenarios run at the four screen widths and two themes; the fixtures reject non-GET operations.
+To target a single breakpoint, set `CSAI_UI_WIDTHS=390`; omit this variable before committing to run the full matrix.
 
-### 队列动态文案与按钮对比度
+### Queue dynamic text and button contrast
 
-队列标题将可翻译的前缀与原样保留的队列名称分开渲染；执行按钮的 `data-i18n` 随暂停、待执行及 Cron 状态更新。
-主要操作的小号按钮明确使用强调色背景和配套文字色，避免旧尺寸样式把背景改灰后仍保留深色文字。
+The queue title renders the translatable prefix and the as-is queue name separately; the execute button's `data-i18n` updates with the paused, pending and Cron states.
+Small buttons for primary actions explicitly use an accent background and matching text color, avoiding old size styles that turned the background gray while keeping dark text.
 
-回归增加了：暂停/待执行/运行/完成/取消、Cron 开关、中英文切换、桌面与手机断点切换、空标题和含特殊字符的标题。
-针对可见的开始/继续/重跑按钮，检查正常、悬停和键盘焦点状态下的计算颜色，要求文字与不透明背景的对比度不低于 4.5:1；每档尺寸和主题的计算结果保存为 `queue-contrast-*.json`。
-浏览器回归使用真实 i18next 翻译函数，不再用固定中文替代函数覆盖它。
+The regression adds: paused/pending/running/completed/cancelled, the Cron toggle, Chinese/English switching, desktop and phone breakpoint switching, empty titles and titles with special characters.
+For the visible start/continue/rerun buttons it checks the computed colors in the normal, hover and keyboard-focus states, requiring a text-to-opaque-background contrast of at least 4.5:1; the computed results per size and theme are saved as `queue-contrast-*.json`.
+The browser regression uses the real i18next translation function and no longer overrides it with a fixed Chinese substitute function.
 
-Skill 的“查看”入口动态创建 `skill-view-modal`，与编辑入口共用宽抽屉。回归同时验证摘要展示、按需加载全文、展开、Escape 清理以及“查看 → 编辑”切换，防止只验证编辑表单而遗漏只读详情入口。
+The Skill "view" entry dynamically creates `skill-view-modal`, sharing the wide drawer with the edit entry. The regression also verifies summary display, on-demand full-text loading, expansion, Escape cleanup and the "view → edit" switch, so that the read-only detail entry is not missed by only testing the edit form.
 
-信息收集的字段全文、AI 查询解析结果，以及 WebShell 数据库连接配置也使用公共抽屉。信息收集动态节点采用标准 header/body/footer 类和公共关闭逻辑；回归使用长文本、警告说明与离线数据库配置夹具，检查滚动、重复打开、复制、仅应用查询语法和关闭清理，不执行外部查询或数据库连接。
+The full field text of info collection, the AI query parse result, and the WebShell database connection config also use the shared drawer. Info-collection dynamic nodes use the standard header/body/footer classes and the shared close logic; the regression uses fixtures with long text, warning notes and an offline database config, checking scrolling, repeated opening, copying, applying only the query syntax, and close cleanup, without running external queries or database connections.

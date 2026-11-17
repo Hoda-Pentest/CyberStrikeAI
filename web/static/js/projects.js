@@ -3061,7 +3061,7 @@ function formatProjectConversationPreviewAge(value) {
 function getProjectConversationModeLabel(conversation) {
     const mode = String(conversation?.agentMode || conversation?.agent_mode || '').trim().toLowerCase();
     const labels = {
-        single: ['chat.agentModePiSingle', 'Pi 单代理'],
+        single: ['chat.agentModePiSingle', 'Pi single-agent'],
         deep: ['chat.agentModeDeep', 'Deep（DeepAgent）'],
         plan_execute: ['chat.agentModePlanExecuteLabel', 'Plan-Execute'],
         supervisor: ['chat.agentModeSupervisorLabel', 'Supervisor (Expert routing)'],

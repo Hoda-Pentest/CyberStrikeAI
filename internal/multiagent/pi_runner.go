@@ -435,9 +435,9 @@ func (r *piRun) run(ctx context.Context, message string) (*RunResult, error) {
 			if json.Unmarshal(e.Data, &data) == nil && data.Result != nil {
 				key, err := savePiContextCheckpoint(r.db, r.cfg.Project, r.projectID, r.conversationID, r.agentID, data.Result.Summary, data.SessionFile, data.EntryID)
 				if err != nil {
-					progress("progress", "保存项目续接记录失败；Pi 会话记录仍保留", map[string]any{"kind": "context_checkpoint_error"})
+					progress("progress", "Failed to save the project continuation record; the Pi session record is still kept", map[string]any{"kind": "context_checkpoint_error"})
 				} else if key != "" {
-					progress("context_checkpoint", "已保存项目续接记录", map[string]any{"factKey": key, "sessionFile": data.SessionFile, "sessionEntryId": data.EntryID})
+					progress("context_checkpoint", "Project continuation record saved", map[string]any{"factKey": key, "sessionFile": data.SessionFile, "sessionEntryId": data.EntryID})
 				}
 			}
 		}

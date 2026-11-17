@@ -96,7 +96,7 @@ func contentNormKey(d *Document) string {
 	return hex.EncodeToString(sum[:])
 }
 
-// dedupeByNormalizedContent 按规范化正文去重，保留向量检索顺序中首次出现的文档（同正文仅保留一条）。
+// dedupeByNormalizedContent deduplicates by normalized content, keeping the first document in vector-retrieval order (one per identical content).
 func dedupeByNormalizedContent(docs []*Document) []*Document {
 	if len(docs) < 2 {
 		return docs
@@ -121,7 +121,7 @@ func dedupeByNormalizedContent(docs []*Document) []*Document {
 	return out
 }
 
-// truncateDocumentsByBudget 按检索顺序整段保留文档，直至字符数或 token 数（任一启用）超限则停止。
+// truncateDocumentsByBudget keeps whole documents in retrieval order until the character or token budget (whichever is enabled) is exceeded.
 func truncateDocumentsByBudget(docs []*Document, maxRunes, maxTokens int, tokenModel string) ([]*Document, error) {
 	if len(docs) == 0 {
 		return docs, nil
@@ -184,7 +184,7 @@ func EffectivePrefetchTopK(topK int, po *config.PostRetrieveConfig) int {
 	return fetch
 }
 
-// ApplyPostRetrieve 检索后处理：规范化正文去重 → 预算截断 → 最终 TopK（精排已在流水线中完成）。
+// ApplyPostRetrieve is post-retrieval processing: normalized-content dedupe → budget truncation → final TopK (reranking already done in the pipeline).
 func ApplyPostRetrieve(docs []*Document, po *config.PostRetrieveConfig, tokenModel string, finalTopK int) ([]*Document, error) {
 	if finalTopK < 1 {
 		finalTopK = 5

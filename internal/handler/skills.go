@@ -18,7 +18,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// SkillsHandler Skills处理器（磁盘 + Agent 规范；运行时由 Pi skill 中间件加载）
+// SkillsHandler is the Skills handler (disk + Agent spec; loaded at runtime by the Pi skill middleware)
 type SkillsHandler struct {
 	config     *config.Config
 	configPath string

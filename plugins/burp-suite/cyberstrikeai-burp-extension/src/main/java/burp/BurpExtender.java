@@ -93,7 +93,7 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory {
                         break;
                     case "eino_agent_reply_stream_start":
                     case "agent_reply_stream_start":
-                        tab.appendProgressToRun(runId, "\n\n[子代理回复]\n");
+                        tab.appendProgressToRun(runId, "\n\n[Sub-agent reply]\n");
                         break;
                     case "eino_agent_reply_stream_delta":
                     case "agent_reply_stream_delta":

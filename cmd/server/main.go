@@ -157,7 +157,7 @@ func main() {
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
 
-	// 创建应用
+	// Create the application
 	application, err := app.New(cfg, log, cp, updateActivation)
 	if err != nil {
 		log.Fatal("application initialization failed", "error", err)

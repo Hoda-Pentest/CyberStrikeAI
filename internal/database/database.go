@@ -213,7 +213,7 @@ func (db *DB) initTables() error {
 		return fmt.Errorf("failed to migrate vulnerability-conversation foreign key: %w", err)
 	}
 	if err := db.backfillVulnerabilityTargets(); err != nil {
-		return fmt.Errorf("回填漏洞目标失败: %w", err)
+		return fmt.Errorf("failed to backfill vulnerability targets: %w", err)
 	}
 	if err := db.BackfillModelTokenUsageFromProcessDetails(); err != nil {
 		return fmt.Errorf("failed to backfill model token usage: %w", err)

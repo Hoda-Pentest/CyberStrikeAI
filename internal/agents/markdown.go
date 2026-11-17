@@ -37,7 +37,7 @@ type FrontMatter struct {
 // OrchestratorMarkdown is the main-agent (Deep coordinator) definition parsed from the agents directory.
 type OrchestratorMarkdown struct {
 	Filename    string
-	AgentName   string // 写入 deep.Config.Name / 流式事件过滤
+	AgentName   string // written to deep.Config.Name / used for streaming event filtering
 	DisplayName string
 	Description string
 	Instruction string
@@ -198,7 +198,7 @@ func SlugID(name string) string {
 	return s
 }
 
-// sanitizeAgentAgentID 规范化 Deep 主代理在 Agent 中的 Name：小写 ASCII、数字、连字符，与默认 cyberstrike-deep 一致。
+// sanitizeAgentAgentID normalizes the Deep main agent's Name in Agent: lowercase ASCII, digits and hyphens, consistent with the default cyberstrike-deep.
 func sanitizeAgentAgentID(s string) string {
 	s = strings.TrimSpace(strings.ToLower(s))
 	var b strings.Builder

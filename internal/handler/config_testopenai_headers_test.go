@@ -50,8 +50,8 @@ func TestFirstOMLXConnectionProbeUsesDetectedLocalOutputLimit(t *testing.T) {
 	}
 }
 
-// TestTestOpenAIForwardsCustomHeaders 校验「测试连接」与真实对话一样会带上渠道自定义请求头：
-// 静态头原样发送，%session_id% 用探测值填充，Authorization 仍按 api_key 生成。
+// TestTestOpenAIForwardsCustomHeaders verifies that "Test connection" sends the channel's custom request headers just like a real chat:
+// static headers are sent as-is, %session_id% is filled with the probe value, and Authorization is still generated from api_key.
 func TestTestOpenAIForwardsCustomHeaders(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 

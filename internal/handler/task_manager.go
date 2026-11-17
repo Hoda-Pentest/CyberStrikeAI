@@ -22,9 +22,9 @@ var ErrTaskCancelled = errors.New("agent task cancelled by user")
 // ErrTaskAlreadyRunning the session already has a task running
 var ErrTaskAlreadyRunning = errors.New("agent task already running for conversation")
 
-// shouldPersistAgentAgentTraceAfterRunError：Agent 相关 Run 非成功返回时，是否仍写入 last_react_* 供下轮 loadHistoryFromAgentTrace。
-// 当前策略：无论正常结束、异常结束或用户主动停止，都尽量保留最后可用轨迹，
-// 以便在同一会话继续时可基于原始上下文续跑，而不是回退到仅消息文本历史。
+// shouldPersistAgentAgentTraceAfterRunError: whether to still write last_react_* for the next loadHistoryFromAgentTrace when an Agent-related Run returns unsuccessfully.
+// Current policy: whether the run ends normally, abnormally, or is stopped by the user, keep the last usable trace whenever possible,
+// so continuing in the same session can resume from the original context instead of falling back to message-text-only history.
 func shouldPersistAgentAgentTraceAfterRunError(baseCtx context.Context) bool {
 	return true
 }
@@ -53,19 +53,19 @@ type AgentTask struct {
 	// InterruptContinueNote the supplementary note the user fills in the dialog for "interrupt and continue" when there is no MCP (written before Cancel, read and cleared on the resumed round)
 	InterruptContinueNote string `json:"-"`
 
-	// activeAgentExecuteCancel 当前进行中的 Agent filesystem execute 取消函数（与 MCP 工具并行，供中断并继续）
+	// activeAgentExecuteCancel is the cancel function of the in-progress Agent filesystem execute (parallel to MCP tools, used for interrupt-and-continue)
 	activeAgentExecuteCancel context.CancelFunc
-	// activeAgentExecuteAbortNote AbortActiveAgentExecute 写入的用户说明，由 execute 收尾时合并进工具结果
+	// activeAgentExecuteAbortNote is the user note written by AbortActiveAgentExecute, merged into the tool result when execute finishes
 	activeAgentExecuteAbortNote string
 
 	// hitlCognition the context read by the HITL/audit Agent during this run (the user's original words + reasoning, no conversation history)
 	hitlCognition *hitlCognitionState
 
-	// agentRuntimeCancel 当前 Pi 原生 AgentCancelFunc 包装；取消任务时先触发它，再走 context 兜底。
+	// agentRuntimeCancel wraps the current Pi native AgentCancelFunc; cancelling a task triggers it first, then falls back to context.
 	agentRuntimeCancel        func(error) bool
 	agentRuntimeCancelVersion uint64
 
-	// agentTurnLoopInterrupt 当前 Agent TurnLoop 用户补充 push hook；中断并继续时优先将补充作为新 turn item 入队。
+	// agentTurnLoopInterrupt is the current Agent TurnLoop user-addition push hook; on interrupt-and-continue the addition is preferably enqueued as a new turn item.
 	agentTurnLoopInterrupt        func(string) bool
 	agentTurnLoopInterruptVersion uint64
 
@@ -102,7 +102,7 @@ func (m *AgentTaskManager) UnregisterRunningTool(conversationID, executionID str
 	}
 }
 
-// RegisterActiveAgentExecute 登记进行中的 Agent filesystem execute（每会话同时仅一条）。
+// RegisterActiveAgentExecute registers the in-progress Agent filesystem execute (only one per session at a time).
 func (m *AgentTaskManager) RegisterActiveAgentExecute(conversationID string, cancel context.CancelFunc) {
 	conversationID = strings.TrimSpace(conversationID)
 	if conversationID == "" || cancel == nil {
@@ -116,7 +116,7 @@ func (m *AgentTaskManager) RegisterActiveAgentExecute(conversationID string, can
 	}
 }
 
-// UnregisterActiveAgentExecute execute 正常结束或已取消后清除登记。
+// UnregisterActiveAgentExecute clears the registration after execute ends normally or is cancelled.
 func (m *AgentTaskManager) UnregisterActiveAgentExecute(conversationID string) {
 	conversationID = strings.TrimSpace(conversationID)
 	if conversationID == "" {
@@ -146,7 +146,7 @@ func (m *AgentTaskManager) ConversationIDForActiveMCPExecution(executionID strin
 	return ""
 }
 
-// ConversationIDForActiveAgentExecute 返回当前唯一进行 Agent execute 的会话 ID；多会话并行时返回空。
+// ConversationIDForActiveAgentExecute returns the session ID of the only in-progress Agent execute; returns empty when multiple sessions run in parallel.
 func (m *AgentTaskManager) ConversationIDForActiveAgentExecute() (string, bool) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -164,7 +164,7 @@ func (m *AgentTaskManager) ConversationIDForActiveAgentExecute() (string, bool) 
 	return "", false
 }
 
-// AbortActiveAgentExecute 终止当前 Agent execute 并暂存用户说明（与 MCP 工具终止一致）。
+// AbortActiveAgentExecute terminates the current Agent execute and stores the user note (consistent with MCP tool termination).
 func (m *AgentTaskManager) AbortActiveAgentExecute(conversationID, note string) bool {
 	conversationID = strings.TrimSpace(conversationID)
 	if conversationID == "" {
@@ -183,7 +183,7 @@ func (m *AgentTaskManager) AbortActiveAgentExecute(conversationID, note string) 
 	return true
 }
 
-// TakeAgentExecuteAbortNote 读取并清空 execute 终止说明（execute 收尾时调用一次）。
+// TakeAgentExecuteAbortNote reads and clears the execute termination note (called once when execute finishes).
 func (m *AgentTaskManager) TakeAgentExecuteAbortNote(conversationID string) string {
 	conversationID = strings.TrimSpace(conversationID)
 	if conversationID == "" {
@@ -243,7 +243,7 @@ func (m *AgentTaskManager) BindTaskCancel(conversationID string, cancel context.
 	}
 }
 
-// BindAgentRuntimeCancel 登记当前运行段的 Agent 原生 cancel hook。
+// BindAgentRuntimeCancel registers the Agent native cancel hook of the current run segment.
 func (m *AgentTaskManager) BindAgentRuntimeCancel(conversationID string, cancel func(error) bool) func() {
 	conversationID = strings.TrimSpace(conversationID)
 	if conversationID == "" || cancel == nil {
@@ -269,7 +269,7 @@ func (m *AgentTaskManager) BindAgentRuntimeCancel(conversationID string, cancel 
 	}
 }
 
-// BindAgentTurnLoopInterrupt 登记当前运行任务的 Agent TurnLoop 用户补充入队 hook。
+// BindAgentTurnLoopInterrupt registers the Agent TurnLoop user-addition enqueue hook of the current running task.
 func (m *AgentTaskManager) BindAgentTurnLoopInterrupt(conversationID string, push func(string) bool) func() {
 	conversationID = strings.TrimSpace(conversationID)
 	if conversationID == "" || push == nil {

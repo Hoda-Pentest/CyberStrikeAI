@@ -732,7 +732,7 @@ func (db *DB) DeleteConversation(id string) error {
 	if err := db.removePiSessions(id); err != nil {
 		return err
 	}
-	// 删除对话前补全漏洞来源标签，便于在漏洞库中追溯已删除会话的发现。
+	// Before deleting the conversation, fill in the vulnerability source labels so findings from deleted sessions can still be traced in the vulnerability store.
 	_, err := db.Exec(`
 		UPDATE vulnerabilities
 		SET conversation_tag = COALESCE(NULLIF(TRIM(conversation_tag), ''), (SELECT title FROM conversations WHERE id = ?))
@@ -839,7 +839,7 @@ func (db *DB) removeConversationScopedDirs(conversationID, projectID string) {
 	db.removeConversationScopedDir(db.agentPlantaskBaseDir, conversationID, "plantask")
 	// Pi runner checkpoints (checkpoint_dir/<id>/).
 	db.removeConversationScopedDir(db.agentCheckpointBaseDir, conversationID, "legacy_checkpoint")
-	// 上传附件始终归属单个会话，项目绑定的会话也要删，故放在 projectID 判断之外。
+	// Uploaded attachments always belong to a single session and must be deleted even for project-bound sessions, so this sits outside the projectID check.
 	db.removeChatUploadDirs(conversationID)
 	// Agent reduction persisted tool outputs (tmp/reduction/conversations/<id>/).
 	// Project-bound sessions share projects/<id>/ — skip on single conversation delete.

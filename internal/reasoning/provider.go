@@ -186,6 +186,6 @@ func resolveWireProfile(oa *config.OpenAIConfig, sr *config.OpenAIReasoningConfi
 }
 
 func effortStringForAPI(e string) string {
-	// 原样透传：OpenAI 官方多为 xhigh，部分兼容网关为 max，由配置/对话 effort 选择。
+	// Pass through as-is: official OpenAI mostly uses xhigh, some compatible gateways use max; chosen by config/chat effort.
 	return strings.ToLower(strings.TrimSpace(e))
 }

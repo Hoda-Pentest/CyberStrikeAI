@@ -30,17 +30,17 @@ func TerminateShellCmdSession(session *ShellSession) {
 	TerminateShellSession(session)
 }
 
-// StreamingShell 为 native agent execute 工具提供流式 shell，行为与 exec 对齐：
-// 并发读取 stdout/stderr（定长块，非按行），避免官方 local.ExecuteStreaming 先排空 stdout
-// 导致 stderr 错误（如 sudo 密码提示）长时间不可见、UI 一直显示「执行中」。
+// StreamingShell provides a streaming shell for the native agent execute tool, behaving like exec:
+// reads stdout/stderr concurrently (fixed-size chunks, not line by line), avoiding the official local.ExecuteStreaming draining stdout first,
+// which kept stderr errors (such as a sudo password prompt) invisible for a long time while the UI kept showing "Running".
 type StreamingShell struct{}
 
-// NewStreamingShell 创建 execute 流式 shell 实现。
+// NewStreamingShell creates the execute streaming shell implementation.
 func NewStreamingShell() *StreamingShell {
 	return &StreamingShell{}
 }
 
-// ExecuteStreaming 实现 the native streaming shell contract。
+// ExecuteStreaming implements the native streaming shell contract.
 func (s *StreamingShell) ExecuteStreaming(ctx context.Context, input *ShellExecuteRequest) (*ShellStream, error) {
 	if input == nil || input.Command == "" {
 		return nil, fmt.Errorf("command is required")

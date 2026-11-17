@@ -125,7 +125,7 @@ test('scrolling up immediately releases bottom-pinning, and it only resumes once
     runtime.chatEl.scrollHeight = 1200;
     runtime.api.scrollIfPinned(true);
     runtime.flushAnimationFrames();
-    assert.equal(runtime.chatEl.scrollTop, 700, '恢复后新增输出继续请求滚到最底部');
+    assert.equal(runtime.chatEl.scrollTop, 700, 'new output after restore keeps requesting a scroll to the very bottom');
 });
 
 test('after the user leaves the latest position, the back-to-bottom button stays reliably shown until the true bottom', () => {
@@ -155,10 +155,10 @@ test('a layout shift from rebuilding details on refresh is not mistaken for the 
     runtime.chatEl.scrollHeight = 1100;
     runtime.api.scrollIfPinned(true);
     runtime.flushAnimationFrames();
-    assert.equal(runtime.chatEl.scrollTop, 600, '刷新恢复后的后续增量应继续粘底');
+    assert.equal(runtime.chatEl.scrollTop, 600, 'later deltas after a refresh restore should stay pinned to the bottom');
 });
 
-test('长对话点击回到最新立即到达真实底部，并继续跟随新增输出', () => {
+test('clicking return-to-latest in a long conversation reaches the real bottom immediately and keeps following new output', () => {
     const runtime = createScrollRuntime();
     runtime.chatEl.scrollHeight = 150000;
     runtime.api.forceScrollToBottom();
@@ -177,7 +177,7 @@ test('长对话点击回到最新立即到达真实底部，并继续跟随新�
     assert.equal(runtime.chatEl.scrollTop, 149750);
 });
 
-test('原生滚动条未派发指针事件时仍可中断粘底，历史渲染结束后保留阅读位置', () => {
+test('native scrollbar without pointer events can still break bottom-pinning, and the reading position is kept after history rendering', () => {
     const runtime = createScrollRuntime();
     runtime.chatEl.scrollHeight = 150000;
     runtime.api.forceScrollToBottom();
@@ -382,7 +382,7 @@ test('while a message bubble grows internally from streaming, bottom-pinning con
     assert.match(bindSource, /e\.key === 'ArrowUp'/);
 });
 
-test('页面在任务补流脚本之前加载智能滚动控制器', () => {
+test('the page loads the smart scroll controller before the task backfill script', () => {
     const scrollIndex = html.indexOf('/static/js/chat-scroll.js?v=');
     const monitorIndex = html.indexOf('/static/js/monitor.js?v=');
 
@@ -526,7 +526,7 @@ test('refreshing a running reply reuses the persisted planning entry and keeps a
     assert.match(monitor, /item\.dataset\.responseStreamId = String\(options\.data\.streamId\)/);
 });
 
-test('Pi 原生模型 retry/failover 事件在主聊天和 WebShell 中可见', () => {
+test('Pi native model retry/failover events are visible in the main chat and WebShell', () => {
     const handleSource = functionSource(monitor, 'handleStreamEvent', 'hitlApprovalTranslate');
     assert.match(handleSource, /case 'pi_model_retry'/);
     assert.match(handleSource, /formatPiModelRetryTitle/);

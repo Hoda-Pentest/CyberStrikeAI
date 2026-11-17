@@ -30,9 +30,9 @@ const (
 	mainTLSAutoSelfSigned
 )
 
-// prepareMainServerTLS 根据 server 配置决定主站是否启用 HTTPS（及 HTTP/2 协商）。
-// fromFiles：使用 tls_cert_path + tls_key_path，由 http.Server.ListenAndServeTLS 加载 PEM。
-// autoSelfSigned：tls_auto_self_sign 生成并复用的自签证书，仅用于本地/测试。
+// prepareMainServerTLS decides from the server config whether the main site enables HTTPS (and HTTP/2 negotiation).
+// fromFiles: uses tls_cert_path + tls_key_path; http.Server.ListenAndServeTLS loads the PEM.
+// autoSelfSigned: the self-signed certificate generated and reused by tls_auto_self_sign, for local/testing only.
 func prepareMainServerTLS(cfg *config.ServerConfig, configDir string) (mode mainTLSMode, tlsConf *tls.Config, certFile, keyFile string, err error) {
 	if cfg == nil || !config.MainWebUIUsesHTTPS(cfg) {
 		return mainTLSOff, nil, "", "", nil
@@ -47,7 +47,7 @@ func prepareMainServerTLS(cfg *config.ServerConfig, configDir string) (mode main
 		path := filepath.Join(configDir, "data", "tls", "self-signed.pem")
 		cert, certErr := loadOrCreateMainServerSelfSignedCert(path)
 		if certErr != nil {
-			return mainTLSOff, nil, "", "", fmt.Errorf("读取或保存自签 TLS 证书 %s: %w", path, certErr)
+			return mainTLSOff, nil, "", "", fmt.Errorf("read or save self-signed TLS certificate %s: %w", path, certErr)
 		}
 		tlsConf = &tls.Config{
 			MinVersion:   tls.VersionTLS12,

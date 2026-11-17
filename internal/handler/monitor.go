@@ -59,7 +59,7 @@ func (h *MonitorHandler) SetExternalMCPManager(mgr *mcp.ExternalMCPManager) {
 	h.externalMCPMgr = mgr
 }
 
-// SetTaskManager 设置 Agent 任务管理器（用于 Agent execute 等按 executionId 终止）。
+// SetTaskManager sets the Agent task manager (used to terminate Agent execute etc. by executionId).
 func (h *MonitorHandler) SetTaskManager(mgr *AgentTaskManager) {
 	h.taskManager = mgr
 }

@@ -26,16 +26,16 @@ let updateBusy = false;          // Action request the page itself has in flight
 let updateChecking = false;      // Only affects the wording of the "Check for updates" button
 let updatePollTimer = null;
 let updatePollInFlight = null;
-let updateActivation = null;        // 已接受的切换请求，独立于任务进度
-let updateRestartPending = false;   // 正在等待服务恢复
-let updateWatchdogTimer = null;     // 重启守侧自己的定时器，跟任务进度轮询互不干扰
+let updateActivation = null;        // accepted switch request, independent of job progress
+let updateRestartPending = false;   // waiting for the service to come back
+let updateWatchdogTimer = null;     // the restart watchdog's own timer, independent of job progress polling
 let updateWatchdogDeadline = 0;
-let updateWatchdogSlow = null;      // 超时后说明服务未恢复、仍在旧进程或启动了非目标构建
-let updateAutoCheckDone = false; // 每个会话只自动查一次远端，不每次重绘都去打扰
-let updateSourceDraft = null;    // 编辑中的更新源仓库地址；null=还贴着服务端保存的值
-let updateSourceError = '';      // 最近一次保存/接入失败的原因，画在区块里
-let updateActionError = '';      // 最近一次动作（检查/更新/回滚/重启）失败的原因，画在控制台顶部
-let updateAdoptPlan = null;      // 预览回来的接入计划；确认后清掉
+let updateWatchdogSlow = null;      // after timeout: the service did not come back, is still the old process, or started a non-target build
+let updateAutoCheckDone = false; // auto-check the remote only once per session, not on every redraw
+let updateSourceDraft = null;    // update-source repo URL being edited; null = still matches the server-saved value
+let updateSourceError = '';      // reason for the last save/adopt failure, drawn in the section
+let updateActionError = '';      // reason for the last failed action (check/update/rollback/restart), drawn at the top of the console
+let updateAdoptPlan = null;      // adopt plan returned by the preview; cleared after confirmation
 
 function updateT(key, opts) {
     const k = 'update.' + key;

@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Indexer 使用 Agent Compose 索引链（Markdown/递归分块、Lambda  enrich、SQLite 索引）与嵌入写入。
+// Indexer uses the Agent Compose indexing chain (Markdown/recursive chunking, Lambda enrich, SQLite index) and embedding writes.
 type Indexer struct {
 	db          *sql.DB
 	embedder    *Embedder
@@ -40,7 +40,7 @@ type Indexer struct {
 	rebuildLastChunks int
 }
 
-// NewIndexer 创建索引器并编译 Agent 索引链；kcfg 为完整知识库配置（含 indexing 与路径相关行为）。
+// NewIndexer creates the indexer and compiles the Agent indexing chain; kcfg is the full knowledge-base config (including indexing and path-related behavior).
 func NewIndexer(ctx context.Context, db *sql.DB, embedder *Embedder, logger *zap.Logger, kcfg *config.KnowledgeConfig) (*Indexer, error) {
 	if db == nil {
 		return nil, fmt.Errorf("db is nil")
@@ -87,7 +87,7 @@ func NewIndexer(ctx context.Context, db *sql.DB, embedder *Embedder, logger *zap
 	}, nil
 }
 
-// RecompileIndexChain 在配置或嵌入模型变更后重建 Agent 索引链（无需重启进程）。
+// RecompileIndexChain rebuilds the Agent indexing chain after config or embedding model changes (no process restart needed).
 func (idx *Indexer) RecompileIndexChain(ctx context.Context) error {
 	if idx == nil || idx.db == nil || idx.embedder == nil {
 		return fmt.Errorf("indexer is not initialized")
@@ -128,7 +128,7 @@ func (idx *Indexer) IndexItem(ctx context.Context, itemID string) error {
 		if b, err := os.ReadFile(strings.TrimSpace(filePath)); err == nil && strings.TrimSpace(string(b)) != "" {
 			body = string(b)
 		} else if err != nil && idx.logger != nil {
-			idx.logger.Warn("源文件读取失败，使用数据库正文", zap.Error(err))
+			idx.logger.Warn("failed to read source file, using database content", zap.Error(err))
 		}
 	}
 

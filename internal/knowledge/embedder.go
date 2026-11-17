@@ -27,7 +27,7 @@ type Embedder struct {
 	mu             sync.Mutex
 }
 
-// NewEmbedder 基于 native OpenAI-compatible Embedding HTTP；openAIConfig 用于在知识库未单独配置 key 时回退 API Key。
+// NewEmbedder is based on native OpenAI-compatible Embedding HTTP; openAIConfig is used to fall back to the API key when the knowledge base has no separate key.
 func NewEmbedder(ctx context.Context, cfg *config.KnowledgeConfig, openAIConfig *config.OpenAIConfig, logger *zap.Logger) (*Embedder, error) {
 	if cfg == nil {
 		return nil, fmt.Errorf("knowledge config is nil")
@@ -138,7 +138,7 @@ func (e *Embedder) EmbedText(ctx context.Context, text string) ([]float32, error
 	return vecs[0], nil
 }
 
-// EmbedStrings 批量嵌入，带重试；实现 [TextEmbedder]，可供 Agent Indexer 使用。
+// EmbedStrings embeds in batches with retries; implements [TextEmbedder] and can be used by the Agent Indexer.
 func (e *Embedder) EmbedStrings(ctx context.Context, texts []string, opts ...EmbeddingOption) ([][]float32, error) {
 	if e == nil || e.provider == nil {
 		return nil, fmt.Errorf("embedder not initialized")

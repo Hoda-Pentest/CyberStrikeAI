@@ -136,7 +136,7 @@ function isInterruptContinueInjectChatMessage(content) {
 let chatAttachments = [];
 let chatAttachmentSeq = 0;
 
-// 对话模式：single = Pi ADK 单代理（/api/agent/stream）；deep / plan_execute / supervisor = Pi 多代理（/api/multi-agent/stream，请求体 orchestration）
+// Conversation mode: single = Pi ADK single-agent (/api/agent/stream); deep / plan_execute / supervisor = Pi multi-agent (/api/multi-agent/stream, request body orchestration)
 const AGENT_MODE_STORAGE_KEY = 'cyberstrike-chat-agent-mode';
 const AGENT_MODE_CONVERSATION_STORAGE_PREFIX = 'cyberstrike-chat-agent-mode:conversation';
 const AI_CHANNEL_STORAGE_KEY = 'cyberstrike-chat-ai-channel';
@@ -817,7 +817,7 @@ function bindHitlSensitiveToolsAutosaveListener() {
     });
 }
 
-/** 将 localStorage 规范为 single | deep | plan_execute | supervisor */
+/** Normalize localStorage to single | deep | plan_execute | supervisor */
 function chatAgentModeNormalizeStored(stored, cfg) {
     const pub = cfg && cfg.multi_agent ? cfg.multi_agent : null;
     const multiOn = !!(pub && pub.enabled);
@@ -953,7 +953,7 @@ function getAgentModeLabelForValue(mode) {
         }
     }
     switch (mode) {
-        case CHAT_AGENT_MODE_SINGLE: return 'Pi 单代理';
+        case CHAT_AGENT_MODE_SINGLE: return 'Pi single-agent';
         case 'deep': return 'Deep';
         case 'plan_execute': return 'Plan-Execute';
         case 'supervisor': return 'Supervisor';
@@ -1981,7 +1981,7 @@ function persistChatReasoningPrefs() {
     } catch (err) { /* ignore */ }
 }
 
-/** 供 WebShell 等复用：在 Pi 路径下返回 reasoning 请求片段或 undefined */
+/** Reused by WebShell etc.: returns the reasoning request fragment on the Pi path, or undefined */
 function buildReasoningRequestPayload() {
     const wrap = document.getElementById('chat-reasoning-wrapper');
     if (!wrap || wrap.style.display === 'none') {
@@ -3906,7 +3906,7 @@ window.filterNoiseProcessDetails = filterNoiseProcessDetails;
 window.mergeMessageReasoningContentIntoProcessDetails = mergeMessageReasoningContentIntoProcessDetails;
 window.syncAssistantReasoningContentFromServer = syncAssistantReasoningContentFromServer;
 
-/** 相邻且类型/正文/data 完全一致的过程详情只保留一条（与后端去重一致，避免时间线叠多条相同块） */
+/** Keep only one of adjacent process details with identical type/body/data (consistent with backend dedupe, avoiding stacked identical blocks in the timeline) */
 function isPiAgentHeartbeatProgress(detail) {
     if (!detail || detail.eventType !== 'progress') return false;
     const msg = String(detail.message != null ? detail.message : '').trim();
@@ -3961,9 +3961,9 @@ function isInternalPiDiagnosticDetail(detail) {
     if (detail.eventType === 'model_output_rejected') return true;
     if (detail.eventType !== 'progress') return false;
     const msg = String(detail.message != null ? detail.message : '').trim();
-    if (msg === 'Pi TurnLoop 常驻多轮 runtime 已接管本轮会话。' ||
-        msg === 'Pi TurnLoop 已在安全点切换到用户补充后的下一轮。' ||
-        msg === '已将用户补充推入 Pi TurnLoop，正在等待安全点切换…') {
+    if (msg === 'Pi TurnLoop persistent multi-turn runtime has taken over this session turn.' ||
+        msg === 'Pi TurnLoop switched to the next turn after the user\'s addition at a safe point.' ||
+        msg === 'User addition pushed into Pi TurnLoop; waiting for a safe point to switch…') {
         return true;
     }
     const data = detail.data && typeof detail.data === 'object' ? detail.data : {};
@@ -4264,7 +4264,7 @@ function renderProcessDetails(messageId, processDetails, options) {
         const d = data && typeof data === 'object' ? data : {};
         const base = typeof window.t === 'function'
             ? window.t('chat.piRunRetryTitle')
-            : '🔁 临时错误重试';
+            : '🔁 Transient error retry';
         const attempt = Number(d.attempt || 0);
         const maxAttempts = Number(d.maxAttempts || 0);
         if (Number.isFinite(attempt) && attempt > 0 && Number.isFinite(maxAttempts) && maxAttempts > 0) {
@@ -4291,7 +4291,7 @@ function renderProcessDetails(messageId, processDetails, options) {
         if (Number.isFinite(attempt) && attempt > 0 && Number.isFinite(maxAttempts) && maxAttempts > 0) {
             const retryPlan = typeof window.t === 'function'
                 ? window.t('chat.piRunRetryPlan', { attempt: attempt, maxAttempts: maxAttempts, backoffSec: Number.isFinite(backoffSec) && backoffSec > 0 ? backoffSec : '-' })
-                : ('重试进度：第 ' + attempt + '/' + maxAttempts + ' 次，等待 ' + (Number.isFinite(backoffSec) && backoffSec > 0 ? backoffSec : '-') + ' 秒');
+                : ('Retry progress: attempt ' + attempt + '/' + maxAttempts + ', waiting ' + (Number.isFinite(backoffSec) && backoffSec > 0 ? backoffSec : '-') + ' s');
             if (!base || base.indexOf(String(attempt) + '/' + String(maxAttempts)) === -1) {
                 lines.push(retryPlan);
             }
@@ -4299,13 +4299,13 @@ function renderProcessDetails(messageId, processDetails, options) {
         if (kind) {
             const kindLabel = typeof window.t === 'function'
                 ? window.t('chat.piRunRetryReasonKind')
-                : '原因类型';
+                : 'Reason type';
             lines.push(kindLabel + '：' + kind);
         }
         if (errRaw && (!base || base.indexOf(errRaw) === -1)) {
             const detailLabel = typeof window.t === 'function'
                 ? window.t('chat.piRunRetryErrorDetail')
-                : '错误详情';
+                : 'Error details';
             lines.push(detailLabel + '：' + errRaw);
         }
         return lines.join('\n');
@@ -4362,16 +4362,16 @@ function renderProcessDetails(messageId, processDetails, options) {
                     ? window.translatePlanExecuteAgentName(data.agentName) : (data.agentName || '');
                 itemTitle = (typeof window.t === 'function'
                     ? window.t('chat.piPlanExecuteRound', { n: n, phase: phase })
-                    : ('Plan-Execute · 第 ' + n + ' 轮 · ' + phase));
+                    : ('Plan-Execute · round ' + n + ' · ' + phase));
             } else if (data.piScope === 'main') {
                 itemTitle = agPx + (typeof window.t === 'function'
                     ? window.t('chat.piOrchestratorRound', { n: n })
-                    : ('主代理 · 第 ' + n + ' 轮'));
+                    : ('Main agent · round ' + n));
             } else if (data.piScope === 'sub') {
                 const agent = data.agentName != null ? String(data.agentName).trim() : '';
                 itemTitle = agPx + (typeof window.t === 'function'
                     ? window.t('chat.piSubAgentStep', { n: n, agent: agent })
-                    : ('子代理 · ' + agent + ' · 第 ' + n + ' 步'));
+                    : ('Sub-agent · ' + agent + ' · step ' + n));
             } else {
                 itemTitle = agPx + (typeof window.t === 'function' ? window.t('chat.iterationRound', { n: n }) : 'Iteration ' + n + ' ');
             }
@@ -4417,11 +4417,11 @@ function renderProcessDetails(messageId, processDetails, options) {
             }
             itemTitle = agPx + execLine;
         } else if (eventType === 'agent_reply') {
-            itemTitle = agPx + '💬 ' + (typeof window.t === 'function' ? window.t('chat.agentNameReplyTitle') : '子代理回复');
+            itemTitle = agPx + '💬 ' + (typeof window.t === 'function' ? window.t('chat.agentNameReplyTitle') : 'Sub-agent reply');
         } else if (eventType === 'agent_empty_response_continue') {
             itemTitle = typeof window.t === 'function'
                 ? window.t('chat.piEmptyResponseContinueTitle')
-                : '🔁 自动续跑（无助手正文）';
+                : '🔁 Auto-continue (no assistant body)';
         } else if (eventType === 'agent_run_retry') {
             itemTitle = formatProcessDetailPiRunRetryTitle(data);
             detail.message = formatProcessDetailPiRunRetryMessage(title, data);
@@ -4518,7 +4518,7 @@ function renderProcessDetails(messageId, processDetails, options) {
             const node = document.getElementById(id);
             if (node) fragment.appendChild(node);
         });
-        // 过程详情独立滚动。分帧渲染期间外层对话可能已被用户滚到别处。
+        // Process details scroll independently. During frame-split rendering the user may have scrolled the outer conversation elsewhere.
         const anchor = prependAnchor && prependAnchor.parentNode === timeline ? prependAnchor : null;
         const anchorTop = anchor ? anchor.getBoundingClientRect().top : 0;
         timeline.insertBefore(fragment, anchor || timeline.firstChild);

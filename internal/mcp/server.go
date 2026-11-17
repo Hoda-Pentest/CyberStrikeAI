@@ -1027,7 +1027,7 @@ func isExecutionControlTool(toolName string) bool {
 	}
 }
 
-// BeginToolExecution 创建 running 状态的执行记录，供 Agent 等非 CallTool 路径在工具开始时落库。
+// BeginToolExecution creates a running execution record, so non-CallTool paths such as Agent can persist when a tool starts.
 func (s *Server) BeginToolExecution(ctx context.Context, toolName string, args map[string]interface{}) string {
 	if s == nil {
 		return ""
@@ -1170,8 +1170,8 @@ func (s *Server) AppendToolExecutionPartialOutput(executionID, chunk string) {
 	s.mu.Unlock()
 }
 
-// RecordCompletedToolInvocation 将已在其它路径完成的工具调用写入监控存储（格式与 CallTool 结束后一致），
-// 用于 Pi filesystem execute 等未经过 CallTool 的场景；返回 executionId 供助手消息 mcpExecutionIds 关联。
+// RecordCompletedToolInvocation writes a tool call completed on another path into monitor storage (same format as after CallTool),
+// used for scenarios such as Pi filesystem execute that bypass CallTool; returns the executionId to link with the assistant message's mcpExecutionIds.
 func (s *Server) RecordCompletedToolInvocation(ctx context.Context, toolName string, args map[string]interface{}, resultText string, invokeErr error) string {
 	return s.FinishToolExecution(ctx, "", toolName, args, resultText, invokeErr)
 }

@@ -129,7 +129,7 @@ test('助手轮次摘要会显示持久化 token 用量', () => {
     assert.match(message.label.innerHTML, /turn-process-token-chip/);
 });
 
-test('助手轮次可从 Pi usage summary 过程详情提取 token 用量', () => {
+test('assistant turns can extract token usage from the Pi usage summary process detail', () => {
     const context = createHarness(Date.parse('2026-08-12T02:05:00.000Z'));
 
     const usage = context.extractAssistantTurnTokenUsage([
@@ -166,7 +166,7 @@ test('历史占位消息存在取消事件时不会再判定为运行中', () =>
     assert.match(chat, /status: status/);
 });
 
-test('过程详情隐藏 Pi 内部诊断但保留真实工具调用', () => {
+test('process details hide Pi internal diagnostics but keep real tool calls', () => {
     const context = {};
     vm.runInNewContext(
         `${processDetailFilterSource(chat)}; this.filterNoiseProcessDetails = filterNoiseProcessDetails;`,
@@ -193,7 +193,7 @@ test('过程详情隐藏 Pi 内部诊断但保留真实工具调用', () => {
         },
         {
             eventType: 'progress',
-            message: 'Pi TurnLoop 常驻多轮 runtime 已接管本轮会话。',
+            message: 'Pi TurnLoop persistent multi-turn runtime has taken over this session turn.',
             data: { kind: 'turn_loop_takeover' },
         },
         {

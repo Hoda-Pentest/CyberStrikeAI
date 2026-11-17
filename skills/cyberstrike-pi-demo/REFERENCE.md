@@ -7,7 +7,7 @@
 
 ## Multi-agent runtime
 
-- 使用 Pi **`skill`** 工具按技能包渐进加载；可选开启 `multi_agent.skills.filesystem_tools` 访问包内文件。
+- Use the Pi **`skill`** tool to progressively load skill packages; optionally enable `multi_agent.skills.filesystem_tools` to access files in the package.
 
 ## Links
 

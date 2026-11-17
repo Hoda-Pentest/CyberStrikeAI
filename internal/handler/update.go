@@ -283,10 +283,10 @@ func (h *UpdateHandler) Adopt(c *gin.Context) {
 	}
 	job, started := h.startJob("adopt", body.Restart)
 	if !started {
-		c.JSON(http.StatusConflict, gin.H{"error": "已有一次更新在进行中", "job": job, "bootID": h.bootID})
+		c.JSON(http.StatusConflict, gin.H{"error": "an update is already in progress", "job": job, "bootID": h.bootID})
 		return
 	}
-	h.record(c, "update.adopt", "started", "开始把目录接入更新源", map[string]interface{}{"job": job.ID, "restart": body.Restart})
+	h.record(c, "update.adopt", "started", "connecting the directory to the update source", map[string]interface{}{"job": job.ID, "restart": body.Restart})
 	c.JSON(http.StatusAccepted, gin.H{"job_id": job.ID, "state": job.State, "bootID": h.bootID})
 }
 
@@ -310,7 +310,7 @@ func (h *UpdateHandler) Apply(c *gin.Context) {
 
 	job, started := h.startJob("apply", body.Restart)
 	if !started {
-		c.JSON(http.StatusConflict, gin.H{"error": "已有一次更新在进行中", "job": job, "bootID": h.bootID})
+		c.JSON(http.StatusConflict, gin.H{"error": "an update is already in progress", "job": job, "bootID": h.bootID})
 		return
 	}
 	h.record(c, "update.apply", "started", "starting a one-click update of the source and recompile", map[string]interface{}{"job": job.ID, "restart": body.Restart})
@@ -357,7 +357,7 @@ func (h *UpdateHandler) Restart(c *gin.Context) {
 		c.JSON(statusForError(failure), errorBody(failure))
 		return
 	}
-	h.record(c, "update.restart", "started", "重启安装以运行磁盘上的新二进制", nil)
+	h.record(c, "update.restart", "started", "restarting the install to run the new binary on disk", nil)
 	c.JSON(http.StatusAccepted, gin.H{"restarting": true, "activation_id": activationID, "bootID": h.bootID})
 	scheduled = true
 	time.AfterFunc(updateRestartDelay, func() { defer release(); restart() })

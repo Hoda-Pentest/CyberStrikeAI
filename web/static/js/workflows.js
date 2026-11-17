@@ -1614,7 +1614,7 @@
                 previous = approval;
                 insertedApproval = true;
             }
-            const action = add('agent', '执行受控处置', {
+            const action = add('agent', 'Run controlled response', {
                 agent_mode: 'single',
                 input_binding: { from: 'previous', field: 'output' },
                 instruction: 'Only generate a draft of response steps within the authorized scope; human confirmation is required before actual execution. User request: ' + prompt,

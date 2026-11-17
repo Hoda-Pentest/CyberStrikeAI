@@ -14,7 +14,7 @@ function _tPlain(key, opts) {
     });
 }
 
-/** 与创建队列 / API 一致的合法 agentMode */
+/** Valid agentMode values, consistent with queue creation / the API */
 const BATCH_QUEUE_AGENT_MODES = ['single', 'deep', 'plan_execute', 'supervisor'];
 
 function isBatchQueueAgentMode(mode) {

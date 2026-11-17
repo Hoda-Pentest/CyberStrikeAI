@@ -102,8 +102,8 @@ function getTimeFormatOptions() {
     return base;
 }
 
-// 将后端下发的进度文案转为当前语言的翻译（中英双向映射，切换语言后能跟上）
-/** Plan-Execute：将 Pi 内部 agent 名本地化为进度条标题用语 */
+// Translate progress text sent by the backend into the current language (bidirectional zh/en mapping, so it follows language switches)
+/** Plan-Execute: localize Pi internal agent names into progress-bar title wording */
 function translatePlanExecuteAgentName(name) {
     const n = String(name || '').trim().toLowerCase();
     if (n === 'planner') return typeof window.t === 'function' ? window.t('progress.peAgentPlanner') : 'Planner';
@@ -176,7 +176,7 @@ function formatTimelineStreamBody(raw, meta) {
     return raw;
 }
 
-/** 时间线条目：Plan-Execute 主通道流式阶段标题（替代一律「规划中」） */
+/** Timeline item: Plan-Execute main-channel streaming phase title (instead of always "Planning") */
 function piMainStreamPlanningTitle(responseData) {
     const orch = responseData && responseData.orchestration;
     const agent = responseData && responseData.agentName != null ? String(responseData.agentName).trim() : '';
@@ -190,7 +190,7 @@ function piMainStreamPlanningTitle(responseData) {
         const label = typeof window.t === 'function' ? window.t(key) : 'Output';
         return prefix + '📝 ' + label;
     }
-    // single / deep / supervisor：主通道是模型流式输出，不是「规划」；模型偶发复述工具 stdout 时，旧文案易被误认为工具结果标题。
+    // single / deep / supervisor: the main channel is model streaming output, not "planning"; when the model occasionally repeats tool stdout, the old wording was easily mistaken for a tool-result title.
     if (orch != null && String(orch).trim() !== '' && orch !== 'plan_execute') {
         const streamLabel = typeof window.t === 'function' ? window.t('chat.assistantStreamPhase') : 'Assistant output';
         return prefix + '📝 ' + streamLabel;
@@ -200,7 +200,7 @@ function piMainStreamPlanningTitle(responseData) {
 }
 
 /**
- * Pi 未捕获助手正文占位文案；终态 response 不应覆盖已有流式 buffer。
+ * Pi placeholder text when no assistant body was captured; a final response must not overwrite an existing streaming buffer.
  */
 function isPiEmptyResponsePlaceholder(text) {
     if (text == null) return false;
@@ -358,7 +358,7 @@ function translateProgressMessage(message, data) {
     if (typeof window.t !== 'function') return message;
     const trim = message.trim();
     const map = {
-        // 中文
+        // Chinese (keys match backend messages; keep as-is)
         '正在调用AI模型...': 'progress.callingAI',
         '最后一次迭代：正在生成总结和下一步计划...': 'progress.lastIterSummary',
         '总结生成完成': 'progress.summaryDone',
@@ -368,7 +368,7 @@ function translateProgressMessage(message, data) {
         '开始分析请求并制定测试策略': 'progress.analyzingRequestPlanning',
         '正在启动 Pi 多代理...': 'progress.startingPiDeepAgent',
         '正在启动 Pi 多代理...': 'progress.startingPiMultiAgent',
-        // 英文（与 en-US.json 一致，避免后端/缓存已是英文时无法随语言切换）
+        // English (consistent with en-US.json, so it still follows language switches when the backend/cache is already English)
         'Calling AI model...': 'progress.callingAI',
         'Last iteration: generating summary and next steps...': 'progress.lastIterSummary',
         'Summary complete': 'progress.summaryDone',
@@ -376,7 +376,7 @@ function translateProgressMessage(message, data) {
         'Max iterations reached, generating summary...': 'progress.maxIterSummary',
         'Analyzing your request...': 'progress.analyzingRequestShort',
         'Analyzing your request and planning test strategy...': 'progress.analyzingRequestPlanning',
-        'Starting Pi 多代理...': 'progress.startingPiDeepAgent',
+        'Starting Agent multi-agent...': 'progress.startingPiDeepAgent',
         'Starting Pi multi-agent...': 'progress.startingPiMultiAgent'
     };
     if (map[trim]) return window.t(map[trim]);
@@ -465,7 +465,7 @@ function clearTimelineStreamStates(progressId) {
     }
 }
 
-/** 同一段主通道流式输出（Pi 可能重复 response_start） */
+/** Same main-channel streaming segment (Pi may repeat response_start) */
 function sameMainResponseStreamMeta(a, b) {
     if (!a || !b) return false;
     const agentA = String(a.agentName != null ? a.agentName : '').trim();
@@ -523,7 +523,7 @@ function areMainResponseStreamIterationsCompatible(prevIterTag, streamIterTag, o
     return !prevIterTag || !streamIterTag || prevIterTag === streamIterTag;
 }
 
-/** 仅合并 Pi 对同一段 MessageStream 重复发出的 response_start */
+/** Only merge response_start repeated by Pi for the same MessageStream */
 function shouldReuseMainResponseStream(progressId, prevStream, responseData, streamOrch) {
     if (!prevStream || !prevStream.itemId) {
         return false;
@@ -586,7 +586,7 @@ function responseStreamStateFromRestoredItem(progressId, item, responseData) {
 // AI thinking streaming output: progressId -> Map(streamId -> { itemId, buffer })
 const thinkingStreamStateByProgressId = new Map();
 
-// Pi 子代理回复流式：progressId -> Map(streamId -> { itemId, buffer })
+// Pi sub-agent reply streaming: progressId -> Map(streamId -> { itemId, buffer })
 const agentNameReplyStreamStateByProgressId = new Map();
 
 // Tool output streaming delta: progressId::toolCallId -> { itemId, buffer }
@@ -598,14 +598,14 @@ function toolResultStreamKey(progressId, toolCallId) {
 const LIVE_TIMELINE_MAX_ITEMS = 150;
 const LIVE_TIMELINE_PRUNE_CHUNK = 50;
 
-/** Pi 多代理：时间线标题前加 [agentId]，标明哪一代理产生该工具调用/结果/回复 */
+/** Pi multi-agent: prefix timeline titles with [agentId] to show which agent produced the tool call/result/reply */
 function timelineAgentBracketPrefix(data) {
     if (!data || data.agentName == null) return '';
     const s = String(data.agentName).trim();
     return s ? ('[' + s + '] ') : '';
 }
 
-/** 主/子代理视觉区分：左边框与浅底色（与工具黄/绿状态并存时由具体项类型覆盖次要边） */
+/** Main/sub-agent visual distinction: left border and light background (when combined with tool yellow/green states, the specific item type overrides the secondary border) */
 function applyPiTimelineRole(item, data) {
     if (!item || !data) return;
     const role = data.agentRole;
@@ -2159,7 +2159,7 @@ function startProcessDetailsLatestFollow(assistantMessageId, options) {
 
     const persistent = !!opts.persistent;
     const previousState = processDetailsLatestFollowStates.get(key);
-    // 最新页恢复接入补流时保留原状态，避免把正在阅读历史的用户拉到底部。
+    // When the latest page re-attaches the backfill stream, keep the existing state so a user reading history is not pulled to the bottom.
     if (previousState && previousState.timeline === timeline && persistent) {
         clearTimeout(previousState.timeoutId);
         previousState.timeoutId = 0;
@@ -2255,7 +2255,7 @@ function startProcessDetailsLatestFollow(assistantMessageId, options) {
         state.lastScrollTop = currentTop;
         state.lastScrollRange = range;
 
-        // 用滚动范围的变化区分原生滚动条拖动和详情重绘引起的滚动锚定。
+        // Use changes in the scroll range to tell native scrollbar drags apart from scroll anchoring caused by detail redraws.
         if (topChange < -1 && hasUserScrollIntent && distance > PROCESS_DETAILS_FOLLOW_RESUME_THRESHOLD_PX) {
             detachForUserNavigation();
         } else if (
@@ -2320,7 +2320,7 @@ function startProcessDetailsLatestFollow(assistantMessageId, options) {
     if (typeof ResizeObserver === 'function') {
         state.resizeObserver = new ResizeObserver(function () {
             scheduleFollowLatest();
-            // 展开、收起和尺寸过渡会改变外层对话高度，且可能没有新增 DOM。
+            // Expanding, collapsing and size transitions change the outer conversation height, possibly without new DOM.
             if (timeline.closest('#chat-messages')) {
                 window.CyberStrikeChatScroll?.scrollIfPinned(true);
             }
@@ -2741,7 +2741,7 @@ function formatPiRunRetryMessage(message, data) {
     if (Number.isFinite(attempt) && attempt > 0 && Number.isFinite(maxAttempts) && maxAttempts > 0) {
         const retryPlan = typeof window.t === 'function'
             ? window.t('chat.piRunRetryPlan', { attempt: attempt, maxAttempts: maxAttempts, backoffSec: Number.isFinite(backoffSec) && backoffSec > 0 ? backoffSec : '-' })
-            : ('重试进度：第 ' + attempt + '/' + maxAttempts + ' 次，等待 ' + (Number.isFinite(backoffSec) && backoffSec > 0 ? backoffSec : '-') + ' 秒');
+            : ('Retry progress: attempt ' + attempt + '/' + maxAttempts + ', waiting ' + (Number.isFinite(backoffSec) && backoffSec > 0 ? backoffSec : '-') + ' s');
         if (!base || base.indexOf(String(attempt) + '/' + String(maxAttempts)) === -1) {
             lines.push(retryPlan);
         }
@@ -2749,7 +2749,7 @@ function formatPiRunRetryMessage(message, data) {
     if (kind) {
         const kindLabel = typeof window.t === 'function'
             ? window.t('chat.piRunRetryReasonKind')
-            : '原因类型';
+            : 'Reason type';
         lines.push(kindLabel + '：' + kind);
     }
     if (!errRaw) {
@@ -2757,7 +2757,7 @@ function formatPiRunRetryMessage(message, data) {
     }
     const detailLabel = typeof window.t === 'function'
         ? window.t('chat.piRunRetryErrorDetail')
-        : '错误详情';
+        : 'Error details';
     if (!base || base.indexOf(errRaw) === -1) {
         lines.push(detailLabel + ': ' + errRaw);
     }
@@ -2788,7 +2788,7 @@ function formatPiRunRetryTitle(data) {
     const d = data && typeof data === 'object' ? data : {};
     const base = typeof window.t === 'function'
         ? window.t('chat.piRunRetryTitle')
-        : '🔁 临时错误重试';
+        : '🔁 Transient error retry';
     const attempt = Number(d.attempt || 0);
     const maxAttempts = Number(d.maxAttempts || 0);
     if (Number.isFinite(attempt) && attempt > 0 && Number.isFinite(maxAttempts) && maxAttempts > 0) {
@@ -2801,7 +2801,7 @@ function formatPiModelRetryTitle(data) {
     const d = data && typeof data === 'object' ? data : {};
     const base = typeof window.t === 'function'
         ? window.t('chat.piModelRetryTitle')
-        : '🔁 模型调用重试';
+        : '🔁 Model call retry';
     const attempt = Number(d.attempt || 0);
     if (Number.isFinite(attempt) && attempt > 0) {
         return base + ' (' + attempt + ') ';
@@ -2827,7 +2827,7 @@ function formatPiModelFailoverTitle(data) {
     const d = data && typeof data === 'object' ? data : {};
     const base = typeof window.t === 'function'
         ? window.t('chat.piModelFailoverTitle')
-        : '🔀 切换备用模型';
+        : '🔀 Switching to fallback model';
     const attempt = Number(d.attempt || 0);
     if (Number.isFinite(attempt) && attempt > 0) {
         return base + ' (' + attempt + ') ';
@@ -2863,7 +2863,7 @@ function formatPiUsageSummaryTitle(data) {
     const d = data && typeof data === 'object' ? data : {};
     const base = typeof window.t === 'function'
         ? window.t('chat.piUsageSummaryTitle')
-        : 'Token 用量汇总';
+        : 'Token usage summary';
     const total = Number(d.totalTokens || 0);
     if (Number.isFinite(total) && total > 0) {
         return base + ' · ' + formatCompactInteger(total);
@@ -2879,19 +2879,19 @@ function formatPiUsageSummaryMessage(data) {
         return translated && translated !== key ? translated : fallback;
     };
     const rows = [
-        [label('chat.piUsageModelCalls', '模型调用'), d.modelCalls],
-        [label('chat.piUsagePromptTokens', '输入 tokens'), d.promptTokens],
-        [label('chat.piUsageCompletionTokens', '输出 tokens'), d.completionTokens],
-        [label('chat.piUsageTotalTokens', '总 tokens'), d.totalTokens]
+        [label('chat.piUsageModelCalls', 'Model calls'), d.modelCalls],
+        [label('chat.piUsagePromptTokens', 'Input tokens'), d.promptTokens],
+        [label('chat.piUsageCompletionTokens', 'Output tokens'), d.completionTokens],
+        [label('chat.piUsageTotalTokens', 'Total tokens'), d.totalTokens]
     ];
     if (Number(d.cachedTokens || 0) > 0) {
-        rows.push([label('chat.piUsageCachedTokens', '缓存 tokens'), d.cachedTokens]);
+        rows.push([label('chat.piUsageCachedTokens', 'Cached tokens'), d.cachedTokens]);
     }
     if (Number(d.cacheWriteTokens || 0) > 0) {
-        rows.push([label('chat.piUsageCacheWriteTokens', '缓存写入 tokens'), d.cacheWriteTokens]);
+        rows.push([label('chat.piUsageCacheWriteTokens', 'Cache write tokens'), d.cacheWriteTokens]);
     }
     if (Number(d.reasoningTokens || 0) > 0) {
-        rows.push([label('chat.piUsageReasoningTokens', '推理 tokens'), d.reasoningTokens]);
+        rows.push([label('chat.piUsageReasoningTokens', 'Reasoning tokens'), d.reasoningTokens]);
     }
     return rows.map(function (row) {
         return row[0] + ': ' + formatCompactInteger(row[1]);
@@ -3065,16 +3065,16 @@ function handleStreamEvent(event, progressElement, progressId,
                 const phase = translatePlanExecuteAgentName(d.agentName != null ? d.agentName : '');
                 iterTitle = typeof window.t === 'function'
                     ? window.t('chat.piPlanExecuteRound', { n: n, phase: phase })
-                    : ('Plan-Execute · 第 ' + n + ' 轮 · ' + phase);
+                    : ('Plan-Execute · round ' + n + ' · ' + phase);
             } else if (d.piScope === 'main') {
                 iterTitle = typeof window.t === 'function'
                     ? window.t('chat.piOrchestratorRound', { n: n })
-                    : ('主代理 · 第 ' + n + ' 轮');
+                    : ('Main agent · round ' + n);
             } else if (d.piScope === 'sub') {
                 const ag = d.agentName != null ? String(d.agentName).trim() : '';
                 iterTitle = typeof window.t === 'function'
                     ? window.t('chat.piSubAgentStep', { n: n, agent: ag })
-                    : ('子代理 · ' + ag + ' · 第 ' + n + ' 步');
+                    : ('Sub-agent · ' + ag + ' · step ' + n);
             } else {
                 iterTitle = typeof window.t === 'function'
                     ? window.t('chat.iterationRound', { n: n })
@@ -3509,12 +3509,12 @@ function handleStreamEvent(event, progressElement, progressId,
             const agent = d.agentName ? String(d.agentName) : '';
             const title = typeof window.t === 'function'
                 ? window.t('chat.piStreamErrorTitle', { agent: agent || '-' })
-                : (agent ? ('⚠️ Pi 流式中断（' + agent + '）') : '⚠️ Pi 流式中断');
+                : (agent ? ('⚠️ Pi stream interrupted (' + agent + ')') : '⚠️ Pi stream interrupted');
             addTimelineItem(timeline, 'warning', {
                 title: title,
                 message: event.message || (typeof window.t === 'function'
                     ? window.t('chat.piStreamErrorMessage')
-                    : '流式读取异常，系统将按策略重试或结束。'),
+                    : 'Stream read error; the system will retry or stop according to policy.'),
                 data: d
             });
             break;
@@ -3524,12 +3524,12 @@ function handleStreamEvent(event, progressElement, progressId,
             const d = event.data || {};
             const title = typeof window.t === 'function'
                 ? window.t('chat.piEmptyResponseContinueTitle')
-                : '🔁 自动续跑（无助手正文）';
+                : '🔁 Auto-continue (no assistant body)';
             addTimelineItem(timeline, 'warning', {
                 title: title,
                 message: event.message || (typeof window.t === 'function'
                     ? window.t('chat.piEmptyResponseContinueMessage')
-                    : '会话已结束但未捕获到助手正文，正在基于轨迹自动续跑…'),
+                    : 'The session ended but no assistant body was captured; auto-continuing from the trace…'),
                 data: d
             });
             break;
@@ -3594,10 +3594,10 @@ function handleStreamEvent(event, progressElement, progressId,
             const count = Number(d.pendingCount || 0);
             const countText = Number.isFinite(count) && count > 0 ? String(count) : '?';
             addTimelineItem(timeline, 'warning', {
-                title: typeof window.t === 'function' ? window.t('chat.piPendingOrphanedTitle') : '🧹 工具调用收尾补偿',
+                title: typeof window.t === 'function' ? window.t('chat.piPendingOrphanedTitle') : '🧹 Tool call cleanup compensation',
                 message: event.message || (typeof window.t === 'function'
                     ? window.t('chat.piPendingOrphanedMessage', { count: countText })
-                    : ('检测到 ' + countText + ' 个未闭合工具调用，已自动标记为失败并收尾。')),
+                    : ('Detected ' + countText + ' unclosed tool call(s); automatically marked as failed and closed.')),
                 data: d
             });
             finalizeOutstandingToolCallsForProgress(progressId, 'failed');
@@ -3726,8 +3726,8 @@ function handleStreamEvent(event, progressElement, progressId,
                 }
                 break;
             }
-            const streamingLabel = typeof window.t === 'function' ? window.t('timeline.running') : '执行中...';
-            const replyTitleBase = typeof window.t === 'function' ? window.t('chat.agentNameReplyTitle') : '子代理回复';
+            const streamingLabel = typeof window.t === 'function' ? window.t('timeline.running') : 'Running...';
+            const replyTitleBase = typeof window.t === 'function' ? window.t('chat.agentNameReplyTitle') : 'Sub-agent reply';
             const itemId = addTimelineItem(timeline, 'agent_reply', {
                 title: timelineAgentBracketPrefix(d) + '💬 ' + replyTitleBase + ' · ' + streamingLabel,
                 message: ' ',
@@ -3778,7 +3778,7 @@ function handleStreamEvent(event, progressElement, progressId,
                 if (item) {
                     const titleEl = item.querySelector('.timeline-item-title');
                     if (titleEl) {
-                        const replyTitleBase = typeof window.t === 'function' ? window.t('chat.agentNameReplyTitle') : '子代理回复';
+                        const replyTitleBase = typeof window.t === 'function' ? window.t('chat.agentNameReplyTitle') : 'Sub-agent reply';
                         titleEl.textContent = timelineAgentBracketPrefix(d) + '💬 ' + replyTitleBase;
                     }
                     let contentEl = item.querySelector('.timeline-item-content');
@@ -3800,7 +3800,7 @@ function handleStreamEvent(event, progressElement, progressId,
 
         case 'agent_reply': {
             const replyData = event.data || {};
-            const replyTitleBase = typeof window.t === 'function' ? window.t('chat.agentNameReplyTitle') : '子代理回复';
+            const replyTitleBase = typeof window.t === 'function' ? window.t('chat.agentNameReplyTitle') : 'Sub-agent reply';
             addTimelineItem(timeline, 'agent_reply', {
                 title: timelineAgentBracketPrefix(replyData) + '💬 ' + replyTitleBase,
                 message: event.message || '',
@@ -3907,7 +3907,7 @@ function handleStreamEvent(event, progressElement, progressId,
                 ? responseData.orchestration
                 : (prevStream && prevStream.streamMeta ? prevStream.streamMeta.orchestration : '');
             if (shouldReuseMainResponseStream(progressId, prevStream, responseData, streamOrch)) {
-                // Pi 可能对同一段流重复发 response_start；复用已有条目与 buffer，避免多条「助手输出」
+                // Pi may repeat response_start for the same stream; reuse the existing item and buffer to avoid multiple "assistant output" entries
                 prevStream.streamMeta = Object.assign({}, prevStream.streamMeta || {}, responseData);
                 prevStream.streamIdentity = streamIdentity;
                 if (responseData.streamId != null) {
@@ -4056,7 +4056,7 @@ function handleStreamEvent(event, progressElement, progressId,
                 addTimelineItem(timeline, 'planning', {
                     title: typeof piMainStreamPlanningTitle === 'function'
                         ? piMainStreamPlanningTitle(responseData)
-                        : ('📝 ' + (typeof window.t === 'function' ? window.t('chat.planning') : '规划中')),
+                        : ('📝 ' + (typeof window.t === 'function' ? window.t('chat.planning') : 'Planning')),
                     message: event.message,
                     data: responseData,
                     expanded: false
@@ -4182,7 +4182,7 @@ function handleStreamEvent(event, progressElement, progressId,
             mainIterationStateByProgressId.delete(String(progressId));
             thinkingStreamStateByProgressId.delete(progressId);
             agentNameReplyStreamStateByProgressId.delete(progressId);
-            // 清理工具流式输出占位
+            // Clean up the tool streaming output placeholder
             const prefix = String(progressId) + '::';
             for (const key of Array.from(toolResultStreamStateByKey.keys())) {
                 if (String(key).startsWith(prefix)) {

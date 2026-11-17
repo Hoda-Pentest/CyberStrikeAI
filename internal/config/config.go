@@ -21,7 +21,7 @@ import (
 )
 
 type Config struct {
-	Version      string                `yaml:"version,omitempty" json:"version,omitempty"` // 前端显示的版本号，如 v1.3.3
+	Version      string                `yaml:"version,omitempty" json:"version,omitempty"` // version shown in the frontend, e.g. v1.3.3
 	Server       ServerConfig          `yaml:"server"`
 	Log          LogConfig             `yaml:"log"`
 	MCP          MCPConfig             `yaml:"mcp"`
@@ -43,12 +43,12 @@ type Config struct {
 	Storage      StorageConfig         `yaml:"storage,omitempty" json:"storage,omitempty"`
 	ExternalMCP  ExternalMCPConfig     `yaml:"external_mcp,omitempty"`
 	Knowledge    KnowledgeConfig       `yaml:"knowledge,omitempty"`
-	C2           C2Config              `yaml:"c2,omitempty" json:"c2,omitempty"`                 // 内置 C2 总开关；未配置时默认启用
-	Robots       RobotsConfig          `yaml:"robots,omitempty" json:"robots,omitempty"`         // 企业微信/钉钉/飞书等机器人配置
-	RolesDir     string                `yaml:"roles_dir,omitempty" json:"roles_dir,omitempty"`   // 角色配置文件目录（新方式）
-	Roles        map[string]RoleConfig `yaml:"roles,omitempty" json:"roles,omitempty"`           // 向后兼容：支持在主配置文件中定义角色
-	SkillsDir    string                `yaml:"skills_dir,omitempty" json:"skills_dir,omitempty"` // Skills配置文件目录
-	AgentsDir    string                `yaml:"agents_dir,omitempty" json:"agents_dir,omitempty"` // 多代理子 Agent Markdown 定义目录（*.md，YAML front matter）
+	C2           C2Config              `yaml:"c2,omitempty" json:"c2,omitempty"`                 // built-in C2 master switch; enabled by default when not configured
+	Robots       RobotsConfig          `yaml:"robots,omitempty" json:"robots,omitempty"`         // robot configuration for WeCom/DingTalk/Lark, etc.
+	RolesDir     string                `yaml:"roles_dir,omitempty" json:"roles_dir,omitempty"`   // role config directory (new style)
+	Roles        map[string]RoleConfig `yaml:"roles,omitempty" json:"roles,omitempty"`           // backward compatibility: roles defined in the main config file
+	SkillsDir    string                `yaml:"skills_dir,omitempty" json:"skills_dir,omitempty"` // Skills config directory
+	AgentsDir    string                `yaml:"agents_dir,omitempty" json:"agents_dir,omitempty"` // directory of multi-agent sub-Agent Markdown definitions (*.md, YAML front matter)
 	MultiAgent   MultiAgentConfig      `yaml:"multi_agent,omitempty" json:"multi_agent,omitempty"`
 	Project      ProjectConfig         `yaml:"project,omitempty" json:"project,omitempty"`
 	Vision       VisionConfig          `yaml:"vision,omitempty" json:"vision,omitempty"`
@@ -117,16 +117,16 @@ func (c ProjectConfig) FactSummaryMaxRunesEffective() int {
 	return c.FactSummaryMaxRunes
 }
 
-// MultiAgentConfig 基于 Pi adk/prebuilt 的多代理编排（deep | plan_execute | supervisor）。
+// MultiAgentConfig is multi-agent orchestration based on Pi adk/prebuilt (deep | plan_execute | supervisor).
 type MultiAgentConfig struct {
 	Enabled               bool   `yaml:"enabled" json:"enabled"`
 	RobotDefaultAgentMode string `yaml:"robot_default_agent_mode,omitempty" json:"robot_default_agent_mode,omitempty"` // single | deep | plan_execute | supervisor
-	BatchUseMultiAgent    bool   `yaml:"batch_use_multi_agent" json:"batch_use_multi_agent"`                           // 为 true 时批量任务队列中每子任务走 Agent 多代理
-	// Orchestration 已弃用：保留仅兼容旧版 config.yaml；编排由聊天/WebShell 请求体 orchestration 决定，未传时按 deep。
+	BatchUseMultiAgent    bool   `yaml:"batch_use_multi_agent" json:"batch_use_multi_agent"`                           // when true, each subtask in the batch task queue uses Agent multi-agent
+	// Orchestration is deprecated: kept only for compatibility with old config.yaml; orchestration is decided by the chat/WebShell request body orchestration, defaulting to deep.
 	Orchestration string `yaml:"orchestration,omitempty" json:"orchestration,omitempty"`
 	// MaxIteration is deprecated: agent.max_iterations is used uniformly (the field is kept in YAML only for compatibility with old configs and is not read at runtime).
 	MaxIteration int `yaml:"max_iteration,omitempty" json:"max_iteration,omitempty"`
-	// PlanExecuteLoopMaxIterations plan_execute 模式下 execute↔replan 外层循环上限；0 表示用 Agent 默认 10。
+	// PlanExecuteLoopMaxIterations is the cap of the execute↔replan outer loop in plan_execute mode; 0 means the Agent default of 10.
 	PlanExecuteLoopMaxIterations int `yaml:"plan_execute_loop_max_iterations,omitempty" json:"plan_execute_loop_max_iterations,omitempty"`
 	// SubAgentMaxIterations is deprecated: both sub-agents and the main agent use agent.max_iterations (Markdown max_iterations>0 can override it).
 	SubAgentMaxIterations   int    `yaml:"sub_agent_max_iterations,omitempty" json:"sub_agent_max_iterations,omitempty"`
@@ -191,7 +191,7 @@ type AgentTuningConfig struct {
 	LatestUserMessageHeadRunes int `yaml:"latest_user_message_head_runes,omitempty" json:"latest_user_message_head_runes,omitempty"`
 	// LatestUserMessageTailRunes keeps the tail preview for an oversized current user turn.
 	LatestUserMessageTailRunes int `yaml:"latest_user_message_tail_runes,omitempty" json:"latest_user_message_tail_runes,omitempty"`
-	// SummarizationRetryMaxAttempts 已废弃：summarization 与 Agent 原生 ModelRetry 共用 model_retry_max_retries 及 isAgentTransientRunError。
+	// SummarizationRetryMaxAttempts is deprecated: summarization shares model_retry_max_retries and isAgentTransientRunError with the Agent native ModelRetry.
 	SummarizationRetryMaxAttempts int `yaml:"summarization_retry_max_attempts,omitempty" json:"summarization_retry_max_attempts,omitempty"`
 	// PlanExecuteUserInputBudgetRatio caps planner/replanner/executor userInput prompt budget ratio (default 0.35).
 	PlanExecuteUserInputBudgetRatio float64 `yaml:"plan_execute_user_input_budget_ratio,omitempty" json:"plan_execute_user_input_budget_ratio,omitempty"`
@@ -216,7 +216,7 @@ type AgentTuningConfig struct {
 	ModelFailoverChannels []string `yaml:"model_failover_channels,omitempty" json:"model_failover_channels,omitempty"`
 	// ModelFailoverMaxRetries caps distinct failover channel attempts; 0=all configured failover channels.
 	ModelFailoverMaxRetries int `yaml:"model_failover_max_retries,omitempty" json:"model_failover_max_retries,omitempty"`
-	// RunRetryMaxAttempts 已废弃：模型临时错误由 Agent 原生 ModelRetry 处理；仅保留给非模型层 run loop 兜底与 summarization 旧字段。
+	// RunRetryMaxAttempts is deprecated: transient model errors are handled by the Agent native ModelRetry; kept only as a fallback for the non-model run loop and the old summarization field.
 	RunRetryMaxAttempts int `yaml:"run_retry_max_attempts,omitempty" json:"run_retry_max_attempts,omitempty"`
 	// RunRetryMaxBackoffSec is deprecated: use model_retry_max_backoff_sec; kept only as a fallback for the non-model run loop and for the old summarization field.
 	RunRetryMaxBackoffSec int `yaml:"run_retry_max_backoff_sec,omitempty" json:"run_retry_max_backoff_sec,omitempty"`
@@ -376,7 +376,7 @@ func (c AgentTuningConfig) ToolSearchIncludeBuiltinsEffective() bool {
 	return c.ToolSearchIncludeBuiltins == nil || *c.ToolSearchIncludeBuiltins
 }
 
-// MultiAgentSubConfig 子代理（Pi）：deep 下由 task 调度；supervisor 下由 transfer 委派；plan_execute 不使用子代理列表。
+// MultiAgentSubConfig is a sub-agent (Pi): dispatched by task under deep; delegated by transfer under supervisor; plan_execute does not use the sub-agent list.
 type MultiAgentSubConfig struct {
 	ID            string   `yaml:"id" json:"id"`
 	Name          string   `yaml:"name" json:"name"`
@@ -404,7 +404,7 @@ type MultiAgentPublic struct {
 	ToolSearchAlwaysVisibleEffectiveTools []string `json:"tool_search_always_visible_effective_tools,omitempty"`
 }
 
-// NormalizeAgentMode 解析代理模式（single | deep | plan_execute | supervisor）；空值默认 single。
+// NormalizeAgentMode parses the agent mode (single | deep | plan_execute | supervisor); empty defaults to single.
 func NormalizeAgentMode(mode string) string {
 	s := strings.TrimPrefix(strings.TrimSpace(strings.ToLower(mode)), "eino_")
 	switch s {
@@ -449,7 +449,7 @@ type MultiAgentAPIUpdate struct {
 	ModelRetryMaxBackoffSec      *int      `json:"model_retry_max_backoff_sec,omitempty"`
 	ModelFailoverChannels        *[]string `json:"model_failover_channels,omitempty"`
 	ModelFailoverMaxRetries      *int      `json:"model_failover_max_retries,omitempty"`
-	// 指针区分「JSON 未传该字段」与「传空数组要清空」；省略时不应覆盖 YAML 中的常驻工具白名单。
+	// A pointer distinguishes "field not sent in JSON" from "empty array sent to clear"; when omitted it must not override the always-visible tool allowlist in YAML.
 	ToolSearchAlwaysVisibleTools *[]string `json:"tool_search_always_visible_tools,omitempty"`
 }
 
@@ -695,7 +695,7 @@ type ServerConfig struct {
 	// When TLSCertPath / TLSKeyPath are non-empty, the certificate is loaded from PEM files (recommended for production).
 	TLSCertPath string `yaml:"tls_cert_path,omitempty" json:"tls_cert_path,omitempty"`
 	TLSKeyPath  string `yaml:"tls_key_path,omitempty" json:"tls_key_path,omitempty"`
-	// TLSAutoSelfSign 为 true 且未配置证书路径时，生成并复用安装目录中的自签证书（仅本地/测试）。
+	// When TLSAutoSelfSign is true and no certificate path is configured, generate and reuse a self-signed certificate in the install directory (local/testing only).
 	TLSAutoSelfSign bool `yaml:"tls_auto_self_sign,omitempty" json:"tls_auto_self_sign,omitempty"`
 	// When TLSHTTPRedirect is false, HTTP->HTTPS redirection is disabled; when omitted or true and HTTPS is enabled, plaintext HTTP access is 308-redirected to HTTPS (routed by sniffing on the same port).
 	TLSHTTPRedirect *bool `yaml:"tls_http_redirect,omitempty" json:"tls_http_redirect,omitempty"`
@@ -719,7 +719,7 @@ type MCPConfig struct {
 }
 
 type OpenAIConfig struct {
-	Provider            string `yaml:"provider,omitempty" json:"provider,omitempty"` // API 提供商: "openai"(默认) 或 "claude"，claude 使用 Agent 原生 Anthropic Messages API
+	Provider            string `yaml:"provider,omitempty" json:"provider,omitempty"` // API provider: "openai" (default) or "claude"; claude uses the Agent native Anthropic Messages API
 	APIKey              string `yaml:"api_key" json:"api_key"`
 	BaseURL             string `yaml:"base_url" json:"base_url"`
 	Model               string `yaml:"model" json:"model"`
@@ -728,12 +728,12 @@ type OpenAIConfig struct {
 	// Headers append or override HTTP request headers sent to the model gateway; values support ${ENV_VAR} expansion.
 	// Used for compatibility with third-party OpenAI-compatible providers that require private auth, version, or organization headers.
 	Headers map[string]string `yaml:"headers,omitempty" json:"headers,omitempty"`
-	// ContextWindow 是模型原生上下文窗口（token）；0 表示未知。用于校验/压缩 max_total_tokens。
+	// ContextWindow is the model's native context window (tokens); 0 means unknown. Used to validate/compress max_total_tokens.
 	ContextWindow int `yaml:"context_window,omitempty" json:"context_window,omitempty"`
 	// ContextProfile selects auto, economy, custom or local; local_auto records
 	// a local backend identified through the model metadata probe.
 	ContextProfile string `yaml:"context_profile,omitempty" json:"context_profile,omitempty"`
-	// Reasoning 控制 Agent ChatModel 的 thinking / reasoning_effort / output_config 等（Agent 单/多代理路径生效）。
+	// Reasoning controls the Agent ChatModel's thinking / reasoning_effort / output_config, etc. (effective on the Agent single/multi-agent paths).
 	Reasoning OpenAIReasoningConfig `yaml:"reasoning,omitempty" json:"reasoning,omitempty"`
 }
 
@@ -1581,7 +1581,7 @@ func Load(path string) (*Config, error) {
 			return nil, err
 		}
 	}
-	// 如果配置了工具目录，从目录加载工具配置
+	// If a tools directory is configured, load tool configs from the directory
 	if cfg.Security.ToolsDir != "" {
 		inlineTools := append([]ToolConfig(nil), cfg.Security.Tools...)
 		toolsDir := ResolveToolsDir(cfg.Security.ToolsDir, path)
@@ -1650,18 +1650,18 @@ func validateOpenAIOutputLimits(openAI OpenAIConfig) error {
 	return ValidateContextSettings("openai", openAI.ContextWindow, openAI.ContextProfile)
 }
 
-// ValidateContextSettings 校验主通道与 ai.channels 共用的上下文配置。
+// ValidateContextSettings validates the context settings shared by the main channel and ai.channels.
 func ValidateContextSettings(prefix string, window int, profile string) error {
 	prefix = strings.TrimSpace(prefix)
 	if prefix == "" {
 		prefix = "openai"
 	}
 	if window < 0 {
-		return fmt.Errorf("%s.context_window 不能为负数", prefix)
+		return fmt.Errorf("%s.context_window must not be negative", prefix)
 	}
 	if raw := strings.TrimSpace(profile); raw != "" &&
 		!strings.EqualFold(raw, "auto") && NormalizeContextProfile(raw) == "" {
-		return fmt.Errorf("%s.context_profile 只支持 auto、economy、custom、local 或 local_auto", prefix)
+		return fmt.Errorf("%s.context_profile only supports auto, economy, custom, local or local_auto", prefix)
 	}
 	return nil
 }
@@ -2426,7 +2426,7 @@ type KnowledgeConfig struct {
 
 // IndexingConfig is the index-building configuration (controls the behavior while building the knowledge-base index)
 type IndexingConfig struct {
-	// ChunkStrategy: "markdown_then_recursive"（默认，Agent Markdown 标题切分后再递归切）或 "recursive"（仅递归切分）
+	// ChunkStrategy: "markdown_then_recursive" (default; split by Agent Markdown headings, then recursively) or "recursive" (recursive splitting only)
 	ChunkStrategy string `yaml:"chunk_strategy,omitempty" json:"chunk_strategy,omitempty"`
 	// RequestTimeoutSeconds is the embedding HTTP client timeout (seconds); 0 means use the default 120
 	RequestTimeoutSeconds int `yaml:"request_timeout_seconds,omitempty" json:"request_timeout_seconds,omitempty"`
@@ -2435,7 +2435,7 @@ type IndexingConfig struct {
 	ChunkOverlap     int `yaml:"chunk_overlap,omitempty" json:"chunk_overlap,omitempty"`             // Number of overlapping tokens between chunks, default 50
 	MaxChunksPerItem int `yaml:"max_chunks_per_item,omitempty" json:"max_chunks_per_item,omitempty"` // Maximum number of chunks per knowledge item; 0 means unlimited
 
-	// PreferSourceFile 为 true 时优先用 Agent FileLoader 从 file_path 读原文再索引（与库内 content 不一致时以磁盘为准）
+	// When PreferSourceFile is true, prefer reading the original from file_path with the Agent FileLoader before indexing (disk wins when it differs from the stored content)
 	PreferSourceFile bool `yaml:"prefer_source_file,omitempty" json:"prefer_source_file,omitempty"`
 
 	// Rate-limit configuration (to avoid API rate limits)
@@ -2448,7 +2448,7 @@ type IndexingConfig struct {
 
 	// BatchSize is the embedding batch size (for SQLite index writes); 0 means default 64
 	BatchSize int `yaml:"batch_size,omitempty" json:"batch_size,omitempty"`
-	// SubIndexes 传入 Agent indexer.WithSubIndexes（逻辑分区标记，随 Document 元数据传递）
+	// SubIndexes is passed to Agent indexer.WithSubIndexes (logical partition tags, carried with Document metadata)
 	SubIndexes []string `yaml:"sub_indexes,omitempty" json:"sub_indexes,omitempty"`
 }
 
@@ -2470,9 +2470,9 @@ type PostRetrieveConfig struct {
 	MaxContextTokens int `yaml:"max_context_tokens,omitempty" json:"max_context_tokens,omitempty"`
 }
 
-// MultiQueryConfig 配置知识库查询改写。
+// MultiQueryConfig configures knowledge-base query rewriting.
 type MultiQueryConfig struct {
-	// MaxQueries 包含原查询的检索次数上限。1 跳过改写，0 使用默认值 4。
+	// MaxQueries is the retrieval cap including the original query. 1 skips rewriting, 0 uses the default of 4.
 	MaxQueries int `yaml:"max_queries,omitempty" json:"max_queries,omitempty"`
 }
 

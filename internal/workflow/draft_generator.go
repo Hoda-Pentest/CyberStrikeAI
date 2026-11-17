@@ -176,7 +176,7 @@ func GenerateDraftFromNaturalLanguage(ctx context.Context, req DraftRequest) (*D
 			previous = approval
 			insertedHITL = true
 		}
-		action := builder.add("agent", "执行受控处置", map[string]any{
+		action := builder.add("agent", "Run controlled response", map[string]any{
 			"agent_mode":                  "single",
 			"input_binding":               map[string]any{"from": "previous", "field": "output"},
 			"instruction":                 "Generate a draft of handling steps only within the authorized scope; actual execution must be manually confirmed first. User requirement: " + prompt,

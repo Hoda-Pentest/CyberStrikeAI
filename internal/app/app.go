@@ -79,7 +79,7 @@ type App struct {
 	auditSvc           *audit.Service
 }
 
-// New 创建新应用
+// New creates a new application
 func New(cfg *config.Config, log *logger.Logger, configPath, updateActivation string) (*App, error) {
 	if err := cfg.AgentRuntime.Validate(); err != nil {
 		return nil, err
@@ -265,14 +265,14 @@ func New(cfg *config.Config, log *logger.Logger, configPath, updateActivation st
 			return nil, fmt.Errorf("failed to initialize knowledge base embedder: %w", err)
 		}
 
-		// 创建检索器（Agent MultiQuery + 重排流水线）
+		// Create the retriever (Agent MultiQuery + rerank pipeline)
 		retrievalConfig := knowledge.RetrievalConfigFromYAML(cfg.Knowledge.Retrieval)
 		knowledgeRetriever = knowledge.NewRetriever(knowledgeDB, embedder, retrievalConfig, log.Logger)
 		if err := knowledge.WireRetrieverPipeline(context.Background(), knowledgeRetriever, &cfg.OpenAI); err != nil {
 			return nil, fmt.Errorf("failed to initialize knowledge base retrieval pipeline: %w", err)
 		}
 
-		// 创建索引器（Agent Compose 链）
+		// Create the indexer (Agent Compose chain)
 		knowledgeIndexer, err = knowledge.NewIndexer(context.Background(), knowledgeDB, embedder, log.Logger, &cfg.Knowledge)
 		if err != nil {
 			return nil, fmt.Errorf("failed to initialize knowledge base indexer: %w", err)
@@ -365,7 +365,7 @@ func New(cfg *config.Config, log *logger.Logger, configPath, updateActivation st
 	}
 
 	skillsDir := skillpackage.SkillsRootFromConfig(cfg.SkillsDir, configPath)
-	log.Logger.Debug("Skills 目录（Pi skill 中间件 + Web 管理 API）", zap.String("skillsDir", skillsDir))
+	log.Logger.Debug("Skills directory (Pi skill middleware + Web management API)", zap.String("skillsDir", skillsDir))
 	configDir := filepath.Dir(configPath)
 	plantaskRel := strings.TrimSpace(cfg.MultiAgent.Runtime.PlantaskRelDir)
 	if plantaskRel == "" {
@@ -564,7 +564,7 @@ func New(cfg *config.Config, log *logger.Logger, configPath, updateActivation st
 	}
 	configHandler.SetWebshellToolRegistrar(webshellRegistrar)
 
-	// Skills 由 Pi skill 中间件提供（多代理）；此处不注册 MCP 形态的技能工具
+	// Skills are provided by the Pi skill middleware (multi-agent); no MCP-style skill tools are registered here
 	configHandler.SetSkillsToolRegistrar(func() error { return nil })
 
 	handler.RegisterBatchTaskMCPTools(mcpServer, agentHandler, log.Logger)
@@ -752,7 +752,7 @@ func (a *App) RunWithContext(ctx context.Context) error {
 				zap.String("cert", certFile),
 			)
 		case mainTLSAutoSelfSigned:
-			a.logger.Debug("启动 HTTPS 主服务（自动自签证书，仅测试；已启用 HTTP/2 协商）",
+			a.logger.Debug("starting HTTPS main service (auto self-signed certificate, testing only; HTTP/2 negotiation enabled)",
 				zap.String("address", addr),
 			)
 		}
@@ -1042,7 +1042,7 @@ func setupRoutes(
 		protected.POST("/robot/wechat/qrcode/verify", wechatRobotHandler.HandleWechatVerifyCode)
 		protected.GET("/robot/wechat/status", wechatRobotHandler.HandleWechatStatus)
 
-		// Pi 单代理（ChatModelAgent + Runner；不依赖 multi_agent.enabled）
+		// Pi single-agent (ChatModelAgent + Runner; does not depend on multi_agent.enabled)
 		protected.POST("/agent", agentHandler.SingleAgentLoop)
 		protected.POST("/agent/runs", agentHandler.SubmitSingleAgentRun)
 		protected.POST("/multi-agent/runs", agentHandler.SubmitMultiAgentRun)
@@ -1077,8 +1077,8 @@ func setupRoutes(
 		protected.GET("/agent-loop/task-events", agentHandler.SubscribeAgentTaskEvents)
 		protected.GET("/agent-loop/tasks/completed", agentHandler.ListCompletedTasks)
 
-		// Agent DeepAgent 多代理（与单 Agent 并存，需 config.multi_agent.enabled）
-		// 多代理路由常注册；是否可用由运行时 h.config.MultiAgent.Enabled 决定（应用配置后无需重启）
+		// Agent DeepAgent multi-agent (coexists with single Agent; requires config.multi_agent.enabled)
+		// Multi-agent routes are always registered; availability is decided at runtime by h.config.MultiAgent.Enabled (no restart needed after applying config)
 		protected.POST("/multi-agent", agentHandler.MultiAgentLoop)
 		protected.POST("/multi-agent/stream", agentHandler.MultiAgentLoopStream)
 		protected.GET("/multi-agent/markdown-agents", markdownAgentsHandler.ListMarkdownAgents)
@@ -2177,14 +2177,14 @@ func initializeKnowledge(
 		return nil, fmt.Errorf("failed to initialize knowledge base embedder: %w", err)
 	}
 
-	// 创建检索器（Agent MultiQuery + 重排流水线）
+	// Create the retriever (Agent MultiQuery + rerank pipeline)
 	retrievalConfig := knowledge.RetrievalConfigFromYAML(cfg.Knowledge.Retrieval)
 	knowledgeRetriever := knowledge.NewRetriever(knowledgeDB, embedder, retrievalConfig, logger)
 	if err := knowledge.WireRetrieverPipeline(context.Background(), knowledgeRetriever, &cfg.OpenAI); err != nil {
 		return nil, fmt.Errorf("failed to initialize knowledge base retrieval pipeline: %w", err)
 	}
 
-	// 创建索引器（Agent Compose 链）
+	// Create the indexer (Agent Compose chain)
 	knowledgeIndexer, err := knowledge.NewIndexer(context.Background(), knowledgeDB, embedder, logger, &cfg.Knowledge)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize knowledge base indexer: %w", err)

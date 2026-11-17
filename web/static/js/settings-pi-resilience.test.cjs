@@ -10,7 +10,7 @@ const template = fs.readFileSync(path.join(root, 'web/templates/index.html'), 'u
 const zh = JSON.parse(fs.readFileSync(path.join(root, 'web/static/i18n/zh-CN.json'), 'utf8'));
 const en = JSON.parse(fs.readFileSync(path.join(root, 'web/static/i18n/en-US.json'), 'utf8'));
 
-test('Pi 模型 retry/failover 设置页读写链路完整', () => {
+test('Pi model retry/failover settings page read/write path is complete', () => {
     [
         'pi-model-retry-max-retries',
         'pi-model-retry-max-backoff-sec',
@@ -34,7 +34,7 @@ test('Pi 模型 retry/failover 设置页读写链路完整', () => {
     assert.match(settings, /Array\.from\(new Set\(/);
 });
 
-test('Pi 模型 retry/failover 设置项有中英文文案', () => {
+test('Pi model retry/failover settings have Chinese and English text', () => {
     [
         'piModelRetryMaxRetries',
         'piModelRetryMaxRetriesHint',
@@ -53,7 +53,7 @@ test('Pi 模型 retry/failover 设置项有中英文文案', () => {
     });
 });
 
-test('AI 通道保存前会自动识别 DeepSeek 官方线路', () => {
+test('AI channel auto-detects the official DeepSeek route before saving', () => {
     assert.match(settings, /function\s+isOfficialDeepSeekBaseURL/);
     assert.match(settings, /api\.deepseek\.com/);
     assert.match(settings, /profile:\s*'deepseek'/);
@@ -62,13 +62,13 @@ test('AI 通道保存前会自动识别 DeepSeek 官方线路', () => {
     assert.match(template, /<option value="deepseek">deepseek<\/option>/);
 });
 
-test('切换或新增 AI 通道时会刷新推理线路下拉显示', () => {
+test('switching or adding an AI channel refreshes the reasoning route dropdown', () => {
     assert.match(settings, /const profileEl = document\.getElementById\('openai-reasoning-profile'\);/);
     assert.match(settings, /syncSettingsCustomSelect\(profileEl\);/);
     assert.match(settings, /reasoning:\s*\{\s*mode:\s*'auto',\s*effort:\s*'',\s*profile:\s*'auto'/);
 });
 
-test('隐藏上下文档位后保存和探测仍保留已有配置', async () => {
+test('saving and probing keep existing config after the context profile is hidden', async () => {
     assert.doesNotMatch(template, /openai-context-profile|settingsBasic\.contextProfile/);
     const formCode = settings.slice(settings.indexOf('function normalizeAIChannelId('), settings.indexOf('function writeAIChannelToMainForm('));
     const probeCode = settings.slice(settings.indexOf('async function detectAIContext('), settings.indexOf('// Save tool config (standalone function'));
@@ -108,7 +108,7 @@ test('隐藏上下文档位后保存和探测仍保留已有配置', async () =>
     }
 });
 
-test('保存通道自动识别本地服务，切换服务清除自动判定', async () => {
+test('saving a channel auto-detects local services, and switching service clears the auto-detection', async () => {
     const formCode = settings.slice(settings.indexOf('function normalizeAIChannelId('), settings.indexOf('function writeAIChannelToMainForm('));
     const detectionCode = settings.slice(settings.indexOf('async function detectChannelContextForSave('), settings.indexOf('async function persistAIConfigOnlyToServer('));
     const fields = { 'openai-provider': 'openai_compatible', 'openai-base-url': 'http://127.0.0.1:8000/v1', 'openai-model': 'local-model' };

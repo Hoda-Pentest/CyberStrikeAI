@@ -22,8 +22,8 @@ const sessionHeaderPlaceholder = "%session_id%"
 
 type sessionIDContextKey struct{}
 
-// WithSessionID 把当前对话 ID 注入 ctx。handler 在任务开始时注入一次，
-// 后续 Agent ChatModel 与内置 Client 发出的 HTTP 请求都能在请求上下文里读到。
+// WithSessionID injects the current conversation ID into ctx. The handler injects it once at task start,
+// so subsequent HTTP requests from the Agent ChatModel and the built-in Client can read it from the request context.
 func WithSessionID(ctx context.Context, sessionID string) context.Context {
 	if ctx == nil {
 		return nil
@@ -106,7 +106,7 @@ func applyCustomHeaders(req *http.Request, cfg *config.OpenAIConfig) {
 	}
 }
 
-// headersRoundTripper 为经过 Agent ChatModel 的请求注入渠道自定义请求头。
+// headersRoundTripper injects the channel's custom request headers into requests going through the Agent ChatModel.
 type headersRoundTripper struct {
 	base http.RoundTripper
 	cfg  *config.OpenAIConfig

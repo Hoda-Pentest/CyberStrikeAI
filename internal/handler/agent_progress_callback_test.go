@@ -100,8 +100,8 @@ func TestCreateProgressCallback_RecordsSkillStats(t *testing.T) {
 	}
 }
 
-// TestCreateProgressCallback_MirrorsWebStreamEvents 页面刷新后 task-events 订阅必须
-// 继续收到原 Web SSE 任务的后续事件，不能只等数据库最终结果。
+// TestCreateProgressCallback_MirrorsWebStreamEvents: after a page refresh, the task-events subscription must
+// keep receiving subsequent events of the original Web SSE task instead of waiting only for the final database result.
 func TestCreateProgressCallback_MirrorsWebStreamEvents(t *testing.T) {
 	bus := NewTaskEventBus()
 	h := &AgentHandler{logger: zap.NewNop(), config: &config.Config{}, taskEventBus: bus}
@@ -154,7 +154,7 @@ func TestCreateProgressCallback_HidesInternalAgentDiagnostics(t *testing.T) {
 	cb("model_output_rejected", "The model's tool call was incomplete or had unsafe arguments; execution was blocked and a rewrite was requested.", map[string]interface{}{
 		"reason": "invalid_tool_arguments_json",
 	})
-	cb("progress", "Agent TurnLoop 常驻多轮 runtime 已接管本轮会话。", map[string]interface{}{
+	cb("progress", "Agent TurnLoop persistent multi-turn runtime has taken over this session turn.", map[string]interface{}{
 		"kind": "turn_loop_takeover",
 	})
 

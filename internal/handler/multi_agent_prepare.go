@@ -15,7 +15,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// multiAgentPrepared 多代理请求在调用 Agent 前的会话与消息准备结果。
+// multiAgentPrepared is the session and message preparation result of a multi-agent request before calling Agent.
 type multiAgentPrepared struct {
 	ConversationID     string
 	CreatedNew         bool

@@ -145,7 +145,7 @@ func RegisterBatchTaskMCPTools(mcpServer *mcp.Server, h *AgentHandler, logger *z
 
 [When to use] Call it when the user explicitly wants to batch-queue execution, run the same batch of instructions on a Cron cycle, or needs to align with the task management page. Analysis/coding that requires immediate follow-up questions and strongly depends on the current conversation context should be completed directly in this conversation; do not create a queue for the sake of "delegation".
 
-【参数】tasks（字符串数组）或 tasks_text（多行，每行一条）二选一；每项是一条将来由系统按队列顺序执行的指令文案。agent_mode：single（Pi 单代理，默认）、deep / plan_execute / supervisor（需系统启用多代理）。非”把主对话拆给子代理”。schedule_mode：manual（默认）或 cron；cron 须填 cron_expr（5 段，如 “0 */6 * * *”）。
+[Parameters] Provide either tasks (string array) or tasks_text (multi-line, one per line); each item is an instruction the system will later execute in queue order. agent_mode: single (Pi single-agent, default), deep / plan_execute / supervisor (requires multi-agent enabled in the system). This is not "splitting the main conversation to sub-agents". schedule_mode: manual (default) or cron; cron requires cron_expr (5 fields, e.g. "0 */6 * * *").
 
 [Execution] By default it is pending after creation and does not run automatically. execute_now=true runs it immediately after creation; otherwise call batch_task_start later. The next Cron round requires schedule_enabled to be true (via batch_task_schedule_enabled).`,
 		ShortDescription: "Task management: create a batch task queue (register multiple instructions, optionally run immediately or by Cron)",
@@ -171,7 +171,7 @@ func RegisterBatchTaskMCPTools(mcpServer *mcp.Server, h *AgentHandler, logger *z
 				},
 				"agent_mode": map[string]interface{}{
 					"type":        "string",
-					"description": "执行模式：single（Pi，默认）、deep/plan_execute/supervisor（Agent 编排，需启用多代理）",
+					"description": "Execution mode: single (Pi, default), deep/plan_execute/supervisor (Agent orchestration, requires multi-agent enabled)",
 					"enum":        []string{"single", "deep", "plan_execute", "supervisor"},
 				},
 				"schedule_mode": map[string]interface{}{
@@ -427,7 +427,7 @@ Used together with batch_task_create: merely creating a queue does not run it au
 				},
 				"agent_mode": map[string]interface{}{
 					"type":        "string",
-					"description": "代理模式：single、deep、plan_execute、supervisor",
+					"description": "Agent mode: single, deep, plan_execute, supervisor",
 					"enum":        []string{"single", "deep", "plan_execute", "supervisor"},
 				},
 				"concurrency": map[string]interface{}{

@@ -1368,7 +1368,7 @@ func dedupeContextWarnings(warnings []string) []string {
 func (h *ConfigHandler) DetectContext(c *gin.Context) {
 	var req DetectContextRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "无效的请求参数: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request parameters: " + err.Error()})
 		return
 	}
 	resolvedKey, resolveErr := h.resolveProbeSecret(req.APIKey, req.ChannelID, req.BaseURL, req.CredentialScope)
@@ -1386,12 +1386,12 @@ func (h *ConfigHandler) DetectContext(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"success":   false,
 			"supported": false,
-			"error":     "Claude (Anthropic Messages API) 不提供上下文窗口探测，请手动填写",
+			"error":     "Claude (Anthropic Messages API) does not support context window detection; please fill it in manually",
 		})
 		return
 	}
 	if strings.TrimSpace(req.Model) == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "模型不能为空"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "model must not be empty"})
 		return
 	}
 	baseURL := strings.TrimSuffix(strings.TrimSpace(req.BaseURL), "/")
@@ -1455,7 +1455,7 @@ func (h *ConfigHandler) TestOpenAI(c *gin.Context) {
 		maxTokensField: 5,
 	}
 
-	// OpenAI-compatible 通道使用内部客户端；Claude 通道在下方直接使用 Agent agenticclaude。
+	// OpenAI-compatible channels use the internal client; Claude channels use Agent agenticclaude directly below.
 	tmpCfg := &config.OpenAIConfig{
 		Provider: req.Provider,
 		BaseURL:  baseURL,
@@ -1888,7 +1888,7 @@ func (h *ConfigHandler) ApplyConfig(c *gin.Context) {
 	// clear tools in the MCP server
 	h.mcpServer.ClearTools()
 
-	// 重新注册安全工具
+	// Re-register security tools
 	h.executor.SetToolOutputMaxBytes(h.config.MultiAgent.Runtime.ReductionMaxLengthForTruncEffective())
 	h.executor.SetToolOutputSpillRoot(h.config.MultiAgent.Runtime.ReductionRootDir)
 	h.executor.RegisterTools(h.mcpServer)

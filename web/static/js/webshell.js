@@ -154,7 +154,7 @@ function applyWebshellDetectedOS(conn, data) {
     }
 }
 
-/** 与主对话页一致：Pi 模式走 /api/multi-agent/stream，body 带 orchestration */
+/** Same as the main chat page: Pi mode uses /api/multi-agent/stream with orchestration in the body */
 function resolveWebshellAiStreamRequest() {
     if (typeof apiFetch === 'undefined') {
         return Promise.resolve({ path: '/api/agent/stream', orchestration: null });
@@ -2187,7 +2187,7 @@ function formatWebshellCompactInteger(value) {
 
 function formatWebshellPiUsageSummaryTitle(data) {
     var d = data && typeof data === 'object' ? data : {};
-    var base = wsTOr('chat.piUsageSummaryTitle', 'Token 用量汇总');
+    var base = wsTOr('chat.piUsageSummaryTitle', 'Token usage summary');
     var total = Number(d.totalTokens || 0);
     if (Number.isFinite(total) && total > 0) {
         return base + ' · ' + formatWebshellCompactInteger(total);
@@ -2198,19 +2198,19 @@ function formatWebshellPiUsageSummaryTitle(data) {
 function formatWebshellPiUsageSummaryMessage(data) {
     var d = data && typeof data === 'object' ? data : {};
     var rows = [
-        [wsTOr('chat.piUsageModelCalls', '模型调用'), d.modelCalls],
-        [wsTOr('chat.piUsagePromptTokens', '输入 tokens'), d.promptTokens],
-        [wsTOr('chat.piUsageCompletionTokens', '输出 tokens'), d.completionTokens],
-        [wsTOr('chat.piUsageTotalTokens', '总 tokens'), d.totalTokens]
+        [wsTOr('chat.piUsageModelCalls', 'Model calls'), d.modelCalls],
+        [wsTOr('chat.piUsagePromptTokens', 'Input tokens'), d.promptTokens],
+        [wsTOr('chat.piUsageCompletionTokens', 'Output tokens'), d.completionTokens],
+        [wsTOr('chat.piUsageTotalTokens', 'Total tokens'), d.totalTokens]
     ];
     if (Number(d.cachedTokens || 0) > 0) {
-        rows.push([wsTOr('chat.piUsageCachedTokens', '缓存 tokens'), d.cachedTokens]);
+        rows.push([wsTOr('chat.piUsageCachedTokens', 'Cached tokens'), d.cachedTokens]);
     }
     if (Number(d.cacheWriteTokens || 0) > 0) {
-        rows.push([wsTOr('chat.piUsageCacheWriteTokens', '缓存写入 tokens'), d.cacheWriteTokens]);
+        rows.push([wsTOr('chat.piUsageCacheWriteTokens', 'Cache write tokens'), d.cacheWriteTokens]);
     }
     if (Number(d.reasoningTokens || 0) > 0) {
-        rows.push([wsTOr('chat.piUsageReasoningTokens', '推理 tokens'), d.reasoningTokens]);
+        rows.push([wsTOr('chat.piUsageReasoningTokens', 'Reasoning tokens'), d.reasoningTokens]);
     }
     return rows.map(function (row) {
         return row[0] + ': ' + formatWebshellCompactInteger(row[1]);
@@ -2257,7 +2257,7 @@ function buildWebshellTimelineItemFromDetail(detail) {
             : ((typeof window.t === 'function') ? (success ? window.t('chat.toolExecComplete', { name: tname }) : window.t('chat.toolExecFailed', { name: tname })) : (tname + (success ? ' completed' : ' failed')));
         title = ap + wsIcon + wsLabel;
     } else if (eventType === 'agent_reply') {
-        title = ap + '💬 ' + ((typeof window.t === 'function') ? window.t('chat.agentNameReplyTitle') : '子代理回复');
+        title = ap + '💬 ' + ((typeof window.t === 'function') ? window.t('chat.agentNameReplyTitle') : 'Sub-agent reply');
     } else if (eventType === 'agent_usage_summary') {
         title = ap + '📊 ' + formatWebshellPiUsageSummaryTitle(data);
     } else if (eventType === 'progress') {
@@ -2576,7 +2576,7 @@ function selectWebshell(id, stateReady) {
         '<div class="agent-mode-inner">' +
         '<button type="button" class="role-selector-btn agent-mode-btn" id="ws-agent-mode-btn" onclick="wsToggleAgentModePanel()">' +
         '<span id="ws-agent-mode-icon" class="role-selector-icon">\ud83e\udd16</span>' +
-        '<span id="ws-agent-mode-text" class="role-selector-text">' + (wsT('chat.agentModePiSingle') || 'Pi 单代理') + '</span>' +
+        '<span id="ws-agent-mode-text" class="role-selector-text">' + (wsT('chat.agentModePiSingle') || 'Pi single-agent') + '</span>' +
         '<svg class="role-selector-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
         '</button>' +
         '<div id="ws-agent-mode-panel" class="agent-mode-panel" style="display:none;" role="listbox">' +
@@ -2584,10 +2584,10 @@ function selectWebshell(id, stateReady) {
         '<button type="button" class="role-selection-panel-close" onclick="wsCloseAgentModePanel()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' +
         '</div>' +
         '<div class="agent-mode-options">' +
-        '<button type="button" class="role-selection-item-main agent-mode-option ws-agent-mode-option" data-value="single" role="option" onclick="wsSelectAgentMode(\'single\')" data-agent-mode-detail="' + escapeHtmlAttr(wsT('chat.agentModePiSingleHint') || 'Pi ChatModelAgent + Runner') + '"><div class="role-selection-item-icon-main">\u26a1</div><div class="role-selection-item-content-main"><div class="role-selection-item-name-main">' + (wsT('chat.agentModePiSingle') || 'Pi 单代理') + '</div><div class="role-selection-item-description-main">' + (wsT('chat.agentModePiSingleHint') || 'Pi ChatModelAgent + Runner') + '</div></div><div class="role-selection-checkmark-main agent-mode-check" data-agent-mode-check="single">\u2713</div></button>' +
-        '<button type="button" class="role-selection-item-main agent-mode-option ws-agent-mode-option" data-value="deep" role="option" onclick="wsSelectAgentMode(\'deep\')" data-agent-mode-detail="' + escapeHtmlAttr(wsT('chat.agentModeDeepHint') || 'Pi 多代理，适合复杂安全测试、多阶段 task 子代理委派与汇总') + '"><div class="role-selection-item-icon-main">\ud83e\udde9</div><div class="role-selection-item-content-main"><div class="role-selection-item-name-main">' + (wsT('chat.agentModeDeep') || 'Deep（DeepAgent）') + '</div><div class="role-selection-item-description-main">' + (wsT('chat.agentModeDeepHint') || 'Pi 多代理，适合复杂安全测试、多阶段 task 子代理委派与汇总') + '</div></div><div class="role-selection-checkmark-main agent-mode-check" data-agent-mode-check="deep">\u2713</div></button>' +
-        '<button type="button" class="role-selection-item-main agent-mode-option ws-agent-mode-option" data-value="plan_execute" role="option" onclick="wsSelectAgentMode(\'plan_execute\')" data-agent-mode-detail="' + escapeHtmlAttr(wsT('chat.agentModePlanExecuteHint') || '规划 → 执行 → 重规划') + '"><div class="role-selection-item-icon-main">\ud83d\udccb</div><div class="role-selection-item-content-main"><div class="role-selection-item-name-main">' + (wsT('chat.agentModePlanExecuteLabel') || 'Plan-Execute') + '</div><div class="role-selection-item-description-main">' + (wsT('chat.agentModePlanExecuteHint') || '规划 → 执行 → 重规划') + '</div></div><div class="role-selection-checkmark-main agent-mode-check" data-agent-mode-check="plan_execute">\u2713</div></button>' +
-        '<button type="button" class="role-selection-item-main agent-mode-option ws-agent-mode-option" data-value="supervisor" role="option" onclick="wsSelectAgentMode(\'supervisor\')" data-agent-mode-detail="' + escapeHtmlAttr(wsT('chat.agentModeSupervisorHint') || '专家路由场景：监督者通过 transfer 动态分派多个专业子代理') + '"><div class="role-selection-item-icon-main">\ud83c\udfaf</div><div class="role-selection-item-content-main"><div class="role-selection-item-name-main">' + (wsT('chat.agentModeSupervisorLabel') || 'Supervisor（专家路由）') + '</div><div class="role-selection-item-description-main">' + (wsT('chat.agentModeSupervisorHint') || '专家路由场景：监督者通过 transfer 动态分派多个专业子代理') + '</div></div><div class="role-selection-checkmark-main agent-mode-check" data-agent-mode-check="supervisor">\u2713</div></button>' +
+        '<button type="button" class="role-selection-item-main agent-mode-option ws-agent-mode-option" data-value="single" role="option" onclick="wsSelectAgentMode(\'single\')" data-agent-mode-detail="' + escapeHtmlAttr(wsT('chat.agentModePiSingleHint') || 'Pi ChatModelAgent + Runner') + '"><div class="role-selection-item-icon-main">\u26a1</div><div class="role-selection-item-content-main"><div class="role-selection-item-name-main">' + (wsT('chat.agentModePiSingle') || 'Pi single-agent') + '</div><div class="role-selection-item-description-main">' + (wsT('chat.agentModePiSingleHint') || 'Pi ChatModelAgent + Runner') + '</div></div><div class="role-selection-checkmark-main agent-mode-check" data-agent-mode-check="single">\u2713</div></button>' +
+        '<button type="button" class="role-selection-item-main agent-mode-option ws-agent-mode-option" data-value="deep" role="option" onclick="wsSelectAgentMode(\'deep\')" data-agent-mode-detail="' + escapeHtmlAttr(wsT('chat.agentModeDeepHint') || 'Pi multi-agent, for complex security testing, multi-stage task delegation to sub-agents, and synthesis') + '"><div class="role-selection-item-icon-main">\ud83e\udde9</div><div class="role-selection-item-content-main"><div class="role-selection-item-name-main">' + (wsT('chat.agentModeDeep') || 'Deep (DeepAgent)') + '</div><div class="role-selection-item-description-main">' + (wsT('chat.agentModeDeepHint') || 'Pi multi-agent, for complex security testing, multi-stage task delegation to sub-agents, and synthesis') + '</div></div><div class="role-selection-checkmark-main agent-mode-check" data-agent-mode-check="deep">\u2713</div></button>' +
+        '<button type="button" class="role-selection-item-main agent-mode-option ws-agent-mode-option" data-value="plan_execute" role="option" onclick="wsSelectAgentMode(\'plan_execute\')" data-agent-mode-detail="' + escapeHtmlAttr(wsT('chat.agentModePlanExecuteHint') || 'Plan → Execute → Replan') + '"><div class="role-selection-item-icon-main">\ud83d\udccb</div><div class="role-selection-item-content-main"><div class="role-selection-item-name-main">' + (wsT('chat.agentModePlanExecuteLabel') || 'Plan-Execute') + '</div><div class="role-selection-item-description-main">' + (wsT('chat.agentModePlanExecuteHint') || 'Plan → Execute → Replan') + '</div></div><div class="role-selection-checkmark-main agent-mode-check" data-agent-mode-check="plan_execute">\u2713</div></button>' +
+        '<button type="button" class="role-selection-item-main agent-mode-option ws-agent-mode-option" data-value="supervisor" role="option" onclick="wsSelectAgentMode(\'supervisor\')" data-agent-mode-detail="' + escapeHtmlAttr(wsT('chat.agentModeSupervisorHint') || 'Expert routing: the supervisor dynamically dispatches multiple specialist sub-agents via transfer') + '"><div class="role-selection-item-icon-main">\ud83c\udfaf</div><div class="role-selection-item-content-main"><div class="role-selection-item-name-main">' + (wsT('chat.agentModeSupervisorLabel') || 'Supervisor (expert routing)') + '</div><div class="role-selection-item-description-main">' + (wsT('chat.agentModeSupervisorHint') || 'Expert routing: the supervisor dynamically dispatches multiple specialist sub-agents via transfer') + '</div></div><div class="role-selection-checkmark-main agent-mode-check" data-agent-mode-check="supervisor">\u2713</div></button>' +
         '</div></div></div>' +
         '<input type="hidden" id="ws-agent-mode-select" value="single" autocomplete="off" />' +
         '</div>' +
@@ -3627,19 +3627,19 @@ function runWebshellAiSend(conn, inputEl, sendBtn, messagesContainer) {
                         var finalizationOk = !!(_ed && _ed.finalized === true);
                         appendTimelineItem('finalization_check', finalizationOk ? 'Final reply check passed' : 'Final reply check failed', finalizationOk ? (_em || 'Final reply check passed.') : webshellFinalizationNotice(_ed || {}, _em, true), _ed);
                     } else if (_et === 'finalization_auto_continue') {
-                        appendTimelineItem('progress', '继续验证', _em, _ed);
+                        appendTimelineItem('progress', 'Continue verification', _em, _ed);
                     } else if (_et === 'pi_model_retry') {
                         var retryAttempt = _ed && _ed.attempt ? ('（' + _ed.attempt + '）') : '';
-                        var retryMsg = _em || '模型调用遇到临时问题，Pi 正在原生重试…';
-                        if (_ed && _ed.reason) retryMsg += '\n原因：' + _ed.reason;
-                        if (_ed && _ed.error) retryMsg += '\n错误详情：' + _ed.error;
-                        appendTimelineItem('warning', '🔁 模型调用重试' + retryAttempt, retryMsg, _ed);
+                        var retryMsg = _em || 'The model call hit a transient problem; Pi is retrying natively…';
+                        if (_ed && _ed.reason) retryMsg += '\nReason: ' + _ed.reason;
+                        if (_ed && _ed.error) retryMsg += '\nError details: ' + _ed.error;
+                        appendTimelineItem('warning', '🔁 Model call retry' + retryAttempt, retryMsg, _ed);
                     } else if (_et === 'pi_model_failover') {
                         var failoverAttempt = _ed && _ed.attempt ? ('（' + _ed.attempt + '）') : '';
-                        var failoverMsg = _em || '主模型重试耗尽，正在切换备用模型。';
-                        if (_ed && _ed.channel) failoverMsg += '\n通道：' + _ed.channel;
-                        if (_ed && _ed.model) failoverMsg += '\n模型：' + _ed.model;
-                        appendTimelineItem('warning', '🔀 切换备用模型' + failoverAttempt, failoverMsg, _ed);
+                        var failoverMsg = _em || 'Main model retries exhausted; switching to the fallback model.';
+                        if (_ed && _ed.channel) failoverMsg += '\nChannel: ' + _ed.channel;
+                        if (_ed && _ed.model) failoverMsg += '\nModel: ' + _ed.model;
+                        appendTimelineItem('warning', '🔀 Switching to fallback model' + failoverAttempt, failoverMsg, _ed);
                     } else if (_et === 'agent_usage_summary') {
                         appendTimelineItem('agent_usage_summary', '📊 ' + formatWebshellPiUsageSummaryTitle(_ed), formatWebshellPiUsageSummaryMessage(_ed), _ed);
                     } else if (_et === 'error' && _em) {
@@ -3804,8 +3804,8 @@ function runWebshellAiSend(conn, inputEl, sendBtn, messagesContainer) {
                             var preExist = stExist.el && stExist.el.querySelector('.webshell-pi-reply-stream-body');
                             if (preExist) preExist.textContent = '';
                         } else {
-                        var repTS = wsTOr('chat.agentNameReplyTitle', '子代理回复');
-                        var runTS = wsTOr('timeline.running', '执行中...');
+                        var repTS = wsTOr('chat.agentNameReplyTitle', 'Sub-agent reply');
+                        var runTS = wsTOr('timeline.running', 'Running...');
                         var itemS = document.createElement('div');
                         itemS.className = 'webshell-ai-timeline-item webshell-ai-timeline-agent_reply';
                         itemS.innerHTML = '<span class="webshell-ai-timeline-title">' + escapeHtml(webshellAgentPx(_ed) + '💬 ' + repTS + ' · ' + runTS) + '</span>';
@@ -3843,7 +3843,7 @@ function runWebshellAiSend(conn, inputEl, sendBtn, messagesContainer) {
                         var stE = piSubReplyStreams.get(_ed.streamId);
                         if (stE) {
                             var fullE = (_em != null && _em !== '') ? String(_em) : stE.buf;
-                            var repTE = wsTOr('chat.agentNameReplyTitle', '子代理回复');
+                            var repTE = wsTOr('chat.agentNameReplyTitle', 'Sub-agent reply');
                             var titE = stE.el.querySelector('.webshell-ai-timeline-title');
                             if (titE) titE.textContent = webshellAgentPx(_ed) + '💬 ' + repTE;
                             var preE = stE.el.querySelector('.webshell-pi-reply-stream-body');
@@ -3862,7 +3862,7 @@ function runWebshellAiSend(conn, inputEl, sendBtn, messagesContainer) {
                         }
                         if (!streamingTarget) assistantDiv.textContent = '…';
                     } else if (_et === 'agent_reply' && _em) {
-                        var replyT = wsTOr('chat.agentNameReplyTitle', '子代理回复');
+                        var replyT = wsTOr('chat.agentNameReplyTitle', 'Sub-agent reply');
                         appendTimelineItem('agent_reply', webshellAgentPx(_ed) + '💬 ' + replyT, _em, _ed);
                         if (!streamingTarget) assistantDiv.textContent = '…';
                     }

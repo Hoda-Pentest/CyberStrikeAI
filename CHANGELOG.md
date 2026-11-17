@@ -4,10 +4,10 @@
 
 ### Added
 
-- 默认 Agent 运行时迁移为 Pi 1.5.2：Go 工具网关继续处理角色、审批、监控与证据；聊天与子代理的模型提案接入 Pi。新增按源码指纹发布的 Node Worker、流式协议、会话恢复和原生工具检索。部署需 Node.js >=22.19；已删除 Eino 内核、模型适配、桥接和全部依赖，运行时仅支持 Pi。
-- Workflow 改用原生 DAG 与版本化检查点，知识库改用自身文档、切分、Embedding 和检索组件。旧 Eino Workflow 检查点无法由新版直接恢复，升级前需完成或导出旧任务，详见 [Pi 迁移说明](docs/zh-CN/pi-runtime.md)。
+- The default Agent runtime migrated to Pi 1.5.2: the Go tool gateway still handles roles, approvals, monitoring and evidence; model proposals for chat and sub-agents go through Pi. Added a Node Worker published by source fingerprint, a streaming protocol, session resume and native tool retrieval. Deployment requires Node.js >=22.19; the Eino kernel, model adapters, bridges and all dependencies were removed, and the runtime supports Pi only.
+- Workflow now uses a native DAG with versioned checkpoints, and the knowledge base uses its own document, chunking, embedding and retrieval components. Old Eino Workflow checkpoints cannot be resumed directly by the new version; finish or export old tasks before upgrading. See the [Pi migration notes](docs/en-US/pi-runtime.md).
 
-- AI 渠道支持自定义 HTTP 请求头、环境变量和会话 ID 占位符；保存后的鉴权头可安全用于连接测试，独立审计身份隔离主渠道请求头，自定义头不会跟随跨源重定向。
+- AI channels support custom HTTP request headers, environment variables and a session ID placeholder; saved auth headers can be safely used for connection tests, an independent audit identity isolates the main channel's headers, and custom headers are not forwarded on cross-origin redirects.
 
 - Added `agent.task_timeout_minutes` to configure execution timeouts for single-agent, multi-agent, workflow, and asynchronous tasks: unset defaults to 600 minutes, `0` means no limit, and negative values are refused at load time; resumed runs preserve the re-timing behavior, and per-tool timeouts still apply independently.
 

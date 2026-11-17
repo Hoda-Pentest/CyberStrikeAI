@@ -101,7 +101,7 @@ func normalizeProcessDetailText(s string) string {
 // discardPlanningIfEchoesToolResult drops buffered planning text when it only repeats the
 // upcoming tool_result body. Streaming models often echo tool stdout in chunk.Content; flushing
 // that into "planning" before persisting tool_result duplicates the output after page refresh.
-// sameResponseStreamMeta 判断是否为同一段主通道流（Pi 可能对同一 MessageStream 重复发 response_start）。
+// sameResponseStreamMeta reports whether this is the same main-channel stream segment (Pi may send response_start repeatedly for the same MessageStream).
 func sameResponseStreamMeta(a, b map[string]interface{}) bool {
 	if a == nil || b == nil {
 		return false
@@ -213,7 +213,7 @@ func (h *AgentHandler) SetAudit(s *audit.Service) {
 	h.audit = s
 }
 
-// TaskManager 返回 Agent 任务管理器（供 MCP 监控页终止 Agent execute 等）。
+// TaskManager returns the Agent task manager (used by the MCP monitor page to terminate Agent execute, etc.).
 func (h *AgentHandler) TaskManager() *AgentTaskManager {
 	if h == nil {
 		return nil
@@ -389,7 +389,7 @@ type ChatAttachment struct {
 	ServerPath string `json:"serverPath,omitempty"` // absolute path already saved under chat_uploads (returned by POST /api/chat-uploads)
 }
 
-// ChatReasoningRequest 对话页「模型推理」意图（Agent 单/多代理路径消费）。
+// ChatReasoningRequest is the chat page's "model reasoning" intent (consumed by the Agent single/multi-agent paths).
 type ChatReasoningRequest struct {
 	// Mode: default (follow the system) | off | on | auto
 	Mode string `json:"mode,omitempty"`
@@ -415,7 +415,7 @@ type ChatRequest struct {
 	Hitl                 *HITLRequest            `json:"hitl,omitempty"`
 	Reasoning            *ChatReasoningRequest   `json:"reasoning,omitempty"`
 	Finalization         ChatFinalizationRequest `json:"finalization,omitempty"`
-	// Orchestration 仅对 /api/multi-agent、/api/multi-agent/stream：deep | plan_execute | supervisor；空则等同 deep。机器人/批量等无请求体时由服务端默认 deep。/api/agent* 不使用此字段。
+	// Orchestration applies only to /api/multi-agent and /api/multi-agent/stream: deep | plan_execute | supervisor; empty means deep. When robots/batch have no request body, the server defaults to deep. /api/agent* does not use this field.
 	Orchestration string `json:"orchestration,omitempty"`
 }
 
@@ -764,7 +764,7 @@ func (h *AgentHandler) finalizeRobotAgentError(ctx context.Context, assistantMes
 	if shouldPersistAgentAgentTraceAfterRunError(ctx) {
 		h.persistAgentAgentTraceForResume(conversationID, resultMA)
 	}
-	errMsg := "执行失败: " + multiagent.ClientRunErrorMessage(errMA)
+	errMsg := "Execution failed: " + multiagent.ClientRunErrorMessage(errMA)
 	if assistantMessageID != "" {
 		_, _ = h.db.Exec("UPDATE messages SET content = ?, updated_at = ? WHERE id = ?", errMsg, time.Now(), assistantMessageID)
 		_ = h.db.AddProcessDetail(assistantMessageID, conversationID, "error", errMsg, nil)
@@ -835,7 +835,7 @@ func (h *AgentHandler) runRobotMultiAgentWithRetry(
 	return h.finalizeRobotAgentSuccess(taskCtx, assistantMessageID, conversationID, resultMA)
 }
 
-// ProcessMessageForRobot 供机器人（企业微信/钉钉/飞书）调用：Agent 单/多代理执行路径（含 progressCallback、过程详情），仅不发送 SSE，最后返回完整回复
+// ProcessMessageForRobot is called by robots (WeCom/DingTalk/Lark): runs the Agent single/multi-agent path (including progressCallback and process details) without sending SSE, and returns the full reply at the end
 func (h *AgentHandler) ProcessMessageForRobot(ctx context.Context, platform string, principal authctx.Principal, conversationID, message, role, agentMode string) (response string, convID string, err error) {
 	ownerUserID := strings.TrimSpace(principal.UserID)
 	if ownerUserID == "" {
@@ -896,8 +896,8 @@ func (h *AgentHandler) ProcessMessageForRobot(ctx context.Context, platform stri
 		return "", "", fmt.Errorf("failed to save user message: %w", err)
 	}
 
-	// 与 Agent 流式对话一致：先创建助手消息占位，用 progressCallback 写过程详情（不发送 SSE）
-	assistantMsg, err := h.db.AddMessage(conversationID, "assistant", "处理中...", nil)
+	// Same as Agent streaming chat: first create an assistant message placeholder and write process details via progressCallback (no SSE)
+	assistantMsg, err := h.db.AddMessage(conversationID, "assistant", "Processing...", nil)
 	if err != nil {
 		h.logger.Warn("robot: failed to create assistant message placeholder", zap.Error(err))
 	}
@@ -940,7 +940,7 @@ func (h *AgentHandler) ProcessMessageForRobot(ctx context.Context, platform stri
 	case "deep", "plan_execute", "supervisor":
 		if h.config == nil || !h.config.MultiAgent.Enabled {
 			taskStatus = "failed"
-			return "", conversationID, fmt.Errorf("机器人对话模式 %s 需要启用 Agent 多代理", robotMode)
+			return "", conversationID, fmt.Errorf("robot conversation mode %s requires Agent multi-agent to be enabled", robotMode)
 		}
 		return h.runRobotMultiAgentWithRetry(taskCtx, conversationID, finalMessage, robotMode, agentHistoryMessages, roleTools, progressCallback, assistantMessageID, &taskStatus)
 	}
@@ -979,9 +979,9 @@ func isInternalAgentDiagnosticProgress(eventType, message string, data interface
 		return true
 	case "progress":
 		msg := strings.TrimSpace(message)
-		if msg == "Agent TurnLoop 常驻多轮 runtime 已接管本轮会话。" ||
-			msg == "Agent TurnLoop 已在安全点切换到用户补充后的下一轮。" ||
-			msg == "已将用户补充推入 Agent TurnLoop，正在等待安全点切换…" {
+		if msg == "Agent TurnLoop persistent multi-turn runtime has taken over this session turn." ||
+			msg == "Agent TurnLoop switched to the next turn after the user's addition at a safe point." ||
+			msg == "User addition pushed into Agent TurnLoop; waiting for a safe point to switch…" {
 			return true
 		}
 		m, ok := data.(map[string]interface{})
@@ -1076,15 +1076,15 @@ func (h *AgentHandler) createProgressCallback(runCtx context.Context, cancelRun 
 		return ""
 	}
 
-	// thinking_stream_*（ReAct 等助手正文流）与 reasoning_chain_stream_*（Agent ReasoningContent）：
-	// 不逐条落库，按 streamId 聚合，flush 时分别落 thinking / reasoning_chain。
+	// thinking_stream_* (assistant body streams such as ReAct) and reasoning_chain_stream_* (Agent ReasoningContent):
+	// not persisted one by one; aggregated by streamId and persisted as thinking / reasoning_chain on flush.
 	thinkingStreams := make(map[string]*thinkingBuf) // streamId -> buf
 	flushedThinking := make(map[string]bool)         // streamId -> flushed
 	seenToolCallSigs := make(map[string]string)      // toolCallId -> payload signature
 	seenToolResultSigs := make(map[string]string)    // toolCallId -> payload signature
 
-	// progressMu 保护闭包内 map 与聚合状态。Agent parallelRunToolCall 会在多 goroutine 中并发回调
-	// progress（ToolInvokeNotifyHolder.Fire → createProgressCallback），未加锁的 map 会触发 fatal panic。
+	// progressMu protects the maps and aggregation state inside the closure. Agent parallelRunToolCall invokes the
+	// progress callback concurrently from multiple goroutines (ToolInvokeNotifyHolder.Fire → createProgressCallback); an unlocked map triggers a fatal panic.
 	var progressMu sync.Mutex
 
 	// response_start + response_delta: shown in the frontend timeline as "Planning" (monitor.js); deltas
@@ -1415,13 +1415,13 @@ func (h *AgentHandler) createProgressCallback(runCtx context.Context, cancelRun 
 			}
 		}
 
-		// 子代理回复流式增量不落库；结束时合并为一条 agent_reply
+		// Sub-agent reply stream deltas are not persisted; they are merged into a single agent_reply at the end
 		if assistantMessageID != "" && eventType == "agent_reply_stream_end" {
 			flushResponsePlan()
 			// ensure the thinking stream is persisted before the sub-agent reply (readable after a refresh)
 			flushThinkingStreams()
 			if err := h.db.AddProcessDetail(assistantMessageID, conversationID, "agent_reply", message, data); err != nil {
-				h.logger.Warn("保存过程详情失败", zap.Error(err), zap.String("eventType", eventType))
+				h.logger.Warn("failed to save process details", zap.Error(err), zap.String("eventType", eventType))
 			}
 			return
 		}
@@ -1496,7 +1496,7 @@ func (h *AgentHandler) createProgressCallback(runCtx context.Context, cancelRun 
 			return
 		}
 
-		// 流式思考/推理结束：聚合落库（与 agent_reply_stream_end 同理）
+		// Streaming thinking/reasoning finished: aggregate and persist (same as agent_reply_stream_end)
 		if eventType == "thinking_stream_end" || eventType == "reasoning_chain_stream_end" {
 			flushResponsePlan()
 			flushThinkingStreams()
@@ -1518,7 +1518,7 @@ func (h *AgentHandler) createProgressCallback(runCtx context.Context, cancelRun 
 					} else {
 						tb.persistAs = persistAs
 					}
-					// 记录元信息（source/agentName/agentRole/iteration 等）
+					// Record metadata (source/agentName/agentRole/iteration, etc.)
 					for k, v := range dataMap {
 						tb.meta[k] = v
 					}
@@ -1573,9 +1573,9 @@ func (h *AgentHandler) createProgressCallback(runCtx context.Context, cancelRun 
 			}
 		}
 
-		// 保存过程详情到数据库（排除 response/done；response 正文已在 messages 表）
-		// response_start/response_delta 已聚合为 planning，不落逐条。
-		// [Agent] agent 心跳 progress 仅用于实时进度标题，不落库以免时间线刷屏。
+		// Save process details to the database (excluding response/done; the response body is already in the messages table)
+		// response_start/response_delta are aggregated into planning and not persisted individually.
+		// [Agent] agent heartbeat progress is only for the live progress title and is not persisted, to avoid flooding the timeline.
 		skipAgentAgentHeartbeat := eventType == "progress" && strings.HasPrefix(strings.TrimSpace(message), "[Agent] ")
 		if assistantMessageID != "" &&
 			!skipAgentAgentHeartbeat &&
@@ -1713,7 +1713,7 @@ func (h *AgentHandler) CancelAgentLoop(c *gin.Context) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "no in-progress tool execution found, or the call has already ended"})
 			return
 		}
-		// 无进行中的 MCP 工具（模型纯推理/流式输出阶段）：取消当前上下文并由 Agent 流式处理器合并用户补充后自动续跑。
+		// No MCP tool in progress (model pure reasoning/streaming output phase): cancel the current context and let the Agent stream handler merge the user's addition and auto-continue.
 		h.tasks.SetInterruptContinueNote(req.ConversationID, note)
 		ok, err := h.tasks.CancelTask(req.ConversationID, multiagent.ErrInterruptContinue)
 		if err != nil {
@@ -1892,9 +1892,9 @@ func filterSlice[T any](items []T, keep func(T) bool) []T {
 // BatchTaskRequest is a batch task request
 type BatchTaskRequest struct {
 	HITLPolicy   string   `json:"hitlPolicy"`
-	Title        string   `json:"title"`                    // 任务标题（可选）
-	Tasks        []string `json:"tasks" binding:"required"` // 任务列表，每行一个任务
-	Role         string   `json:"role,omitempty"`           // 角色名称（可选，空字符串表示默认角色）
+	Title        string   `json:"title"`                    // Task title (optional)
+	Tasks        []string `json:"tasks" binding:"required"` // Task list, one task per line
+	Role         string   `json:"role,omitempty"`           // Role name (optional; empty string means the default role)
 	AgentMode    string   `json:"agentMode,omitempty"`      // single | deep | plan_execute | supervisor
 	ScheduleMode string   `json:"scheduleMode,omitempty"`   // manual | cron
 	CronExpr     string   `json:"cronExpr,omitempty"`       // required when scheduleMode=cron
@@ -1903,7 +1903,7 @@ type BatchTaskRequest struct {
 	Concurrency  int      `json:"concurrency,omitempty"`    // number of sub-tasks to run concurrently, default 1, max 8
 }
 
-// batchQueueWantsAgent 队列是否配置为走 Agent 多代理。
+// batchQueueWantsAgent reports whether the queue is configured to use Agent multi-agent.
 func batchQueueWantsAgent(agentMode string) bool {
 	m := strings.TrimSpace(strings.ToLower(agentMode))
 	return m == "deep" || m == "plan_execute" || m == "supervisor"
@@ -2465,7 +2465,7 @@ func (h *AgentHandler) startBatchQueueExecution(queueID string, scheduled bool) 
 
 	if queue != nil && batchQueueWantsAgent(queue.AgentMode) && (h.config == nil || !h.config.MultiAgent.Enabled) {
 		h.batchTaskManager.UnmarkQueueExecutor(queueID)
-		err := fmt.Errorf("当前队列配置为 Agent 多代理，但系统未启用多代理")
+		err := fmt.Errorf("the queue is configured for Agent multi-agent, but multi-agent is not enabled in the system")
 		if scheduled {
 			h.batchTaskManager.SetLastScheduleError(queueID, err.Error())
 		}
@@ -2516,8 +2516,8 @@ func (h *AgentHandler) batchQueueSchedulerLoop() {
 	}
 }
 
-// loadHistoryFromAgentTrace 从库中保存的代理消息轨迹恢复历史（列 last_react_*；含单代理与 Agent）。
-// 逻辑与攻击链一致：优先用已保存的 JSON 消息带 + 最后一轮助手摘要，否则回退消息表。
+// loadHistoryFromAgentTrace restores history from the agent message trace saved in the database (columns last_react_*; covers single-agent and Agent).
+// Same logic as the attack chain: prefer the saved JSON message trace + the last assistant summary, otherwise fall back to the messages table.
 func (h *AgentHandler) loadHistoryFromAgentTrace(conversationID string) ([]agent.ChatMessage, error) {
 	traceInputJSON, assistantOut, err := h.db.GetAgentTrace(conversationID)
 	if err != nil {

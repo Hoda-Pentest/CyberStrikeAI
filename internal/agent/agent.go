@@ -115,7 +115,7 @@ type ChatMessage struct {
 	Content    string     `json:"content,omitempty"`
 	ToolCalls  []ToolCall `json:"tool_calls,omitempty"`
 	ToolCallID string     `json:"tool_call_id,omitempty"`
-	// ToolName 仅 tool 角色：从 Agent/轨迹 JSON 的 name 或 tool_name 恢复，供续跑构造 ToolMessage。
+	// ToolName is only for the tool role: restored from the name or tool_name of the Agent/trace JSON, used to build ToolMessage on resume.
 	ToolName string `json:"tool_name,omitempty"`
 	// ReasoningContent corresponds to the reasoning_content of OpenAI/DeepSeek; in thinking mode + tool calls it must be sent back when resuming (see the DeepSeek docs).
 	ReasoningContent string `json:"reasoning_content,omitempty"`
@@ -512,7 +512,7 @@ func (a *Agent) convertToOpenAIType(configType string) string {
 	}
 }
 
-// ToolExecutionResult MCP 工具执行结果（供 Agent 桥与监控落库使用）。
+// ToolExecutionResult is the MCP tool execution result (used by the Agent bridge and monitor persistence).
 type ToolExecutionResult struct {
 	Result      string
 	ExecutionID string
@@ -754,7 +754,7 @@ func (a *Agent) repairOrphanToolMessages(messages *[]ChatMessage) bool {
 	return removed
 }
 
-// ToolsForRole 返回与单 Agent 循环一致的工具定义（OpenAI function 格式），供 Agent DeepAgent 等编排层绑定 MCP 工具。
+// ToolsForRole returns tool definitions consistent with the single-Agent loop (OpenAI function format), for orchestration layers such as Agent DeepAgent to bind MCP tools.
 func (a *Agent) ToolsForRole(roleTools []string) []Tool {
 	return a.getAvailableTools(roleTools)
 }
@@ -804,8 +804,8 @@ func (a *Agent) UnregisterLocalToolExecutionCancel(executionID string) {
 	a.mcpServer.UnregisterToolExecutionCancel(executionID)
 }
 
-// RecordLocalToolExecution 将非 CallTool 路径完成的工具调用写入 MCP 监控库（与 CallTool 落库一致），返回 executionId。
-// 用于 Agent filesystem execute 等场景，使助手气泡「渗透测试详情」与常规 MCP 一致可点进监控。
+// RecordLocalToolExecution writes a tool call completed outside the CallTool path into the MCP monitor store (same as CallTool persistence) and returns the executionId.
+// Used for scenarios such as Agent filesystem execute, so the assistant bubble's "penetration test details" can be clicked through to the monitor like regular MCP.
 func (a *Agent) RecordLocalToolExecution(ctx context.Context, toolName string, args map[string]interface{}, resultText string, invokeErr error) string {
 	return a.FinishLocalToolExecution(ctx, "", toolName, args, resultText, invokeErr)
 }

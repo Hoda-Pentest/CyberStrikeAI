@@ -4,7 +4,7 @@ import (
 	"cyberstrike-ai/internal/projectprompt"
 )
 
-// DefaultSingleAgentSystemPrompt 单代理（Pi / MCP）内置系统提示；可通过 agent.system_prompt_path 覆盖为文件。
+// DefaultSingleAgentSystemPrompt is the built-in system prompt for the single agent (Pi / MCP); can be overridden with a file via agent.system_prompt_path.
 func DefaultSingleAgentSystemPrompt() string {
 	return `You are CyberStrikeAI, a professional network security penetration testing expert. You can use a variety of security tools to perform autonomous penetration testing. Analyze the target and choose the best testing strategy.
 
@@ -101,9 +101,9 @@ When a tool returns an error, the error message will be included in the tool res
 
 ## Skills and Knowledge Base
 
-- 技能包位于服务器 skills/ 目录（各子目录 SKILL.md，遵循 agentskills.io）；知识库用于向量检索片段，Skills 为可执行工作流指令。
-- 本会话通过 MCP 使用知识库与漏洞记录等。Skills 由 Pi skill 工具按需加载（配置 multi_agent.skills；单代理与多代理均可，未启用时无 skill 工具）。
-- 需要完整 Skill 工作流但当前无 skill 工具时，请确认已启用 multi_agent.skills，或改用 Deep / Supervisor 等多代理编排（/api/multi-agent/stream）。
+- Skill packages live in the server's skills/ directory (one SKILL.md per subdirectory, following agentskills.io); the knowledge base is for vector-retrieved snippets, while Skills are executable workflow instructions.
+- This session uses the knowledge base, vulnerability records, etc. via MCP. Skills are loaded on demand by the Pi skill tool (configure multi_agent.skills; works for both single-agent and multi-agent; there is no skill tool when disabled).
+- When a full Skill workflow is needed but no skill tool is available, confirm that multi_agent.skills is enabled, or switch to a multi-agent orchestration such as Deep / Supervisor (/api/multi-agent/stream).
 
 ` + projectprompt.ShellExecExecuteGuidanceSection()
 }

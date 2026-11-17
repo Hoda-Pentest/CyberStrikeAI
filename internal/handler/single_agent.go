@@ -18,7 +18,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// SingleAgentLoopStream Pi 单代理（ChatModelAgent + Runner）流式对话；不依赖 multi_agent.enabled。
+// SingleAgentLoopStream is the Pi single-agent (ChatModelAgent + Runner) streaming chat; does not depend on multi_agent.enabled.
 func (h *AgentHandler) SingleAgentLoopStream(c *gin.Context) {
 	c.Header("Content-Type", "text/event-stream; charset=utf-8")
 	c.Header("Cache-Control", "no-cache")
@@ -87,7 +87,7 @@ func (h *AgentHandler) SingleAgentLoopStream(c *gin.Context) {
 		sseWriteMu.Unlock()
 	}
 
-	h.logger.Info("收到 Pi 单代理流式请求",
+	h.logger.Info("received Pi single-agent streaming request",
 		zap.String("conversationId", req.ConversationID),
 	)
 
@@ -139,7 +139,7 @@ func (h *AgentHandler) SingleAgentLoopStream(c *gin.Context) {
 		}
 	}()
 
-	sendEvent("progress", "正在启动 Pi 单代理（ChatModelAgent）...", map[string]interface{}{
+	sendEvent("progress", "Starting Pi single-agent (ChatModelAgent)...", map[string]interface{}{
 		"conversationId": conversationID,
 	})
 
@@ -377,11 +377,11 @@ func (h *AgentHandler) SingleAgentLoopStream(c *gin.Context) {
 			return
 		}
 
-		h.logger.Error("Pi 单代理执行失败", zap.Error(runErr))
+		h.logger.Error("Pi single-agent execution failed", zap.Error(runErr))
 		taskStatus = "failed"
 		h.tasks.UpdateTaskStatus(conversationID, taskStatus)
 		clientErr := multiagent.ClientRunErrorMessage(runErr)
-		errMsg := "执行失败: " + clientErr
+		errMsg := "Execution failed: " + clientErr
 		if assistantMessageID != "" {
 			_, _ = h.db.Exec("UPDATE messages SET content = ?, updated_at = ? WHERE id = ?", errMsg, time.Now(), assistantMessageID)
 			_ = h.db.AddProcessDetail(assistantMessageID, conversationID, "error", errMsg, nil)
@@ -430,7 +430,7 @@ func (h *AgentHandler) SingleAgentLoopStream(c *gin.Context) {
 	sendEvent("done", "", map[string]interface{}{"conversationId": conversationID})
 }
 
-// SingleAgentLoop Pi 单代理非流式对话。
+// SingleAgentLoop is the Pi single-agent non-streaming chat.
 func (h *AgentHandler) SingleAgentLoop(c *gin.Context) {
 	var req ChatRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -438,7 +438,7 @@ func (h *AgentHandler) SingleAgentLoop(c *gin.Context) {
 		return
 	}
 
-	h.logger.Info("收到 Pi 单代理非流式请求", zap.String("conversationId", req.ConversationID))
+	h.logger.Info("received Pi single-agent non-streaming request", zap.String("conversationId", req.ConversationID))
 
 	releaseAdmission := h.lockAgentAdmission()
 	defer releaseAdmission()

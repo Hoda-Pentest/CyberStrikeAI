@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// rebindAgentRunningTask 中断并继续 / 空正文续跑：重建 cancel 链与超时 ctx，保持任务 running。
+// rebindAgentRunningTask for interrupt-and-continue / empty-body continuation: rebuilds the cancel chain and timeout ctx, keeping the task running.
 func (h *AgentHandler) rebindAgentRunningTask(parent context.Context, conversationID string, timeoutCancel context.CancelFunc) (context.Context, context.CancelCauseFunc, context.Context, context.CancelFunc) {
 	if timeoutCancel != nil {
 		timeoutCancel()
@@ -24,7 +24,7 @@ func (h *AgentHandler) rebindAgentRunningTask(parent context.Context, conversati
 	return baseCtx, cancelWithCause, taskCtx, newTimeoutCancel
 }
 
-// tryContinueOnAgentEmptyResponse Run 成功但 Response 为 emptyHint 时退避续跑；true 表示已准备下一段 Run。
+// tryContinueOnAgentEmptyResponse backs off and continues when Run succeeds but Response is emptyHint; true means the next Run segment is prepared.
 func (h *AgentHandler) tryContinueOnAgentEmptyResponse(
 	taskCtx context.Context,
 	mw *config.AgentTuningConfig,
@@ -70,7 +70,7 @@ func (h *AgentHandler) tryContinueOnAgentEmptyResponse(
 
 	h.applyAgentTraceResumeSegment(conversationID, result, curHistory, curFinalMessage, "")
 	if progressCallback != nil {
-		progressCallback("agent_empty_response_continue", "已恢复上下文，正在续跑…", map[string]interface{}{
+		progressCallback("agent_empty_response_continue", "Context restored, continuing…", map[string]interface{}{
 			"conversationId":   conversationID,
 			"source":           "pi",
 			"attempt":          *attempt,

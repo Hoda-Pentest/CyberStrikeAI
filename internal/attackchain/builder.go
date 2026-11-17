@@ -111,8 +111,8 @@ func (b *Builder) BuildChainFromConversation(ctx context.Context, conversationID
 		return emptyChain(), nil
 	}
 
-	// 检查是否有实际的工具执行：assistant 的 mcp_execution_ids，或过程详情中的 tool_call/tool_result
-	//（多代理下若 MCP 未返回 execution_id，IDs 可能为空，但工具已通过 Agent 执行并写入 process_details）
+	// Check whether there was any actual tool execution: the assistant's mcp_execution_ids, or tool_call/tool_result in the process details
+	// (in multi-agent mode, if MCP did not return an execution_id the IDs may be empty, but the tool was still executed via Agent and written to process_details)
 	hasToolExecutions := false
 	for i := len(messages) - 1; i >= 0; i-- {
 		if strings.EqualFold(messages[i].Role, "assistant") {
@@ -322,7 +322,7 @@ func (b *Builder) formatProcessDetailsForAttackChain(details []database.ProcessD
 			continue
 		}
 
-		// 解析 data（JSON string），用于识别 agentRole / toolName 等
+		// Parse data (JSON string) to identify agentRole / toolName, etc.
 		var dataMap map[string]interface{}
 		if strings.TrimSpace(d.Data) != "" {
 			_ = json.Unmarshal([]byte(d.Data), &dataMap)
@@ -336,7 +336,7 @@ func (b *Builder) formatProcessDetailsForAttackChain(details []database.ProcessD
 			toolName = strings.TrimSpace(fmt.Sprint(v))
 		}
 
-		// 1) 编排器的工具调用/结果：保留（这是“主 agent 调了什么工具”）
+		// 1) Orchestrator tool calls/results: keep (this is "which tools the main agent called")
 		if (d.EventType == "tool_call" || d.EventType == "tool_result" || d.EventType == "tool_calls_detected" || d.EventType == "iteration") && agentRole == "orchestrator" {
 			sb.WriteString("[")
 			sb.WriteString(d.EventType)
@@ -364,12 +364,12 @@ func (b *Builder) formatProcessDetailsForAttackChain(details []database.ProcessD
 			continue
 		}
 
-		// 3) 子代理最终回复：保留（只保留最终输出，不保留分析过程）
+		// 3) Final sub-agent replies: keep (only the final output, not the analysis process)
 		if d.EventType == "agent_reply" && agentRole == "sub" {
 			sb.WriteString("[subagent_final_reply] ")
 			sb.WriteString(strings.TrimSpace(d.Message))
 			sb.WriteString("\n")
-			// data 里含 agentName 等元信息，保留有助于追踪“哪个子代理说的”
+			// data contains metadata such as agentName; keeping it helps trace "which sub-agent said it"
 			if strings.TrimSpace(d.Data) != "" {
 				sb.WriteString(d.Data)
 				sb.WriteString("\n")

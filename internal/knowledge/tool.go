@@ -81,8 +81,8 @@ func RegisterKnowledgeTool(
 	// Register the second tool: search the knowledge base (keeps the original functionality)
 	searchTool := mcp.Tool{
 		Name:             builtin.ToolSearchKnowledgeBase,
-		Description:      "在知识库中搜索相关的安全知识。当你需要了解特定漏洞类型、攻击技术、检测方法等安全知识时，可以使用此工具进行检索。工具基于向量嵌入与余弦相似度检索（与 Agent retriever 语义一致）。建议：在搜索前可以先调用 " + builtin.ToolListKnowledgeRiskTypes + " 工具获取可用的风险类型，然后使用正确的 risk_type 参数进行精确搜索，这样可以大幅减少检索时间。",
-		ShortDescription: "搜索知识库中的安全知识（向量语义检索）",
+		Description:      "Search the knowledge base for relevant security knowledge. Use this tool when you need to learn about specific vulnerability types, attack techniques, detection methods, and other security knowledge. The tool uses vector embeddings and cosine similarity (same semantics as the Agent retriever). Tip: before searching, call the " + builtin.ToolListKnowledgeRiskTypes + " tool to get the available risk types, then use the correct risk_type parameter for a precise search, which greatly reduces retrieval time.",
+		ShortDescription: "Search security knowledge in the knowledge base (vector semantic retrieval)",
 		InputSchema: map[string]interface{}{
 			"type": "object",
 			"properties": map[string]interface{}{
@@ -123,7 +123,7 @@ func RegisterKnowledgeTool(
 			zap.String("riskType", riskType),
 		)
 
-		// 检索统一走 Retriever.Search → VectorRetriever（Agent retriever 语义）。
+		// Retrieval always goes through Retriever.Search → VectorRetriever (Agent retriever semantics).
 		searchReq := &SearchRequest{
 			Query:    query,
 			RiskType: riskType,

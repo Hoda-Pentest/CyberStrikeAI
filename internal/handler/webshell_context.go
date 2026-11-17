@@ -6,12 +6,12 @@ import (
 	"cyberstrike-ai/internal/database"
 )
 
-// WebshellSkillHintDefault 对话页 / Agent 单代理共用的 Skills 说明，放在 webshell 上下文末尾，
-// 供 AI 选择 skill 加载入口时参考。
-const WebshellSkillHintDefault = "Skills 包请使用「多代理 / Agent DeepAgent」会话中的内置 `skill` 工具渐进加载。"
+// WebshellSkillHintDefault is the Skills note shared by the chat page / Agent single-agent, placed at the end of the webshell context
+// as a reference for the AI when choosing where to load a skill.
+const WebshellSkillHintDefault = "For Skills packages, use the built-in `skill` tool in a \"multi-agent / Agent DeepAgent\" session to load them progressively."
 
-// WebshellSkillHintMultiAgent 多代理 / Agent 多代理准备阶段使用的 Skills 说明
-const WebshellSkillHintMultiAgent = "Skills 包请使用 Agent 多代理内置 `skill` 工具。"
+// WebshellSkillHintMultiAgent is the Skills note used in the multi-agent / Agent multi-agent preparation phase
+const WebshellSkillHintMultiAgent = "For Skills packages, use the built-in `skill` tool of Agent multi-agent."
 
 // webshellAssistantToolList the tool list the AI assistant is allowed to use in the WebShell context (shown to the model).
 // note: this is just a display string; the real permission limit is in the roleTools slice set by the caller.

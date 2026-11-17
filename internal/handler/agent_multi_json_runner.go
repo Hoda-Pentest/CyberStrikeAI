@@ -59,9 +59,9 @@ func (h *AgentHandler) runMultiJSON(taskCtx, baseCtx context.Context, cancelWith
 			if shouldPersistAgentAgentTraceAfterRunError(baseCtx) {
 				h.persistAgentAgentTraceForResume(prep.ConversationID, result)
 			}
-			h.logger.Error("Agent DeepAgent 执行失败", zap.Error(runErr))
+			h.logger.Error("Agent DeepAgent execution failed", zap.Error(runErr))
 			clientErr := multiagent.ClientRunErrorMessage(runErr)
-			errMsg := "执行失败: " + clientErr
+			errMsg := "Execution failed: " + clientErr
 			if prep.AssistantMessageID != "" {
 				_, _ = h.db.Exec("UPDATE messages SET content = ?, updated_at = ? WHERE id = ?", errMsg, time.Now(), prep.AssistantMessageID)
 			}

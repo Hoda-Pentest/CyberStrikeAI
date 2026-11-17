@@ -629,7 +629,7 @@ func (h *ConversationHandler) DeleteConversationTurn(c *gin.Context) {
 
 	if h.taskState != nil {
 		if running, _ := h.taskState.ConversationTaskRuntimeState(conversationID); running {
-			c.JSON(http.StatusConflict, gin.H{"error": "请先停止当前任务，再删除对话轮次"})
+			c.JSON(http.StatusConflict, gin.H{"error": "stop the current task before deleting conversation turns"})
 			return
 		}
 	}

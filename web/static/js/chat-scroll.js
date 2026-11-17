@@ -506,8 +506,8 @@
     }
 
     /**
-     * 刷新恢复长会话时，消息、详情和审批卡会跨多帧继续增高。
-     * 批次与审批恢复完成时沿用当前跟随状态。用户可以在此之前开始阅读历史。
+     * When a long session is restored after a refresh, messages, details and approval cards keep growing across several frames.
+     * When batches and approvals finish restoring, the current follow state is kept. The user may start reading history before then.
      */
     function settleConversationRestoreToBottom(frameCount) {
         if (!captureScrollPinState()) return;
@@ -639,7 +639,7 @@
         scheduleChatScrollToBottomIfFollowing(captureScrollPinState());
     }
 
-    /** 手动展开详情时同步滚动，随后记录位置供滚动事件区分用户拖动。 */
+    /** Scroll synchronously when details are expanded manually, then record the position so scroll events can tell user drags apart. */
     function scrollElementIntoViewIfFollowing(el) {
         const messagesEl = getChatMessagesEl();
         if (!el || !messagesEl || !captureScrollPinState()) return;
@@ -655,8 +655,8 @@
         const st = el.scrollTop;
         const range = scrollRange(el);
         const topChange = st - lastScrollTop;
-        // 原生滚动条可能不派发指针事件。移动超出布局变化能够解释的距离时，
-        // 也视为用户滚动。脚本主动定位后会同步记录位置。
+        // A native scrollbar may not dispatch pointer events. When the movement exceeds what layout changes can explain,
+        // it is also treated as a user scroll. The position is recorded synchronously after the script positions it.
         const hasUserScrollIntent = Date.now() <= userScrollIntentUntil ||
             Math.abs(topChange) > Math.abs(range - lastScrollRange) + 1;
         const scrolledUp = topChange < -1 && range - st > CHAT_SCROLL_FOLLOW_RESUME_THRESHOLD_PX;
@@ -689,7 +689,7 @@
         rememberScrollPosition(el);
 
         el.addEventListener('wheel', function (e) {
-            // 只有内层到达边界后，滚轮才会传给外层对话区。
+            // Only after the inner area reaches its edge does the wheel pass to the outer conversation area.
             if (nestedTimelineCanScroll(e.target, e.deltaY)) return;
             if (Math.abs(e.deltaY) > 1) {
                 userScrollIntentUntil = Date.now() + 1200;

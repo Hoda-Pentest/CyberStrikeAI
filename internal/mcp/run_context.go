@@ -11,7 +11,7 @@ type ToolRunRegistry interface {
 	UnregisterRunningTool(conversationID, executionID string)
 }
 
-// AgentExecuteRunRegistry 登记进行中的 Agent filesystem execute，供「中断并继续」终止 amass 等长命令。
+// AgentExecuteRunRegistry registers in-progress Agent filesystem executes so "interrupt and continue" can terminate long commands such as amass.
 type AgentExecuteRunRegistry interface {
 	RegisterActiveAgentExecute(conversationID string, cancel context.CancelFunc)
 	UnregisterActiveAgentExecute(conversationID string)
@@ -25,7 +25,7 @@ type mcpConversationIDCtxKey struct{}
 type mcpExecutionIDCtxKey struct{}
 type mcpProjectIDCtxKey struct{}
 
-// WithToolRunRegistry 将登记器注入 ctx（Agent / 原生 Agent 任务 ctx）。
+// WithToolRunRegistry injects the registry into ctx (Agent / native Agent task ctx).
 func WithToolRunRegistry(ctx context.Context, reg ToolRunRegistry) context.Context {
 	if ctx == nil || reg == nil {
 		return ctx
@@ -42,7 +42,7 @@ func ToolRunRegistryFromContext(ctx context.Context) ToolRunRegistry {
 	return v
 }
 
-// WithAgentExecuteRunRegistry 将 Agent execute 取消登记器注入 ctx。
+// WithAgentExecuteRunRegistry injects the Agent execute cancel registry into ctx.
 func WithAgentExecuteRunRegistry(ctx context.Context, reg AgentExecuteRunRegistry) context.Context {
 	if ctx == nil || reg == nil {
 		return ctx
@@ -50,7 +50,7 @@ func WithAgentExecuteRunRegistry(ctx context.Context, reg AgentExecuteRunRegistr
 	return context.WithValue(ctx, agentExecuteRunRegistryCtxKey{}, reg)
 }
 
-// AgentExecuteRunRegistryFromContext 取出 Agent execute 登记器（无则 nil）。
+// AgentExecuteRunRegistryFromContext retrieves the Agent execute registry (nil if absent).
 func AgentExecuteRunRegistryFromContext(ctx context.Context) AgentExecuteRunRegistry {
 	if ctx == nil {
 		return nil
