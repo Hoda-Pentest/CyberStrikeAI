@@ -92,11 +92,11 @@
   "login": {
     "showPassword": "Show password",
     "hidePassword": "Hide password",
-    "title": "Sign in to CyberStrikeAI",
-    "titlePrefix": "Sign in to",
-    "subtitle": "Sign in with a platform account. The default administrator is admin.",
+    "pageTitle": "Sign in",
+    "heading": "Sign in",
+    "subtitle": "Enter your credentials to continue.",
     "usernameLabel": "Username",
-    "usernamePlaceholder": "admin",
+    "usernamePlaceholder": "Enter username",
     "passwordLabel": "Password",
     "passwordPlaceholder": "Enter password",
     "submit": "Sign in"

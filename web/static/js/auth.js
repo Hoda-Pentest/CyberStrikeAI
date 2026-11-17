@@ -1,4 +1,5 @@
 const AUTH_STORAGE_KEY = 'cyberstrike-auth';
+const APP_BRAND_TITLE = 'CyberStrikeAI';
 let authToken = null;
 let authTokenExpiry = null;
 let authUser = null;
@@ -120,6 +121,7 @@ function showLoginOverlay(message = '') {
     if (!overlay) {
         return;
     }
+    setLoginScreenActive(true);
     openAppModal('login-overlay', { focus: false });
     if (errorBox) {
         if (message) {
@@ -145,6 +147,8 @@ function hideLoginOverlay() {
     const errorBox = document.getElementById('login-error');
     const usernameInput = document.getElementById('login-username');
     const passwordInput = document.getElementById('login-password');
+    // Drop the locked class first: it forces the overlay visible, and closeAppModal syncs the body lock from computed visibility.
+    setLoginScreenActive(false);
     closeAppModal('login-overlay');
     if (errorBox) {
         errorBox.textContent = '';
@@ -158,6 +162,32 @@ function hideLoginOverlay() {
     if (usernameInput && !authUser) {
         usernameInput.value = '';
     }
+}
+
+// The sign-in screen carries no product identity: while it is up the app shell is hidden
+// (html.auth-locked in style.css) and the tab shows a neutral title and icon. Branding returns after sign-in.
+function setLoginScreenActive(active) {
+    document.documentElement.classList.toggle('auth-locked', active);
+    if (active) {
+        syncLoginDocumentTitle();
+    } else {
+        document.title = APP_BRAND_TITLE;
+    }
+    const favicon = document.getElementById('app-favicon');
+    if (!favicon) return;
+    if (!favicon.hasAttribute('data-login-href')) {
+        favicon.setAttribute('data-login-href', favicon.getAttribute('href') || '');
+    }
+    const href = favicon.getAttribute(active ? 'data-login-href' : 'data-brand-href');
+    if (href && favicon.getAttribute('href') !== href) {
+        favicon.setAttribute('href', href);
+    }
+}
+
+function syncLoginDocumentTitle() {
+    if (!document.documentElement.classList.contains('auth-locked')) return;
+    const label = typeof window.t === 'function' ? window.t('login.pageTitle') : '';
+    document.title = label && label !== 'login.pageTitle' ? label : 'Sign in';
 }
 
 function ensureAuthPromise() {
@@ -727,6 +757,10 @@ function setupLoginUI() {
     if (loginForm) {
         loginForm.addEventListener('submit', submitLogin);
         loginForm.addEventListener('input', clearLoginFormError);
+    }
+    document.addEventListener('languagechange', syncLoginDocumentTitle);
+    if (window.i18nReady && typeof window.i18nReady.then === 'function') {
+        window.i18nReady.then(syncLoginDocumentTitle);
     }
 }
 

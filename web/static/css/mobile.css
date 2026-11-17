@@ -3657,23 +3657,10 @@ html[data-theme="dark"] {
         border: 1px solid var(--m-hairline);
     }
 
-    /* 28.7 Login: the scrim itself must first have a "canvas" (otherwise there is only a gray block behind the card), and the card is real glass */
-    .login-overlay {
-        background:
-            radial-gradient(120% 88% at 85% -10%,
-                color-mix(in srgb, var(--accent-color) 13%, transparent), transparent 60%),
-            radial-gradient(95% 72% at -12% 108%,
-                color-mix(in srgb, #8b5cf6 10%, transparent), transparent 62%),
-            color-mix(in srgb, var(--bg-secondary) 92%, transparent);
-    }
-
+    /* 28.7 Login: an opaque, unbranded canvas (no brand-color glow, nothing of the app showing through); the card is real glass */
+    .login-overlay,
     html[data-theme="dark"] .login-overlay {
-        background:
-            radial-gradient(120% 88% at 85% -10%,
-                color-mix(in srgb, var(--accent-color) 17%, transparent), transparent 60%),
-            radial-gradient(95% 72% at -12% 108%,
-                color-mix(in srgb, #8b5cf6 12%, transparent), transparent 62%),
-            color-mix(in srgb, #0b1120 92%, transparent);
+        background: var(--bg-secondary);
     }
 
     .login-card {
