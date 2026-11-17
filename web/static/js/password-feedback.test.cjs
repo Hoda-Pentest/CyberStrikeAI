@@ -22,7 +22,7 @@ function harness(values={}) {
  start=auth.indexOf('function clearLoginFormError(');
  vm.runInContext(auth.slice(start,auth.indexOf('\nfunction ',start)),ctx);
  start=settings.indexOf('function setPasswordFieldError(');
- vm.runInContext(settings.slice(start,settings.indexOf('// ==================== 外部MCP管理',start)),ctx);
+ vm.runInContext(settings.slice(start,settings.indexOf('// ==================== External MCP management',start)),ctx);
  return {ctx,fields,button,calls:() => calls};
 }
 test('empty login password explains the error and never calls the server',async () => {
@@ -53,7 +53,7 @@ test('password preview toggles accessibly and can be reset without changing the 
  assert.equal(h.fields['login-password-toggle'].textContent,undefined);
  h.ctx.window.t=undefined;
  h.ctx.toggleLoginPasswordVisibility();
- assert.equal(h.fields['login-password-toggle'].getAttribute('aria-label'),'隐藏密码');
+ assert.equal(h.fields['login-password-toggle'].getAttribute('aria-label'),'Hide password');
 });
 test('password form has field-specific errors without requesting a save',async () => {
  const h=harness({'auth-new-password':'short','auth-confirm-password':'different'});
