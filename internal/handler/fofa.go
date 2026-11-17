@@ -651,7 +651,7 @@ func (h *FofaHandler) Search(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create the request: " + err.Error()})
 		return
 	}
-	httpReq.Header.Set("User-Agent", "CyberStrikeAI/1.7.4")
+	httpReq.Header.Set("User-Agent", "Hoda Engine/1.7.4")
 	httpReq.Header.Set("Accept", "application/json")
 
 	resp, err := h.client.Do(httpReq)
@@ -1075,7 +1075,7 @@ func (h *FofaHandler) doJSONRequest(c *gin.Context, method, endpoint, apiKey, he
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create the request: " + err.Error()})
 		return false
 	}
-	httpReq.Header.Set("User-Agent", "CyberStrikeAI/1.7.4")
+	httpReq.Header.Set("User-Agent", "Hoda Engine/1.7.4")
 	httpReq.Header.Set("Accept", "application/json")
 	if body != nil {
 		httpReq.Header.Set("Content-Type", "application/json")

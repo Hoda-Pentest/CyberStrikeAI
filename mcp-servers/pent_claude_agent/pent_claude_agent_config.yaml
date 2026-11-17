@@ -1,6 +1,6 @@
 # pent_claude_agent configuration file
 # Standalone configuration for the penetration-testing engineer Agent; MCP, tools, environment, etc. can be customized
-# Path placeholders: ${PROJECT_ROOT} = the CyberStrikeAI project root, ${SCRIPT_DIR} = the directory of this script
+# Path placeholders: ${PROJECT_ROOT} = the Hoda Engine project root, ${SCRIPT_DIR} = the directory of this script
 
 # Working directory (the cwd when the Agent executes a task)
 cwd: "${PROJECT_ROOT}/mcp-servers/pent_claude_agent"

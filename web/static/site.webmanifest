@@ -1,6 +1,6 @@
 {
-  "name": "CyberStrikeAI",
-  "short_name": "CyberStrikeAI",
+  "name": "Hoda Engine",
+  "short_name": "Hoda Engine",
   "description": "AI Security Testing Platform WebUI",
   "start_url": "/",
   "scope": "/",

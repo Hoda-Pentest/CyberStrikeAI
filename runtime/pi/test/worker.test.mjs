@@ -97,7 +97,7 @@ test("real Pi SDK streams, invokes only host tools and restores persisted sessio
   assert.equal(fixture.requests.length, 2);
   const systemPrompt = fixture.requests[0].messages.filter(m => m.role === "system").map(m => m.content).join("\n");
   assert.ok(systemPrompt.startsWith(req.systemPrompt));
-  assert.doesNotMatch(systemPrompt, /CyberStrikeAI execution protocol|Retired guidance/);
+  assert.doesNotMatch(systemPrompt, /CyberStrike execution protocol|Retired guidance/);
   assert.deepEqual(fixture.requests[0].tools.map(t => t.function.name), ["echo"]);
   assert.ok(fixture.requests[1].messages.some(m => m.role === "tool" && m.content === "hello"));
   assert.ok(first.records.some(r => r.event?.type === "message_update"));

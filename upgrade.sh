@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# CyberStrikeAI upgrade entry point.
+# Hoda Engine upgrade entry point.
 #
 # Two installation kinds, decided at runtime from this directory itself:
 #

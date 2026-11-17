@@ -235,7 +235,7 @@ async function run(req: RunRequest): Promise<void> {
     };
     let model = physical[0];
     if (physical.length > 1) {
-      runtime.registerVirtualModel({ provider: "cyberstrike-router", id: "auto", name: "CyberStrikeAI channels",
+      runtime.registerVirtualModel({ provider: "cyberstrike-router", id: "auto", name: "Hoda Engine channels",
         contextWindow: model.contextWindow, maxTokens: model.maxTokens, thinkingLevels: ["off", "minimal", "low", "medium", "high", "xhigh", "max"],
         route: request => {
           let index = request.reason === "user" ? 0 : Math.min(Math.max(Number(request.state) || 0, 0), physical.length - 1);

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   CyberStrikeAI — Mobile UI Runtime
+   Hoda Engine — Mobile UI Runtime
    --------------------------------------------------------------------------
    Mobile interaction layer that pairs with mobile.css. Design language follows QuantumNous/new-api:
      - 768px breakpoint (matchMedia('(max-width: 767.98px)')) 
@@ -466,8 +466,8 @@
 
         var head = el('div', 'm-drawer-head m-mobile-only');
         var brand = el('div', 'm-drawer-brand',
-            '<img src="/static/logo.png" alt="CyberStrikeAI">' +
-            '<span class="brand-wordmark"><span class="brand-wordmark__core">CyberStrike</span><span class="brand-wordmark__ai">AI</span></span>');
+            '<img src="/static/logo.png" alt="Hoda Engine">' +
+            '<span class="brand-wordmark"><span class="brand-wordmark__core">Hoda Engine</span><span class="brand-wordmark__ai">AI</span></span>');
         var close = el('button', 'm-close-btn', ICON.close);
         close.type = 'button';
         ariaLabel(close, 'mobile.closeNav', 'Close navigation menu');

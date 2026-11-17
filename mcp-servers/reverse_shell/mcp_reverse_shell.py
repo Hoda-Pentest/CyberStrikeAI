@@ -3,7 +3,7 @@
 Reverse Shell MCP Server - a reverse-shell MCP service
 
 Exposes reverse-shell capabilities over the MCP protocol: start/stop the listener, and interactively execute commands with a connected client.
-No change to the CyberStrikeAI backend is needed; add it via stdio under "Settings -> External MCP".
+No change to the Hoda Engine backend is needed; add it via stdio under "Settings -> External MCP".
 
 Dependencies: pip install mcp (or use the project venv)
 Run: python mcp_reverse_shell.py  or  python3 mcp_reverse_shell.py

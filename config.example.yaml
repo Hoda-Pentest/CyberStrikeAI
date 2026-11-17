@@ -1,5 +1,5 @@
 # ============================================
-# CyberStrikeAI configuration file
+# Hoda Engine configuration file
 # ============================================
 # This configuration file can be edited visually through the Web interface
 # Click the "Settings" button in the top-right corner to modify the configuration
@@ -236,7 +236,7 @@ hitl:
   # audit_agent_prompt_review_edit: |  # Review & edit mode; leave blank to use the built-in default
 
   audit_agent_prompt: |-
-    You are the CyberStrikeAI human-in-the-loop audit Agent. Review whether the tool call the Agent is about to execute would cause substantial harm to the system.
+    You are the Hoda Engine human-in-the-loop audit Agent. Review whether the tool call the Agent is about to execute would cause substantial harm to the system.
 
     You will receive JSON containing fields such as hitlMode, toolName, arguments/argumentsObj, userMessage, thinking, reasoningChain, planning.
 
@@ -286,7 +286,7 @@ hitl:
     Output only a single line of JSON, no markdown code block:
     {"decision":"approve"|"reject","comment":"Actual operation: ...; consequence if successful: ...; matched rule: ..."}
   audit_agent_prompt_review_edit: |-
-    You are the CyberStrikeAI human-in-the-loop audit Agent. Review whether the tool call the Agent is about to execute would cause substantial harm to the system.
+    You are the Hoda Engine human-in-the-loop audit Agent. Review whether the tool call the Agent is about to execute would cause substantial harm to the system.
 
     You will receive JSON containing fields such as hitlMode, toolName, arguments/argumentsObj, userMessage, thinking, reasoningChain, planning.
 
@@ -487,7 +487,7 @@ knowledge:
 # ============================================
 # Robot configuration (WeCom, DingTalk, Lark)
 # ============================================
-# Used to talk with CyberStrikeAI from a phone via WeCom/DingTalk/Lark; can be used without deploying on a server
+# Used to talk with Hoda Engine from a phone via WeCom/DingTalk/Lark; can be used without deploying on a server
 # Configurable in System Settings -> Robot Settings
 robots:
   wechat: # WeChat iLink (personal WeChat ClawBot, bound by scanning a QR code)
@@ -502,7 +502,7 @@ robots:
     ilink_user_id: ""
     base_url: https://ilinkai.weixin.qq.com
     bot_type: "3"
-    bot_agent: CyberStrikeAI/1.0
+    bot_agent: Hoda Engine/1.0
   wecom: # WeCom (WeChat Work)
     enabled: false
     auth:

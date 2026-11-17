@@ -2,7 +2,7 @@
 
 ## Security Policy
 
-CyberStrikeAI is a security testing and automation platform. It can execute tools, call MCP servers, manage WebShell connections, and optionally run C2 workflows. Please treat every deployment as a high-privilege security system.
+Hoda Engine is a security testing and automation platform. It can execute tools, call MCP servers, manage WebShell connections, and optionally run C2 workflows. Please treat every deployment as a high-privilege security system.
 
 ### Supported Versions
 
@@ -46,11 +46,11 @@ Out of scope:
 - denial-of-service testing against public services without permission;
 - social engineering, phishing, or credential theft;
 - issues caused only by intentionally disabling documented security controls;
-- vulnerabilities in third-party tools invoked by CyberStrikeAI, unless CyberStrikeAI makes them materially worse.
+- vulnerabilities in third-party tools invoked by Hoda Engine, unless Hoda Engine makes them materially worse.
 
 ### Authorized Use Boundary
 
-CyberStrikeAI must only be used for education, research, and authorized security testing. Do not use it against systems without explicit permission.
+Hoda Engine must only be used for education, research, and authorized security testing. Do not use it against systems without explicit permission.
 
 High-risk capabilities such as Shell execution, WebShell management, C2, payload generation, external MCP tools, and batch scanning should be enabled only in controlled, authorized environments.
 

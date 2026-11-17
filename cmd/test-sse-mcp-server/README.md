@@ -15,7 +15,7 @@ The server starts at `http://127.0.0.1:8082` and provides the following endpoint
 - `GET /sse` - SSE event-stream endpoint
 - `POST /message` - message-receiving endpoint
 
-### 2. Add the configuration in CyberStrikeAI
+### 2. Add the configuration in Hoda Engine
 
 Add an external MCP configuration in the web UI using the following JSON:
 

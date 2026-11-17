@@ -342,8 +342,8 @@ func TestExtractInfoCollectJSONObject(t *testing.T) {
 	}{
 		{
 			name: "plain json",
-			in:   `{"query":"title:\"CyberStrikeAI\"","warnings":[]}`,
-			want: `{"query":"title:\"CyberStrikeAI\"","warnings":[]}`,
+			in:   `{"query":"title:\"Hoda Engine\"","warnings":[]}`,
+			want: `{"query":"title:\"Hoda Engine\"","warnings":[]}`,
 		},
 		{
 			name: "fenced json",

@@ -318,9 +318,9 @@ function harness(options) {
                 return Promise.resolve({
                     status: answer.status,
                     headers: { get: name => ({
-                        'X-CyberStrike-Boot-ID': answer.bootID,
-                        'X-CyberStrike-Activation-ID': answer.activationID,
-                        'X-CyberStrike-Build-Revision': answer.revision,
+                        'X-CyberStrikeAI-Boot-ID': answer.bootID,
+                        'X-CyberStrikeAI-Activation-ID': answer.activationID,
+                        'X-CyberStrikeAI-Build-Revision': answer.revision,
                     })[name] },
                     json: () => Promise.resolve(answer.body || {}),
                 });

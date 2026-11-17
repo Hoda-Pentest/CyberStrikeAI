@@ -2,7 +2,7 @@
 
 [Chinese](../zh-CN/api-reference.md)
 
-CyberStrikeAI exposes built-in OpenAPI docs:
+Hoda Engine exposes built-in OpenAPI docs:
 
 ```text
 /api-docs

@@ -2,7 +2,7 @@
 
 [Chinese](../zh-CN/audit-and-monitoring.md)
 
-CyberStrikeAI has separate observability streams:
+Hoda Engine has separate observability streams:
 
 - Audit: who performed platform management actions.
 - Monitor: how tool executions ran.

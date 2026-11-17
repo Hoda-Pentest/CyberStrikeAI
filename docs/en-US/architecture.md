@@ -2,7 +2,7 @@
 
 [Chinese](../zh-CN/architecture.md)
 
-CyberStrikeAI is a single Go Web application with a static frontend, SQLite persistence, Agent orchestration, MCP tooling, workflow graphs, knowledge retrieval, and optional C2/WebShell subsystems.
+Hoda Engine is a single Go Web application with a static frontend, SQLite persistence, Agent orchestration, MCP tooling, workflow graphs, knowledge retrieval, and optional C2/WebShell subsystems.
 
 ## Overview
 

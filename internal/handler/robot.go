@@ -194,7 +194,7 @@ func (h *RobotHandler) robotAccessDeniedMessage(platform string) string {
 	if h.config.Robots.AuthorizationFor(platform).EffectiveMode() == config.RobotAuthModeServiceAccount {
 		return "The current platform account is not on this bot's service account whitelist, or the service account is unavailable."
 	}
-	return "The current platform account is not yet bound to a CyberStrikeAI user. Please generate a binding code on the web first, then send: bind XXXX-XXXX"
+	return "The current platform account is not yet bound to a Hoda Engine user. Please generate a binding code on the web first, then send: bind XXXX-XXXX"
 }
 
 func (h *RobotHandler) loadSessionBinding(sk string) (convID, role, agentMode string) {
@@ -468,7 +468,7 @@ func (h *RobotHandler) cmdHelp(platform, userID string) string {
 		return access != nil && access.Permissions[permission]
 	}
 	var b strings.Builder
-	b.WriteString("[CyberStrikeAI Bot Commands]\n\n")
+	b.WriteString("[Hoda Engine Bot Commands]\n\n")
 	b.WriteString("[General]\n")
 	b.WriteString("· help — show this help\n")
 	b.WriteString("· version — show the current version number\n")
@@ -1039,7 +1039,7 @@ func (h *RobotHandler) cmdVersion() string {
 	if v == "" {
 		v = "unknown"
 	}
-	return "CyberStrikeAI " + v
+	return "Hoda Engine " + v
 }
 
 func (h *RobotHandler) cmdIdentity(platform, userID string) string {
@@ -1196,7 +1196,7 @@ func (h *RobotHandler) executeUnbindUser(platform, userID string) string {
 			ResourceType: "robot_binding", ResourceID: platform + ":" + fmt.Sprintf("%x", hint[:4]), Message: "robot platform account unbound successfully",
 		})
 	}
-	return "The binding between the current platform account and the CyberStrikeAI user has been removed."
+	return "The binding between the current platform account and the Hoda Engine user has been removed."
 }
 
 func (h *RobotHandler) setPendingConfirmation(platform, userID, action, target string) {

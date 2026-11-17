@@ -32,8 +32,8 @@ test('very long human approval content scrolls within a height-limited area and 
     assert.match(monitor, /while \(dock\.firstChild && dock\.firstChild !== actions\)/);
     assert.match(monitor, /wrapChatHitlApprovalScrollRegion\(dock\);/);
     assert.match(monitor, /url\.length > 160[\s\S]*?requestVisitLongUrl/);
-    assert.equal(zh.hitl.requestVisitLongUrl, '允许 CyberStrikeAI 访问此地址？');
-    assert.equal(en.hitl.requestVisitLongUrl, 'Allow CyberStrikeAI to visit this address?');
+    assert.equal(zh.hitl.requestVisitLongUrl, '允许 Hoda Engine 访问此地址？');
+    assert.equal(en.hitl.requestVisitLongUrl, 'Allow Hoda Engine to visit this address?');
 });
 
 test('when a refresh restores the session, authoritative approval config sync completes before sending is allowed', () => {
