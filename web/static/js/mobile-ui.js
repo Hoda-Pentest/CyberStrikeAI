@@ -467,7 +467,7 @@
         var head = el('div', 'm-drawer-head m-mobile-only');
         var brand = el('div', 'm-drawer-brand',
             '<img src="/static/logo.png" alt="Hoda Engine">' +
-            '<span class="brand-wordmark"><span class="brand-wordmark__core">Hoda Engine</span><span class="brand-wordmark__ai">AI</span></span>');
+            '<span class="brand-wordmark"><span class="brand-wordmark__core">HodaEngine</span><span class="brand-wordmark__ai">AI</span></span>');
         var close = el('button', 'm-close-btn', ICON.close);
         close.type = 'button';
         ariaLabel(close, 'mobile.closeNav', 'Close navigation menu');
