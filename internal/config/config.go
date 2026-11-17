@@ -1158,7 +1158,7 @@ func (h HitlConfig) AuditModelEffective(main OpenAIConfig) OpenAIConfig {
 	return out
 }
 
-const hitlAuditAgentPromptBase = `You are the Hoda Engine human-in-the-loop audit Agent. Review whether the tool call the Agent is about to execute would cause substantial harm to the system.
+const hitlAuditAgentPromptBase = `You are the HodaEngineAI human-in-the-loop audit Agent. Review whether the tool call the Agent is about to execute would cause substantial harm to the system.
 
 You will receive JSON containing fields such as hitlMode, toolName, arguments/argumentsObj, userMessage, thinking, reasoningChain, planning.
 
@@ -2052,7 +2052,7 @@ func PrintMCPConfigJSON(mcp MCPConfig) {
 		},
 	}
 	b, _ := json.MarshalIndent(out, "", "  ")
-	fmt.Println("[Hoda Engine] MCP configuration (can be copied into Cursor / Claude Code):")
+	fmt.Println("[HodaEngineAI] MCP configuration (can be copied into Cursor / Claude Code):")
 	fmt.Println("  Cursor: place in the mcpServers of ~/.cursor/mcp.json, or the project .cursor/mcp.json")
 	fmt.Println("  Claude Code: place in the mcpServers of .mcp.json or ~/.claude.json")
 	fmt.Println("----------------------------------------------------------------")

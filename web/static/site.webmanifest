@@ -1,6 +1,6 @@
 {
-  "name": "Hoda Engine",
-  "short_name": "Hoda Engine",
+  "name": "HodaEngineAI",
+  "short_name": "HodaEngineAI",
   "description": "AI Security Testing Platform WebUI",
   "start_url": "/",
   "scope": "/",

@@ -18,7 +18,7 @@ import (
 const (
 	DefaultBaseURL    = "https://ilinkai.weixin.qq.com"
 	DefaultBotType    = "3"
-	DefaultBotAgent   = "Hoda Engine/1.0"
+	DefaultBotAgent   = "HodaEngineAI/1.0"
 	ILinkAppID        = "bot"
 	QRLongPollTimeout = 35 * time.Second
 	APIDefaultTimeout = 15 * time.Second

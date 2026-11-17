@@ -19,7 +19,7 @@ import (
 )
 
 const (
-	clientName    = "Hoda Engine"
+	clientName    = "HodaEngineAI"
 	clientVersion = "1.0.0"
 )
 

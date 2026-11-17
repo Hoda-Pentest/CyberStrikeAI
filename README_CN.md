@@ -1,19 +1,19 @@
 <div align="center">
-  <img src="images/logo.png" alt="Hoda Engine Logo" width="200">
+  <img src="images/logo.png" alt="HodaEngineAI Logo" width="200">
 </div>
 
-# Hoda Engine
+# HodaEngineAI
 
 [中文](README_CN.md) | [English](README.md)
 
-**Hoda Engine 是 AI 原生网络安全的智能执行中枢——让意图转化为受治理的行动，让证据沉淀为运营记忆，并让每次行动优化下一次行动。**
+**HodaEngineAI 是 AI 原生网络安全的智能执行中枢——让意图转化为受治理的行动，让证据沉淀为运营记忆，并让每次行动优化下一次行动。**
 
-Hoda Engine 将规划、执行、人工监督、证据与复盘连接在同一个可审计工作空间中。项目基于 Go 构建，使用 Pi 智能体，融合 MCP 原生工具、RAG 知识、可视化工作流以及攻击链建模与分析能力，面向已获得明确授权的安全任务。
+HodaEngineAI 将规划、执行、人工监督、证据与复盘连接在同一个可审计工作空间中。项目基于 Go 构建，使用 Pi 智能体，融合 MCP 原生工具、RAG 知识、可视化工作流以及攻击链建模与分析能力，面向已获得明确授权的安全任务。
 
 **从这里开始：** [快速上手](#快速上手一条命令部署) · [中文文档](docs/zh-CN/README.md) · [安全加固](docs/zh-CN/security-hardening.md)
 
 > [!IMPORTANT]
-> 仅可对自有系统或已获得明确授权的目标使用 Hoda Engine。在共享或生产环境启用高风险工具、WebShell 或 C2 前，请先阅读[安全模型](docs/zh-CN/security-model.md)和[安全加固指南](docs/zh-CN/security-hardening.md)。
+> 仅可对自有系统或已获得明确授权的目标使用 HodaEngineAI。在共享或生产环境启用高风险工具、WebShell 或 C2 前，请先阅读[安全模型](docs/zh-CN/security-model.md)和[安全加固指南](docs/zh-CN/security-hardening.md)。
 
 ## 界面与集成预览
 
@@ -154,8 +154,8 @@ Hoda Engine 将规划、执行、人工监督、证据与复盘连接在同一�
   构建产物：`plugins/burp-suite/cyberstrikeai-burp-extension/dist/cyberstrikeai-burp-extension.jar`  
   说明文档：`plugins/burp-suite/cyberstrikeai-burp-extension/README.zh-CN.md`
 - **浏览器扩展（Chrome / Edge）**：`plugins/browser-extension/cyberstrikeai-browser-extension/`  
-  在 DevTools 中捕获 Network 流量并发送到 Hoda Engine 进行 AI 辅助安全测试，能力与 Burp 插件对齐。  
-  安装：`chrome://extensions/` → 加载已解压 → F12 → **Hoda Engine** 标签页  
+  在 DevTools 中捕获 Network 流量并发送到 HodaEngineAI 进行 AI 辅助安全测试，能力与 Burp 插件对齐。  
+  安装：`chrome://extensions/` → 加载已解压 → F12 → **HodaEngineAI** 标签页  
   打包产物：`plugins/browser-extension/cyberstrikeai-browser-extension/dist/cyberstrikeai-browser-extension.zip`  
   说明文档：`plugins/browser-extension/cyberstrikeai-browser-extension/README.zh-CN.md`
 
@@ -197,7 +197,7 @@ Hoda Engine 将规划、执行、人工监督、证据与复盘连接在同一�
 **一条命令部署：**
 ```bash
 git clone https://github.com/Ed1s0nZ/CyberStrikeAI.git
-cd Hoda Engine
+cd HodaEngineAI
 chmod +x run.sh && ./run.sh
 ```
 
@@ -369,7 +369,7 @@ CyberStrikeAI/
 ## 404星链计划 
 <img src="./images/404StarLinkLogo.png" width="30%">
 
-Hoda Engine 现已加入 [404星链计划](https://github.com/knownsec/404StarLink)
+HodaEngineAI 现已加入 [404星链计划](https://github.com/knownsec/404StarLink)
 
 ## TCH Top-Ranked Intelligent Pentest Project  
 <div align="left">
@@ -388,13 +388,13 @@ Hoda Engine 现已加入 [404星链计划](https://github.com/knownsec/404StarLi
 <details>
 <summary><strong>企业微信群</strong></summary>
 
-<img src="./images/wecom-group-cyberstrikeai-qr.png" alt="Hoda Engine 企业微信群二维码" width="280">
+<img src="./images/wecom-group-cyberstrikeai-qr.png" alt="HodaEngineAI 企业微信群二维码" width="280">
 
 </details>
 
 ## 许可证
 
-Hoda Engine 采用 **Apache License 2.0** 开源许可。  
+HodaEngineAI 采用 **Apache License 2.0** 开源许可。  
 完整条款见仓库根目录 [LICENSE](LICENSE) 文件。
 
 ---
@@ -403,7 +403,7 @@ Hoda Engine 采用 **Apache License 2.0** 开源许可。
 
 **本工具仅供教育和授权测试使用！**
 
-Hoda Engine 是一个专业的安全测试平台，旨在帮助安全研究人员、渗透测试人员和IT专业人员在**获得明确授权**的情况下进行安全评估和漏洞研究。
+HodaEngineAI 是一个专业的安全测试平台，旨在帮助安全研究人员、渗透测试人员和IT专业人员在**获得明确授权**的情况下进行安全评估和漏洞研究。
 
 **使用本工具即表示您同意：**
 - 仅在您拥有明确书面授权的系统上使用此工具

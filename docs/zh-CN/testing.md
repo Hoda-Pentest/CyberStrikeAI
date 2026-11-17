@@ -1,6 +1,6 @@
 # 测试指南
 
-Hoda Engine 的测试包括 Go 单测、配置验证、API 手测、MCP 工具验证和前端冒烟测试。
+HodaEngineAI 的测试包括 Go 单测、配置验证、API 手测、MCP 工具验证和前端冒烟测试。
 
 ## Go 单测
 

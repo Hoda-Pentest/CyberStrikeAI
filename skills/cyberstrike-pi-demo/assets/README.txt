@@ -1,4 +1,4 @@
-Hoda Engine skill package — assets/ smoke test
+HodaEngineAI skill package — assets/ smoke test
 ==============================================
 
 This plain-text file checks that arbitrary subfolders under a skill package

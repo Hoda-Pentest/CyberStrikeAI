@@ -4310,28 +4310,28 @@ function describeHitlApprovalRequest(data) {
     const isCommand = !!command || /(^|::|_)exec$|shell|terminal|command|run_command/.test(toolName);
     const isFile = !!path || /write_file|edit_file|apply_patch|delete_file|move_file/.test(toolName);
     let displayTool = rawToolName;
-    let question = hitlApprovalTemplate('hitl.requestGeneric', 'Allow Hoda Engine to call {{tool}}?', { tool: rawToolName });
+    let question = hitlApprovalTemplate('hitl.requestGeneric', 'Allow HodaEngineAI to call {{tool}}?', { tool: rawToolName });
     let primary = '';
     let kind = 'generic';
     if (isBrowser) {
         kind = 'browser';
         question = url
             ? (url.length > 160
-                ? hitlApprovalTranslate('hitl.requestVisitLongUrl', 'Allow Hoda Engine to visit this address?')
-                : hitlApprovalTemplate('hitl.requestVisitUrl', 'Allow Hoda Engine to visit {{url}}?', { url: url }))
-            : hitlApprovalTranslate('hitl.requestBrowser', 'Allow Hoda Engine to use the browser?');
+                ? hitlApprovalTranslate('hitl.requestVisitLongUrl', 'Allow HodaEngineAI to visit this address?')
+                : hitlApprovalTemplate('hitl.requestVisitUrl', 'Allow HodaEngineAI to visit {{url}}?', { url: url }))
+            : hitlApprovalTranslate('hitl.requestBrowser', 'Allow HodaEngineAI to use the browser?');
         primary = url;
     } else if (isCommand) {
         kind = 'command';
-        question = hitlApprovalTranslate('hitl.requestCommand', 'Allow Hoda Engine to run this command?');
+        question = hitlApprovalTranslate('hitl.requestCommand', 'Allow HodaEngineAI to run this command?');
         primary = command;
     } else if (isFile) {
         kind = 'file';
         question = path
             ? (path.length > 160
-                ? hitlApprovalTranslate('hitl.requestModifyLongPath', 'Allow Hoda Engine to modify this file?')
-                : hitlApprovalTemplate('hitl.requestFile', 'Allow Hoda Engine to modify {{path}}?', { path: path }))
-            : hitlApprovalTranslate('hitl.requestFiles', 'Allow Hoda Engine to modify files?');
+                ? hitlApprovalTranslate('hitl.requestModifyLongPath', 'Allow HodaEngineAI to modify this file?')
+                : hitlApprovalTemplate('hitl.requestFile', 'Allow HodaEngineAI to modify {{path}}?', { path: path }))
+            : hitlApprovalTranslate('hitl.requestFiles', 'Allow HodaEngineAI to modify files?');
         primary = path;
     }
     return {

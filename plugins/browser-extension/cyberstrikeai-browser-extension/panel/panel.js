@@ -207,7 +207,7 @@ async function probeTokenOnServer(force) {
         return;
       }
       if (isNetworkFetchError(err)) {
-        setStatus('Cannot reach server — confirm Hoda Engine is running', 'warn');
+        setStatus('Cannot reach server — confirm HodaEngineAI is running', 'warn');
         updateConnSummary();
         return;
       }

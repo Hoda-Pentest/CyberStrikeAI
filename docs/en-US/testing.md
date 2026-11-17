@@ -2,7 +2,7 @@
 
 [Chinese](../zh-CN/testing.md)
 
-Testing Hoda Engine means more than running Go tests. Agent, MCP, HITL, C2, WebShell, and frontend streaming all have different failure modes.
+Testing HodaEngineAI means more than running Go tests. Agent, MCP, HITL, C2, WebShell, and frontend streaming all have different failure modes.
 
 ## Commands
 

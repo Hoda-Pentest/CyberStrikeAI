@@ -2,7 +2,7 @@
 
 [Chinese](../zh-CN/security-model.md)
 
-Hoda Engine is not a generic chatbot. It is a high-privilege security automation system with command execution, MCP tools, WebShell management, optional C2, batch tasks, and multi-agent orchestration.
+HodaEngineAI is not a generic chatbot. It is a high-privilege security automation system with command execution, MCP tools, WebShell management, optional C2, batch tasks, and multi-agent orchestration.
 
 ## Trust Boundaries
 

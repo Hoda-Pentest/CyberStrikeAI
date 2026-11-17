@@ -796,7 +796,7 @@ func (h *WebShellHandler) Exec(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, ExecResponse{OK: false, Error: err.Error()})
 		return
 	}
-	httpReq.Header.Set("User-Agent", "Mozilla/5.0 (compatible; Hoda Engine-WebShell/1.0)")
+	httpReq.Header.Set("User-Agent", "Mozilla/5.0 (compatible; HodaEngineAI-WebShell/1.0)")
 
 	resp, err := h.client.Do(httpReq)
 	if err != nil {
@@ -929,7 +929,7 @@ func (h *WebShellHandler) FileOp(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, FileOpResponse{OK: false, Error: err.Error()})
 		return
 	}
-	httpReq.Header.Set("User-Agent", "Mozilla/5.0 (compatible; Hoda Engine-WebShell/1.0)")
+	httpReq.Header.Set("User-Agent", "Mozilla/5.0 (compatible; HodaEngineAI-WebShell/1.0)")
 
 	resp, err := h.client.Do(httpReq)
 	if err != nil {
@@ -1015,7 +1015,7 @@ func (h *WebShellHandler) ExecWithConnection(conn *database.WebShellConnection, 
 	if err != nil {
 		return "", false, err.Error()
 	}
-	httpReq.Header.Set("User-Agent", "Mozilla/5.0 (compatible; Hoda Engine-WebShell/1.0)")
+	httpReq.Header.Set("User-Agent", "Mozilla/5.0 (compatible; HodaEngineAI-WebShell/1.0)")
 	resp, err := h.client.Do(httpReq)
 	if err != nil {
 		return "", false, err.Error()
@@ -1084,7 +1084,7 @@ func (h *WebShellHandler) FileOpWithConnection(conn *database.WebShellConnection
 	if err != nil {
 		return "", false, err.Error()
 	}
-	httpReq.Header.Set("User-Agent", "Mozilla/5.0 (compatible; Hoda Engine-WebShell/1.0)")
+	httpReq.Header.Set("User-Agent", "Mozilla/5.0 (compatible; HodaEngineAI-WebShell/1.0)")
 	resp, err := h.client.Do(httpReq)
 	if err != nil {
 		return "", false, err.Error()

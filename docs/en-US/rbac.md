@@ -1,8 +1,8 @@
-# Hoda Engine RBAC Administration Guide
+# HodaEngineAI RBAC Administration Guide
 
 [Chinese](../zh-CN/rbac.md)
 
-Hoda Engine can execute Agents, MCP tools, WebShell operations, C2 actions, and batch jobs. RBAC therefore applies beyond navigation visibility: it is enforced across HTTP APIs, resource queries, Agent contexts, built-in and external MCP tools, background jobs, and chatbot execution.
+HodaEngineAI can execute Agents, MCP tools, WebShell operations, C2 actions, and batch jobs. RBAC therefore applies beyond navigation visibility: it is enforced across HTTP APIs, resource queries, Agent contexts, built-in and external MCP tools, background jobs, and chatbot execution.
 
 ---
 

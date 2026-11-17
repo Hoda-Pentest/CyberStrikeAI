@@ -2,7 +2,7 @@
 
 [Chinese](../zh-CN/developer-guide.md)
 
-This guide is for contributors extending Hoda Engine. The project is a Go single-service application with a static frontend, SQLite persistence, Agent/MCP orchestration, and optional high-risk security subsystems.
+This guide is for contributors extending HodaEngineAI. The project is a Go single-service application with a static frontend, SQLite persistence, Agent/MCP orchestration, and optional high-risk security subsystems.
 
 ## Project Layout
 

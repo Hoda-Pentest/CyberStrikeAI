@@ -2,7 +2,7 @@
 
 [Chinese](README_CN.md)
 
-AI-powered **penetration testing engineer** MCP server. Hoda Engine can command it to run pentest tasks, analyze vulnerabilities, and perform security diagnostics. The agent runs a Claude-based AI internally and can be configured with its own MCP servers and tools.
+AI-powered **penetration testing engineer** MCP server. HodaEngineAI can command it to run pentest tasks, analyze vulnerabilities, and perform security diagnostics. The agent runs a Claude-based AI internally and can be configured with its own MCP servers and tools.
 
 ## Tools
 
@@ -34,9 +34,9 @@ Config options (see `pent_claude_agent_config.yaml`):
 - `env`: Environment variables (API keys, etc.)
 - `system_prompt`: Role and behavior definition
 
-Path placeholders: `${PROJECT_ROOT}` = Hoda Engine root, `${SCRIPT_DIR}` = this script's directory.
+Path placeholders: `${PROJECT_ROOT}` = HodaEngineAI root, `${SCRIPT_DIR}` = this script's directory.
 
-## Setup in Hoda Engine
+## Setup in HodaEngineAI
 
 1. **Paths**  
    Example: project root `/path/to/CyberStrikeAI-main`  
@@ -66,9 +66,9 @@ Path placeholders: `${PROJECT_ROOT}` = Hoda Engine root, `${SCRIPT_DIR}` = this 
    - Save, then click **Start** for this MCP to use the tools in chat.
 
 3. **Typical workflow**
-   - Hoda Engine calls `pent_claude_run_pentest_task("Scan target 192.168.1.1 for open ports")`.
+   - HodaEngineAI calls `pent_claude_run_pentest_task("Scan target 192.168.1.1 for open ports")`.
    - pent_claude_agent starts a Claude agent internally, which may use Bash, nmap, etc.
-   - Results are returned to Hoda Engine.
+   - Results are returned to HodaEngineAI.
 
 ## Run locally (optional)
 
@@ -77,7 +77,7 @@ Path placeholders: `${PROJECT_ROOT}` = Hoda Engine root, `${SCRIPT_DIR}` = this 
 ./venv/bin/python mcp-servers/pent_claude_agent/mcp_pent_claude_agent.py
 ```
 
-The process talks MCP over stdio; Hoda Engine starts it the same way when using External MCP.
+The process talks MCP over stdio; HodaEngineAI starts it the same way when using External MCP.
 
 ## Security
 

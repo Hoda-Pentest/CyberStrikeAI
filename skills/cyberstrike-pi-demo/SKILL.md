@@ -3,7 +3,7 @@ name: cyberstrike-pi-demo
 description: "Full-featured example skill package: SKILL.md + optional directories such as scripts/, references/, assets/; verifies the Pi skill and HTTP in-package paths (authorized security testing and teaching only)."
 ---
 
-# Hoda Engine × Pi full-featured skill demo
+# HodaEngineAI × Pi full-featured skill demo
 
 This package follows [Agent Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview): **`SKILL.md` is the manifest + main instructions** (no separate `SKILL.yaml`). The same directory may contain any subdirectories such as **`scripts/`**, **`references/`**, **`assets/`** (as long as the paths are safe and within the package depth/file-count limits), read via **`ListPackageFiles` / `resource_path`** and Pi local tools. See `FORMS.md` and `REFERENCE.md` for more.
 

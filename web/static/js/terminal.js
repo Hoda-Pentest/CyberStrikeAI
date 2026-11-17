@@ -32,7 +32,7 @@
         }
         // Fallback when i18n is not ready (consistent with zh-CN)
         var fallbacks = {
-            'settingsTerminal.welcomeLine': 'Hoda Engine terminal - real shell session, type commands directly; Ctrl+L to clear',
+            'settingsTerminal.welcomeLine': 'HodaEngineAI terminal - real shell session, type commands directly; Ctrl+L to clear',
             'settingsTerminal.sessionClosed': '[Session closed]',
             'settingsTerminal.connectionError': '[Terminal connection error]',
             'settingsTerminal.connectFailed': '[Cannot connect to terminal service: {{msg}}]',

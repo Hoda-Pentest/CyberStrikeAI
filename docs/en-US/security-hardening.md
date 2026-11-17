@@ -2,7 +2,7 @@
 
 [Chinese](../zh-CN/security-hardening.md)
 
-This checklist covers pre-production and continuous hardening for Hoda Engine.
+This checklist covers pre-production and continuous hardening for HodaEngineAI.
 
 ## Before Going Live
 

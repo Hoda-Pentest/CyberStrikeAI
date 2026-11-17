@@ -1,8 +1,8 @@
-# Hoda Engine Documentation
+# HodaEngineAI Documentation
 
 [Chinese](#chinese-documentation) | [English](#english-documentation)
 
-Hoda Engine documentation is organized by user journey. Start with deployment, then move to the topic that matches your task.
+HodaEngineAI documentation is organized by user journey. Start with deployment, then move to the topic that matches your task.
 
 ## 中文文档
 

@@ -1,6 +1,6 @@
 # 部署指南
 
-本文说明 Hoda Engine 的常见部署方式。生产环境部署前，请先阅读 [安全模型](security-model.md)，确认授权范围、认证、HITL、审计和高风险功能开关。
+本文说明 HodaEngineAI 的常见部署方式。生产环境部署前，请先阅读 [安全模型](security-model.md)，确认授权范围、认证、HITL、审计和高风险功能开关。
 
 ## 部署前准备
 
@@ -143,7 +143,7 @@ server {
 
 ```ini
 [Unit]
-Description=Hoda Engine
+Description=HodaEngineAI
 After=network.target
 
 [Service]

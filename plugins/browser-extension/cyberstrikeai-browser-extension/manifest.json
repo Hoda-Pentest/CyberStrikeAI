@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Hoda Engine",
+  "name": "HodaEngineAI",
   "version": "0.3.11",
-  "description": "Capture browser HTTP traffic and send to Hoda Engine for AI-assisted security testing.",
+  "description": "Capture browser HTTP traffic and send to HodaEngineAI for AI-assisted security testing.",
   "devtools_page": "devtools.html",
   "permissions": ["storage"],
   "optional_host_permissions": ["http://*/*", "https://*/*"],
@@ -11,7 +11,7 @@
   },
   "action": {
     "default_popup": "popup/popup.html",
-    "default_title": "Hoda Engine"
+    "default_title": "HodaEngineAI"
   },
   "icons": {
     "16": "icons/icon16.png",

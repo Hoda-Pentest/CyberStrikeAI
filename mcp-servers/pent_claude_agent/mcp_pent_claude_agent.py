@@ -2,7 +2,7 @@
 """
 Pent Claude Agent MCP Server - a penetration-testing engineer MCP service
 
-Exposes AI penetration-testing capabilities over the MCP protocol: Hoda Engine can direct pent_claude_agent to perform penetration-testing tasks.
+Exposes AI penetration-testing capabilities over the MCP protocol: HodaEngineAI can direct pent_claude_agent to perform penetration-testing tasks.
 pent_claude_agent internally uses the Claude Agent SDK, can independently configure MCP, tools, etc., and runs as a standalone penetration-testing engineer.
 
 Dependencies: pip install mcp claude-agent-sdk (or use the project venv)

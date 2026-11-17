@@ -2,7 +2,7 @@
 
 [Chinese](../zh-CN/audit-and-monitoring.md)
 
-Hoda Engine has separate observability streams:
+HodaEngineAI has separate observability streams:
 
 - Audit: who performed platform management actions.
 - Monitor: how tool executions ran.

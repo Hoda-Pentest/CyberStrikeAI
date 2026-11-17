@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-# Hoda Engine one-click deploy and start script
+# HodaEngineAI one-click deploy and start script
 ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$ROOT_DIR"
 
@@ -65,7 +65,7 @@ print_banner() {
     local show_mirrors="${1:-1}"
     echo ""
     echo "=========================================="
-    echo "  Hoda Engine Deploy & Start Script"
+    echo "  HodaEngineAI Deploy & Start Script"
     echo "  (HTTPS with self-signed cert by default; plain HTTP: $0 --http)"
     echo "=========================================="
     echo ""
@@ -475,10 +475,10 @@ main() {
     success "All setup complete!"
     echo ""
     if [ "$USE_HTTPS" -eq 1 ]; then
-        info "Starting Hoda Engine server (HTTPS + HTTP/2, self-signed cert)..."
+        info "Starting HodaEngineAI server (HTTPS + HTTP/2, self-signed cert)..."
         note "For plain HTTP, use: $0 --http"
     else
-        info "Starting Hoda Engine server (HTTP)..."
+        info "Starting HodaEngineAI server (HTTP)..."
     fi
     echo "=========================================="
     echo ""

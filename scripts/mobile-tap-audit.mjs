@@ -1,5 +1,5 @@
 /*
- * Hoda Engine — mobile tap audit.
+ * HodaEngineAI — mobile tap audit.
  *
  * Proves the claim "every button on a phone can actually be tapped and shows up
  * correctly". It is deliberately narrower than scripts/mobile-audit.mjs (layout

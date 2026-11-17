@@ -2,7 +2,7 @@
 
 [English](../en-US/security-hardening.md)
 
-本文给出 Hoda Engine 上线前和持续运行中的安全加固清单。
+本文给出 HodaEngineAI 上线前和持续运行中的安全加固清单。
 
 ## 上线前必做
 

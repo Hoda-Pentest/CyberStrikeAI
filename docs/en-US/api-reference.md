@@ -2,7 +2,7 @@
 
 [Chinese](../zh-CN/api-reference.md)
 
-Hoda Engine exposes built-in OpenAPI docs:
+HodaEngineAI exposes built-in OpenAPI docs:
 
 ```text
 /api-docs

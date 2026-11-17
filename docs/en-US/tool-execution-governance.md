@@ -2,7 +2,7 @@
 
 [Back to English documentation](README.md)
 
-This document describes how Hoda Engine governs long-running tools, blocking MCP calls, oversized outputs, cancellation, and context restore. The goal is to preserve standard Agent/Pi tool semantics while preventing tool hangs, context blowups, oversized database records, and unsafe resume behavior.
+This document describes how HodaEngineAI governs long-running tools, blocking MCP calls, oversized outputs, cancellation, and context restore. The goal is to preserve standard Agent/Pi tool semantics while preventing tool hangs, context blowups, oversized database records, and unsafe resume behavior.
 
 ## Goals
 
@@ -78,7 +78,7 @@ Typical flow:
 
 ## External MCP Isolation
 
-External MCP servers can hang, disconnect, or return failures. Hoda Engine uses three protections:
+External MCP servers can hang, disconnect, or return failures. HodaEngineAI uses three protections:
 
 | Capability | Config | Description |
 |---|---|---|
@@ -98,7 +98,7 @@ agent:
 
 ## Output Governance
 
-Hoda Engine uses `multi_agent.runtime.reduction_max_length_for_trunc` as the unified tool result cap. The example configuration uses 50000 bytes.
+HodaEngineAI uses `multi_agent.runtime.reduction_max_length_for_trunc` as the unified tool result cap. The example configuration uses 50000 bytes.
 
 ```yaml
 multi_agent:
@@ -217,7 +217,7 @@ Expected behavior:
 
 ## Boundaries
 
-- Hoda Engine cannot control how a remote external MCP server collects output internally; it caps results after they enter Hoda Engine and protects calls with concurrency limits and circuit breakers.
+- HodaEngineAI cannot control how a remote external MCP server collects output internally; it caps results after they enter HodaEngineAI and protects calls with concurrency limits and circuit breakers.
 - Oversized tool output is spilled to local `tmp/reduction/.../trunc/<id>` (or `reduction_root_dir`) before truncation; the bounded result includes an absolute path for `read_file`.
 
 ## Task-owned process lifetime

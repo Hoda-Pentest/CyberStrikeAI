@@ -269,7 +269,7 @@ func GenerateDraftFromLLM(ctx context.Context, req DraftRequest, oa config.OpenA
 	callCtx, cancel := context.WithTimeout(ctx, 90*time.Second)
 	defer cancel()
 	toolJSON, _ := json.Marshal(req.AvailableTools)
-	systemPrompt := `You are Hoda Engine's workflow-orchestration assistant. You must convert the user's one-sentence requirement into a saveable workflow-draft JSON.
+	systemPrompt := `You are HodaEngineAI's workflow-orchestration assistant. You must convert the user's one-sentence requirement into a saveable workflow-draft JSON.
 Return only a JSON object, no Markdown, no explanation. The JSON must conform to:
 {
   "meta": {"id":"kebab-case-id","name":"short name","description":"user requirement","enabled":true},

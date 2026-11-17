@@ -180,7 +180,7 @@ function baseUrlFrom(cfg) {
 }
 
 /**
- * Request optional host permission for the configured Hoda Engine origin.
+ * Request optional host permission for the configured HodaEngineAI origin.
  *
  * Keep chrome.permissions.request() synchronous with the caller's click event.
  * Awaiting permissions.contains() first can consume Chrome's transient user

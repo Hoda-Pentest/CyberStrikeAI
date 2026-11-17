@@ -1,6 +1,6 @@
 # API 参考
 
-Hoda Engine 内置 OpenAPI 规格和 API 文档页面。启动服务后访问：
+HodaEngineAI 内置 OpenAPI 规格和 API 文档页面。启动服务后访问：
 
 ```text
 /api-docs

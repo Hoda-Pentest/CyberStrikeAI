@@ -1,4 +1,4 @@
-// Package c2 implements Hoda Engine's built-in C2 (Command & Control) framework.
+// Package c2 implements HodaEngineAI's built-in C2 (Command & Control) framework.
 //
 // Design overview:
 //   - Manager is the single entry point, instantiated by internal/app and injected into every component that controls C2

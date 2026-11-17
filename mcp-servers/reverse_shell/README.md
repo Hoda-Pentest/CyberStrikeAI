@@ -2,7 +2,7 @@
 
 [Chinese](README_CN.md)
 
-Add **reverse shell** capability to Hoda Engine via External MCP: start/stop a TCP listener and run commands on connected targets—no backend code changes required.
+Add **reverse shell** capability to HodaEngineAI via External MCP: start/stop a TCP listener and run commands on connected targets—no backend code changes required.
 
 ## Tools
 
@@ -19,7 +19,7 @@ Add **reverse shell** capability to Hoda Engine via External MCP: start/stop a T
 - Python 3.10+
 - `mcp` package (included if using the project venv; otherwise: `pip install mcp`)
 
-## Setup in Hoda Engine
+## Setup in HodaEngineAI
 
 1. **Paths**  
    Example: project root `/path/to/CyberStrikeAI-main`  
@@ -58,7 +58,7 @@ Add **reverse shell** capability to Hoda Engine via External MCP: start/stop a T
 ./venv/bin/python mcp-servers/reverse_shell/mcp_reverse_shell.py
 ```
 
-The process talks MCP over stdio; Hoda Engine starts it the same way when using External MCP.
+The process talks MCP over stdio; HodaEngineAI starts it the same way when using External MCP.
 
 ## Security
 

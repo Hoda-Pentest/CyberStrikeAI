@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Demo only — not executed by Hoda Engine server; safe to display when previewing the skill package.
+# Demo only — not executed by HodaEngineAI server; safe to display when previewing the skill package.
 set -euo pipefail
 echo "cyberstrike-pi-demo / scripts/check-env.sh"
 echo "Purpose: illustrate bundled script resource in a skill package."

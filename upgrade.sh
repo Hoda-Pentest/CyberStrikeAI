@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Hoda Engine upgrade entry point.
+# HodaEngineAI upgrade entry point.
 #
 # Two installation kinds, decided at runtime from this directory itself:
 #

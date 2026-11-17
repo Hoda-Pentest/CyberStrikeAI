@@ -111,7 +111,7 @@ func generateMainServerSelfSignedPEM() ([]byte, error) {
 	}
 	tmpl := &x509.Certificate{
 		SerialNumber: serial,
-		Subject:      pkix.Name{CommonName: "Hoda Engine"},
+		Subject:      pkix.Name{CommonName: "HodaEngineAI"},
 		NotBefore:    time.Now().Add(-1 * time.Hour),
 		NotAfter:     time.Now().Add(365 * 24 * time.Hour),
 		KeyUsage:     x509.KeyUsageDigitalSignature,

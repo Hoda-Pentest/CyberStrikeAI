@@ -1,5 +1,5 @@
 /*
- * Hoda Engine — mobile shell screenshots.
+ * HodaEngineAI — mobile shell screenshots.
  *
  * Captures the injected mobile chrome (appbar / tab bar / drawer / bottom sheet)
  * at a phone viewport without needing a login: the chrome is injected by

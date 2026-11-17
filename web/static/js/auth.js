@@ -1,5 +1,5 @@
 const AUTH_STORAGE_KEY = 'cyberstrike-auth';
-const APP_BRAND_TITLE = 'Hoda Engine';
+const APP_BRAND_TITLE = 'HodaEngineAI';
 let authToken = null;
 let authTokenExpiry = null;
 let authUser = null;
