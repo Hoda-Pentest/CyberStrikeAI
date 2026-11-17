@@ -304,9 +304,9 @@ async function watchdogProbe() {
     try {
         const resp = await fetchDuringUpdate('/api/auth/validate');
         status = resp.status;
-        bootID = resp.headers?.get('X-CyberStrikeAI-Boot-ID') || '';
-        activationID = resp.headers?.get('X-CyberStrikeAI-Activation-ID') || '';
-        revision = resp.headers?.get('X-CyberStrikeAI-Build-Revision') || '';
+        bootID = resp.headers?.get('X-HodaEngine-Boot-ID') || '';
+        activationID = resp.headers?.get('X-HodaEngine-Activation-ID') || '';
+        revision = resp.headers?.get('X-HodaEngine-Build-Revision') || '';
         if ((!activation.tracked || activation.scheduled) && status === 401 && !bootID && !activationID) {
             const data = await resp.json().catch(() => null);
             legacyUnauthorized = data?.error === 'unauthorized access, please log in first';
