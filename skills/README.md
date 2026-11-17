@@ -1,7 +1,7 @@
-# Skills directory (Agent Skills / Eino)
+# Skills 目录（Agent Skills / Pi）
 
-- Each skill is a **subdirectory** that must have a **`SKILL.md`** at its root (YAML front matter: `name`, `description` + Markdown body); see [agentskills.io](https://agentskills.io/specification.md).
-- **The directory name must match `name`.**
-- **Runtime loading**: in an **Eino DeepAgent (multi-agent)** session, the ADK **`skill` middleware** discloses them progressively (the system prompt lists each skill's name/description, and the model then calls the **`skill`** tool to fetch the full `SKILL.md`). Optionally enable **`multi_agent.eino_skills.filesystem_tools`** to access in-package scripts and resources with the same `read_file` / `execute` etc. as on the local machine.
-- **Web management**: HTTP `/api/skills/*` is still used to list, edit, and upload in-package files (implemented as `internal/skillpackage`, not MCP).
-- **Runtime**: within a multi-agent (DeepAgent) session they are loaded progressively by the ADK **`skill`** tool; the single-agent MCP loop does not include Skills, so enable multi-agent or the later single-agent Eino path.
+- 每个技能为**子目录**，根上必须有 **`SKILL.md`**（YAML front matter：`name`、`description` + Markdown 正文），见 [agentskills.io](https://agentskills.io/specification.md)。
+- **目录名须与 `name` 一致**。
+- **运行时加载**：在 **Pi 单代理或多代理** 会话中由 原生 **`skill` 工具**渐进披露（系统提示中列出各 skill 的 name/description，模型再调用 **`skill`** 工具拉取 `SKILL.md` 全文）。可选开启 **`multi_agent.skills.filesystem_tools`**，使用与本机相同的 `read_file` / `execute` 等访问包内脚本与资源。
+- **Web 管理**：HTTP `/api/skills/*` 仍用于列表、编辑、上传包内文件（实现为 `internal/skillpackage`，非 MCP）。
+- **运行时**：单代理与多代理均由原生 **`skill`** 工具按需加载。

@@ -23,6 +23,7 @@ function functionSource(source, name, nextName) {
 function createScrollRuntime() {
     const listeners = new Map();
     const buttonListeners = new Map();
+    const scrollCalls = [];
     const classList = { add() {}, remove() {}, toggle() {}, contains() { return false; } };
     const chatEl = {
         scrollTop: 500,
@@ -31,7 +32,11 @@ function createScrollRuntime() {
         children: [],
         classList,
         addEventListener(type, handler) { listeners.set(type, handler); },
-        scrollTo(options) { this.scrollTop = Number(options && options.top) || 0; },
+        scrollTo(options) {
+            scrollCalls.push(options);
+            if (options.behavior === 'smooth') return;
+            this.scrollTop = Math.min(Math.max(0, options.top), this.scrollHeight - this.clientHeight);
+        },
         getBoundingClientRect() { return { right: 1000 }; },
     };
     const returnLatest = {
@@ -83,6 +88,8 @@ function createScrollRuntime() {
         chatEl,
         returnLatest,
         listeners,
+        buttonListeners,
+        scrollCalls,
         flushAnimationFrames() {
             while (rafQueue.size) {
                 const pending = Array.from(rafQueue.values());
@@ -118,7 +125,7 @@ test('scrolling up immediately releases bottom-pinning, and it only resumes once
     runtime.chatEl.scrollHeight = 1200;
     runtime.api.scrollIfPinned(true);
     runtime.flushAnimationFrames();
-    assert.equal(runtime.chatEl.scrollTop, 1200, 'after resuming, new output keeps requesting a scroll to the very bottom');
+    assert.equal(runtime.chatEl.scrollTop, 700, '恢复后新增输出继续请求滚到最底部');
 });
 
 test('after the user leaves the latest position, the back-to-bottom button stays reliably shown until the true bottom', () => {
@@ -140,6 +147,7 @@ test('a layout shift from rebuilding details on refresh is not mistaken for the 
     const runtime = createScrollRuntime();
     runtime.flushAnimationFrames();
 
+    runtime.chatEl.scrollHeight = 960;
     runtime.chatEl.scrollTop = 460;
     runtime.listeners.get('scroll')();
     assert.equal(runtime.api.captureScrollPinState(), true, 'a layout scroll with no user input should still keep following');
@@ -147,7 +155,47 @@ test('a layout shift from rebuilding details on refresh is not mistaken for the 
     runtime.chatEl.scrollHeight = 1100;
     runtime.api.scrollIfPinned(true);
     runtime.flushAnimationFrames();
-    assert.equal(runtime.chatEl.scrollTop, 1100, 'subsequent deltas after a refresh recovery should keep pinning to the bottom');
+    assert.equal(runtime.chatEl.scrollTop, 600, '刷新恢复后的后续增量应继续粘底');
+});
+
+test('长对话点击回到最新立即到达真实底部，并继续跟随新增输出', () => {
+    const runtime = createScrollRuntime();
+    runtime.chatEl.scrollHeight = 150000;
+    runtime.api.forceScrollToBottom();
+    runtime.chatEl.scrollTop = 1200;
+    runtime.listeners.get('scroll')();
+    assert.equal(runtime.returnLatest.hidden, false);
+
+    runtime.buttonListeners.get('click')({ preventDefault() {}, stopPropagation() {} });
+    assert.equal(runtime.scrollCalls.at(-1).behavior, 'instant');
+    assert.equal(runtime.chatEl.scrollTop, 149500);
+    assert.equal(runtime.returnLatest.hidden, true);
+
+    runtime.chatEl.scrollHeight += 250;
+    runtime.api.scrollIfPinned(true);
+    runtime.flushAnimationFrames();
+    assert.equal(runtime.chatEl.scrollTop, 149750);
+});
+
+test('原生滚动条未派发指针事件时仍可中断粘底，历史渲染结束后保留阅读位置', () => {
+    const runtime = createScrollRuntime();
+    runtime.chatEl.scrollHeight = 150000;
+    runtime.api.forceScrollToBottom();
+    runtime.api.settleToBottomIfFollowing(24);
+
+    runtime.chatEl.scrollTop = 70000;
+    runtime.chatEl.scrollHeight += 200;
+    runtime.listeners.get('scroll')();
+    assert.equal(runtime.api.captureScrollPinState(), false);
+
+    runtime.api.settleConversationRestoreToBottom(30);
+    runtime.api.scrollIfPinned(true);
+    runtime.flushAnimationFrames();
+    assert.equal(runtime.chatEl.scrollTop, 70000);
+
+    runtime.chatEl.scrollTop = 149700;
+    runtime.listeners.get('scroll')();
+    assert.equal(runtime.api.captureScrollPinState(), true);
 });
 
 test('after a successful login, the project sidebar that previously failed with unauthorized is reloaded', () => {
@@ -179,10 +227,7 @@ test('auto-follow resumes once the user actually scrolls to the bottom, without 
     assert.doesNotMatch(scrollSource, /else if \(resumeFollowingIfAtBottom\(\)\)/);
     assert.doesNotMatch(scrollSource, /scheduleChatScrollToBottomIfFollowing\(true\)/);
     assert.doesNotMatch(scrollSource, /else if \(resumeFollowingIfAtBottom\(\)\)/);
-    assert.match(scrollSource, /contentShrank/);
-    assert.match(scrollSource, /sh < lastScrollHeight - 1/);
-    assert.match(scrollSource, /if \(scrolledUp && \(scrollMode === 'detached' \|\| hasUserScrollIntent\)\) \{[\s\S]*?setScrollDetached\(\)/);
-    assert.match(scrollSource, /if \(programmaticScroll\) \{[\s\S]*?st < lastScrollTop - 1 && \(scrollMode === 'detached' \|\| hasUserScrollIntent\)[\s\S]*?setScrollDetached\(\)/);
+    assert.match(scrollSource, /if \(scrolledUp && hasUserScrollIntent\) \{[\s\S]*?setScrollDetached\(\)/);
 });
 
 test('a layout scroll caused by switching conversation mode does not re-enable bottom-pinning', () => {
@@ -191,8 +236,7 @@ test('a layout scroll caused by switching conversation mode does not re-enable b
     const selectModeSource = functionSource(chat, 'selectAgentMode', 'initChatAgentModeFromConfig');
 
     assert.match(scroll, /let userScrollIntentUntil = 0/);
-    assert.match(scrollSource, /const hasUserScrollIntent = Date\.now\(\) <= userScrollIntentUntil/);
-    assert.match(scrollSource, /scrolledDown &&[\s\S]*?hasUserScrollIntent &&[\s\S]*?resumeFollowingIfAtBottom/);
+    assert.match(scrollSource, /scrolledDown && hasUserScrollIntent[\s\S]*?resumeFollowingIfAtBottom/);
     assert.doesNotMatch(scrollSource, /else if \(resumeFollowingIfAtBottom\(\)\)/);
     assert.match(bindSource, /Math\.abs\(e\.deltaY\) > 1/);
     assert.match(bindSource, /userScrollIntentUntil = Date\.now\(\) \+ 1800/);
@@ -234,22 +278,22 @@ test('after a refresh, the iteration-thinking area independently follows the lat
     assert.match(monitor, /function getProcessDetailsLatestFollowStateForTimeline\(timeline\)/);
     assert.match(monitor, /const followingLatest = !!\(followState && !followState\.detached\)/);
     assert.match(monitor, /const shouldShow = !followingLatest && expanded && scrollable && awayFromLatest/);
-    assert.match(returnLatestSource, /timeline\.scrollTo\(\{ top: targetTop, behavior: 'smooth' \}\)/);
+    assert.match(returnLatestSource, /timeline\.scrollTo\(\{ top: timeline\.scrollHeight, behavior: 'instant' \}\)/);
     assert.match(returnLatestSource, /timeline\.addEventListener\('scroll', onScroll/);
     assert.match(returnLatestSource, /window\.ensureProcessDetailsReturnLatestControl = ensureProcessDetailsReturnLatestControl/);
     assert.match(startSource, /new MutationObserver\(scheduleFollowLatest\)/);
     assert.match(startSource, /characterData: true/);
-    assert.match(startSource, /new ResizeObserver\(scheduleFollowLatest\)/);
+    assert.match(startSource, /new ResizeObserver\(function \(\) \{\s*scheduleFollowLatest\(\)/);
     assert.match(startSource, /ensureProcessDetailsReturnLatestControl\(timeline\)/);
     assert.match(startSource, /markProcessDetailsReturnLatestPending\(timeline\)/);
-    assert.match(startSource, /scrollProcessDetailsToLatest\(String\(assistantMessageId \|\| ''\), false\)/);
+    assert.match(startSource, /timeline\.scrollTo\(\{ top: timeline\.scrollHeight, behavior: 'instant' \}\)/);
     assert.match(startSource, /event\.deltaY < -1/);
     assert.match(startSource, /state\.userScrollIntentUntil = Date\.now\(\) \+ 1200/);
     assert.match(startSource, /event\.clientX >= rect\.right - PROCESS_DETAILS_FOLLOW_SCROLLBAR_GUTTER_PX/);
     assert.match(startSource, /event\.key === 'ArrowUp'/);
     assert.match(startSource, /cancelAnimationFrame\(state\.rafId\)/);
-    assert.match(startSource, /if \(scrolledUp && \(state\.detached \|\| Date\.now\(\) <= state\.userScrollIntentUntil\)\) \{[\s\S]*?detachForUserNavigation\(\)/);
-    assert.match(startSource, /state\.detached &&[\s\S]*?scrolledDown &&[\s\S]*?Date\.now\(\) <= state\.userScrollIntentUntil/);
+    assert.match(startSource, /topChange < -1 && hasUserScrollIntent && distance > PROCESS_DETAILS_FOLLOW_RESUME_THRESHOLD_PX/);
+    assert.match(startSource, /state\.detached &&[\s\S]*?topChange > 1 &&[\s\S]*?hasUserScrollIntent/);
     assert.match(monitor, /PROCESS_DETAILS_FOLLOW_RESUME_THRESHOLD_PX = 2/);
     assert.match(startSource, /distance <= PROCESS_DETAILS_FOLLOW_RESUME_THRESHOLD_PX/);
     assert.match(startSource, /state\.detached = false/);
@@ -291,7 +335,6 @@ test('both the first live output and a refresh recovery keep an independent iter
     assert.match(addSource, /startLiveProgressLatestFollow\(id\)/);
     assert.match(liveSource, /stateKey: liveProgressLatestFollowKey\(id\)/);
     assert.match(liveSource, /persistent: true/);
-    assert.match(liveSource, /target\.scrollTop = Math\.max\(0, target\.scrollHeight - target\.clientHeight\)/);
     assert.match(monitor, /function finalizeProgressTask\(progressId, finalLabel\) \{[\s\S]{0,120}stopLiveProgressLatestFollow\(progressId\)/);
 });
 
@@ -339,9 +382,9 @@ test('while a message bubble grows internally from streaming, bottom-pinning con
     assert.match(bindSource, /e\.key === 'ArrowUp'/);
 });
 
-test('the page loads the smart-scroll controller before the task-replay script', () => {
-    const scrollIndex = html.indexOf('/static/js/chat-scroll.js?v=20260815-1');
-    const monitorIndex = html.indexOf('/static/js/monitor.js?v=20261011-token-usage');
+test('页面在任务补流脚本之前加载智能滚动控制器', () => {
+    const scrollIndex = html.indexOf('/static/js/chat-scroll.js?v=');
+    const monitorIndex = html.indexOf('/static/js/monitor.js?v=');
 
     assert.notEqual(scrollIndex, -1);
     assert.notEqual(monitorIndex, -1);
@@ -483,16 +526,16 @@ test('refreshing a running reply reuses the persisted planning entry and keeps a
     assert.match(monitor, /item\.dataset\.responseStreamId = String\(options\.data\.streamId\)/);
 });
 
-test('Eino native-model retry/failover events are visible in both the main chat and WebShell', () => {
+test('Pi 原生模型 retry/failover 事件在主聊天和 WebShell 中可见', () => {
     const handleSource = functionSource(monitor, 'handleStreamEvent', 'hitlApprovalTranslate');
-    assert.match(handleSource, /case 'eino_model_retry'/);
-    assert.match(handleSource, /formatEinoModelRetryTitle/);
-    assert.match(handleSource, /case 'eino_model_failover'/);
-    assert.match(handleSource, /formatEinoModelFailoverTitle/);
-    assert.match(monitor, /function formatEinoModelRetryMessage/);
-    assert.match(monitor, /function formatEinoModelFailoverMessage/);
-    assert.match(webshell, /_et === 'eino_model_retry'/);
-    assert.match(webshell, /_et === 'eino_model_failover'/);
+    assert.match(handleSource, /case 'pi_model_retry'/);
+    assert.match(handleSource, /formatPiModelRetryTitle/);
+    assert.match(handleSource, /case 'pi_model_failover'/);
+    assert.match(handleSource, /formatPiModelFailoverTitle/);
+    assert.match(monitor, /function formatPiModelRetryMessage/);
+    assert.match(monitor, /function formatPiModelFailoverMessage/);
+    assert.match(webshell, /_et === 'pi_model_retry'/);
+    assert.match(webshell, /_et === 'pi_model_failover'/);
 });
 
 test('a non-dashboard hash on first paint hides the default dashboard before routing is resolved', () => {

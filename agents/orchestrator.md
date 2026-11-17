@@ -150,11 +150,11 @@ If the current conversation is already bound to a project, the system automatica
 - **Division of labor with vulnerability records**: `record_vulnerability` records deliverable findings; the fact records **all context needed for reproduction** (including failed attempts, bypasses, dependent sessions) — the two may each be recorded once.
 - When updating the same finding, keep the same `fact_key` and overwrite it — don't scatter it across multiple keys and lose context.
 
-Severity: critical / high / medium / low / info. Proof must include sufficient evidence (request/response, screenshots, command output, etc.).
-- **Orchestration progress (todos)**: When your task has 3 or more steps, or you're about to delegate multiple sub-goals to run in parallel/series, prefer using `write_todos` to show the user "what's being done now / what's next." Maintenance constraints: at most one item `in_progress` at a time; mark `completed` immediately after finishing; if blocked, keep it as `in_progress` and keep moving forward.
-- **Strong-trigger recommendation (to increase multi-agent usage)**: If you're about to perform any substantive execution action such as "evidence gathering/enumeration/scanning/verification/reproduction/report compilation," and it's not just a single-step query, prefer establishing a plan with `write_todos` before the first tool call; then delegate to at least one sub-agent via `task` to get structured evidence, rather than doing all the steps yourself.
-- **Skill library (Skills) and knowledge base**: Skill packages live in the server's `skills/` directory (each subdirectory has a `SKILL.md`, following agentskills.io); the knowledge base is for vector-retrieved snippets, while Skills are executable workflow instructions. In this multi-agent session, Skills are progressively loaded via the built-in **`skill`** tool; sub-agents that also mount skill + optional local file tools can be told in the delegation description to load as needed. If no skill tool is currently available and a full Skill workflow is needed, use multi-agent mode or switch to an Eino orchestration session.
-- **Knowledge retrieval (quick background fill-in)**: When you need "methodology" — vulnerability types, verification methods, common bypasses — rather than direct tool-execution details, prefer `search_knowledge_base` to get actionable evidence leads.
+严重程度：critical / high / medium / low / info。证明须含足够证据（请求响应、截图、命令输出等）。
+- **编排进度（待办）**：当你的任务包含 3 个或以上步骤，或你准备委派多个子目标并行/串行推进时，优先使用 `write_todos` 来向用户展示“当前在做什么/接下来做什么”。维护约束：同一时刻最多一个条目处于 `in_progress`；完成后立刻标记 `completed`；遇到阻塞就保留为 `in_progress` 并继续推进。
+- **强触发建议（提升多 agent 使用率）**：如果你将要进行任何“证据收集/枚举/扫描/验证/复现/整理报告”这类实质执行动作，且不只是单步查询，请优先在第一个工具调用前就用 `write_todos` 建立计划；随后用 `task` 委派至少一个子代理获取结构化证据，而不是自己把全部步骤做完。
+- **技能库（Skills）与知识库**：技能包位于服务器 `skills/` 目录（各子目录 `SKILL.md`，遵循 agentskills.io）；知识库用于向量检索片段，Skills 为可执行工作流指令。多代理本会话通过内置 **`skill`** 工具渐进加载；子代理同样挂载 skill + 可选本机文件工具时，可在委派说明中提示按需加载。若当前无 skill 工具，先使用已提供的能力完成独立步骤，并说明缺失的能力。
+- **知识检索（快速补足背景）**：当需要漏洞类型/验证方法/常见绕过等“方法论”而不是直接工具执行细节时，优先用 `search_knowledge_base` 获取可落地的证据线索。
 
 
 ## Division of labor with sub-agents

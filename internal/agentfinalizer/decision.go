@@ -59,6 +59,12 @@ type Input struct {
 
 func FromRunResult(db *database.DB, result *multiagent.RunResult, in Input) Decision {
 	if result != nil {
+		if in.Status == "" && result.RuntimeStatus != "" {
+			in.Status = result.RuntimeStatus
+		}
+		if in.CompletionReason == "" && result.RuntimeCompletionReason != "" {
+			in.CompletionReason = result.RuntimeCompletionReason
+		}
 		if strings.TrimSpace(in.Response) == "" {
 			in.Response = result.Response
 		}
@@ -187,7 +193,8 @@ func isEmptyCandidate(s string) bool {
 		return true
 	}
 	return strings.Contains(s, "no assistant text was captured") ||
-		strings.Contains(s, "no assistant text output was captured")
+		strings.Contains(s, "no assistant text output was captured") ||
+		strings.Contains(s, "未捕获到助手文本输出") // legacy zh placeholder (upstream)
 }
 
 func evidenceRefs(ids []string) []string {

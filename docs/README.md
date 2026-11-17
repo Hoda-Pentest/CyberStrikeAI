@@ -4,49 +4,49 @@
 
 CyberStrikeAI documentation is organized by user journey. Start with deployment, then move to the topic that matches your task.
 
-## Chinese Documentation
+## 中文文档
 
-### Start by goal
+### 按目标开始
 
-- **Quick trial**: [Deployment Guide](zh-CN/deployment.md) → [Configuration Reference](zh-CN/configuration.md) → [Troubleshooting Guide](zh-CN/troubleshooting.md)
-- **Production deployment**: [Configuration Profiles](zh-CN/configuration-profiles.md) → [Security Hardening](zh-CN/security-hardening.md) → [Ops Runbooks](zh-CN/runbooks.md) → [Audit and Monitoring](zh-CN/audit-and-monitoring.md)
-- **Integration and automation**: [API Reference](zh-CN/api-reference.md) → [API Recipes](zh-CN/api-recipes.md) → [MCP Federation](zh-CN/mcp-federation.md)
-- **Contribute to development**: [Developer Guide](zh-CN/developer-guide.md) → [Testing Guide](zh-CN/testing.md) → [Contributing Guidelines](zh-CN/contributing-guide.md)
+- **快速体验**：[部署指南](zh-CN/deployment.md) → [配置参考](zh-CN/configuration.md) → [排错指南](zh-CN/troubleshooting.md)
+- **生产部署**：[配置画像](zh-CN/configuration-profiles.md) → [安全加固](zh-CN/security-hardening.md) → [运维 Runbooks](zh-CN/runbooks.md) → [审计与监控](zh-CN/audit-and-monitoring.md)
+- **接入与自动化**：[API 参考](zh-CN/api-reference.md) → [API Recipes](zh-CN/api-recipes.md) → [MCP 联邦](zh-CN/mcp-federation.md)
+- **参与开发**：[开发者指南](zh-CN/developer-guide.md) → [测试指南](zh-CN/testing.md) → [贡献规范](zh-CN/contributing-guide.md)
 
-### Core concepts and orchestration
+### 核心概念与编排
 
-- [Architecture](zh-CN/architecture.md)
-- [Security Model](zh-CN/security-model.md)
-- [Agents and Roles](zh-CN/agent-and-role-guide.md)
-- [Skills Guide](zh-CN/skills-guide.md)
-- [Eino Multi-Agent](zh-CN/MULTI_AGENT_EINO.md)
-- [Blackboard and Context Memory](zh-CN/blackboard-context-memory.md)
-- [Agent Finalization Governance](zh-CN/agent-finalization-best-practices.md)
-- [Workflows](zh-CN/workflow-graph.md)
-- [Tool Call Guard](zh-CN/tool-call-guard.md)
-- [Tool Execution Governance](zh-CN/tool-execution-governance.md)
-- [HITL Best Practices](zh-CN/hitl-best-practices.md)
+- [架构说明](zh-CN/architecture.md)
+- [安全模型](zh-CN/security-model.md)
+- [Agent 与角色](zh-CN/agent-and-role-guide.md)
+- [Skills 指南](zh-CN/skills-guide.md)
+- [Pi 多代理](zh-CN/MULTI_AGENT_PI.md)
+- [黑板与上下文记忆](zh-CN/blackboard-context-memory.md)
+- [Agent 最终回复治理](zh-CN/agent-finalization-best-practices.md)
+- [工作流](zh-CN/workflow-graph.md)
+- [调用拦截规则](zh-CN/tool-call-guard.md)
+- [工具执行治理](zh-CN/tool-execution-governance.md)
+- [人机协同最佳实践](zh-CN/hitl-best-practices.md)
 
-### Feature guides
+### 功能指南
 
-- [Asset Management](zh-CN/asset-management.md)
-- [Resuming Project Tasks](zh-CN/project-resume.md)
-- [Token Usage Analysis](zh-CN/token-usage-monitoring.md)
-- [Knowledge Base](zh-CN/knowledge-base.md)
-- [RBAC Administration](zh-CN/rbac.md)
-- [Robot / Chatbot](zh-CN/robot.md)
-- [Vision Analysis](zh-CN/VISION.md)
-- [WebShell Management](zh-CN/webshell.md)
-- [C2 Guide](zh-CN/c2.md)
+- [资产管理](zh-CN/asset-management.md)
+- [项目任务续接](zh-CN/project-resume.md)
+- [Token 用量分析](zh-CN/token-usage-monitoring.md)
+- [知识库](zh-CN/knowledge-base.md)
+- [RBAC 权限管理](zh-CN/rbac.md)
+- [机器人接入](zh-CN/robot.md)
+- [视觉分析](zh-CN/VISION.md)
+- [WebShell 管理](zh-CN/webshell.md)
+- [C2 使用说明](zh-CN/c2.md)
 
-### Development and release
+### 开发与发布
 
-- [Developer Guide](zh-CN/developer-guide.md)
-- [Plugin Development](zh-CN/plugin-development.md)
-- [Frontend i18n](zh-CN/frontend-i18n.md)
-- [Testing Guide](zh-CN/testing.md)
-- [Contributing Guidelines](zh-CN/contributing-guide.md)
-- [Release Process](zh-CN/release-process.md)
+- [开发者指南](zh-CN/developer-guide.md)
+- [插件开发](zh-CN/plugin-development.md)
+- [前端国际化](zh-CN/frontend-i18n.md)
+- [测试指南](zh-CN/testing.md)
+- [贡献规范](zh-CN/contributing-guide.md)
+- [发布流程](zh-CN/release-process.md)
 
 ## English Documentation
 
@@ -63,7 +63,7 @@ CyberStrikeAI documentation is organized by user journey. Start with deployment,
 - [Security Model](en-US/security-model.md)
 - [Agents and Roles](en-US/agent-and-role-guide.md)
 - [Skills](en-US/skills-guide.md)
-- [Eino Multi-Agent](en-US/MULTI_AGENT_EINO.md)
+- [Pi Multi-Agent](en-US/MULTI_AGENT_PI.md)
 - [Blackboard and Context Memory](en-US/blackboard-context-memory.md)
 - [Agent Finalization](en-US/agent-finalization-best-practices.md)
 - [Workflows](en-US/workflow-graph.md)

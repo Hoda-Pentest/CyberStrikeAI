@@ -8,9 +8,6 @@ import (
 	"os/exec"
 	"strings"
 	"sync"
-
-	"github.com/cloudwego/eino/adk/filesystem"
-	"github.com/cloudwego/eino/schema"
 )
 
 // ConfigureShellCmdForAgentExecute matches the exec tool: non-interactive stdin, pager/TERM environment, separate process group.
@@ -33,32 +30,33 @@ func TerminateShellCmdSession(session *ShellSession) {
 	TerminateShellSession(session)
 }
 
-// EinoStreamingShell provides a streaming shell for the Eino ADK execute tool, aligned with exec:
-// it reads stdout/stderr concurrently (fixed-size blocks, not line by line), avoiding the official local.ExecuteStreaming draining stdout first
-// which would keep stderr errors (such as a sudo password prompt) invisible for a long time and the UI stuck on "executing".
-type EinoStreamingShell struct{}
+// StreamingShell 为 native agent execute 工具提供流式 shell，行为与 exec 对齐：
+// 并发读取 stdout/stderr（定长块，非按行），避免官方 local.ExecuteStreaming 先排空 stdout
+// 导致 stderr 错误（如 sudo 密码提示）长时间不可见、UI 一直显示「执行中」。
+type StreamingShell struct{}
 
-// NewEinoStreamingShell creates the streaming-shell implementation for execute.
-func NewEinoStreamingShell() *EinoStreamingShell {
-	return &EinoStreamingShell{}
+// NewStreamingShell 创建 execute 流式 shell 实现。
+func NewStreamingShell() *StreamingShell {
+	return &StreamingShell{}
 }
 
-// ExecuteStreaming implements filesystem.StreamingShell.
-func (s *EinoStreamingShell) ExecuteStreaming(ctx context.Context, input *filesystem.ExecuteRequest) (*schema.StreamReader[*filesystem.ExecuteResponse], error) {
+// ExecuteStreaming 实现 the native streaming shell contract。
+func (s *StreamingShell) ExecuteStreaming(ctx context.Context, input *ShellExecuteRequest) (*ShellStream, error) {
 	if input == nil || input.Command == "" {
 		return nil, fmt.Errorf("command is required")
 	}
 
-	sr, w := schema.Pipe[*filesystem.ExecuteResponse](100)
+	runCtx, cancel := context.WithCancel(ctx)
+	sr, w := newShellStream(runCtx, cancel, 100)
 	if input.RunInBackendGround || IsBackgroundShellCommand(input.Command) {
 		go runShellInBackground(ctx, input.Command, w)
 		return sr, nil
 	}
-	go streamShellForeground(ctx, input.Command, w)
+	go streamShellForeground(runCtx, input.Command, w)
 	return sr, nil
 }
 
-func runShellInBackground(ctx context.Context, command string, w *schema.StreamWriter[*filesystem.ExecuteResponse]) {
+func runShellInBackground(ctx context.Context, command string, w *shellStreamWriter) {
 	defer w.Close()
 
 	command = strings.TrimSpace(command)
@@ -71,7 +69,7 @@ func runShellInBackground(ctx context.Context, command string, w *schema.StreamW
 		return
 	}
 	exitCode := 0
-	_ = w.Send(&filesystem.ExecuteResponse{
+	_ = w.Send(&ShellExecuteResponse{
 		Output:   fmt.Sprintf("command started in background (process group %d); cleaned up when this task ends\n", session.rootPID),
 		ExitCode: &exitCode,
 	}, nil)
@@ -91,7 +89,7 @@ func drainShellPipes(stdout, stderr io.Reader) {
 	wg.Wait()
 }
 
-func streamShellForeground(ctx context.Context, command string, w *schema.StreamWriter[*filesystem.ExecuteResponse]) {
+func streamShellForeground(ctx context.Context, command string, w *shellStreamWriter) {
 	defer w.Close()
 
 	command = PrepareShellCommandForExecute(command)
@@ -164,7 +162,7 @@ func streamShellForeground(ctx context.Context, command string, w *schema.Stream
 			continue
 		}
 		hadOutput = true
-		if w.Send(&filesystem.ExecuteResponse{Output: chunk}, nil) {
+		if w.Send(&ShellExecuteResponse{Output: chunk}, nil) {
 			TerminateShellCmdSession(session)
 			go func() { _ = session.Wait() }()
 			return
@@ -174,14 +172,14 @@ func streamShellForeground(ctx context.Context, command string, w *schema.Stream
 	waitErr := session.Wait()
 	if waitErr == nil {
 		exitCode := 0
-		_ = w.Send(&filesystem.ExecuteResponse{ExitCode: &exitCode}, nil)
+		_ = w.Send(&ShellExecuteResponse{ExitCode: &exitCode}, nil)
 		return
 	}
 
 	var exitError *exec.ExitError
 	if errors.As(waitErr, &exitError) {
 		exitCode := exitError.ExitCode()
-		resp := &filesystem.ExecuteResponse{ExitCode: &exitCode}
+		resp := &ShellExecuteResponse{ExitCode: &exitCode}
 		if !hadOutput {
 			resp.Output = FormatCommandFailureResult(exitCode, "")
 		}

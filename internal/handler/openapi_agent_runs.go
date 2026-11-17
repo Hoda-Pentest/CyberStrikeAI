@@ -3,7 +3,7 @@ package handler
 // addAgentRunSpec reuses each synchronous request schema without changing it.
 func addAgentRunSpec(spec map[string]interface{}) {
 	paths := spec["paths"].(map[string]interface{})
-	for _, base := range []string{"/api/eino-agent", "/api/multi-agent"} {
+	for _, base := range []string{"/api/agent", "/api/multi-agent"} {
 		original := paths[base].(map[string]interface{})["post"].(map[string]interface{})
 		paths[base+"/runs"] = map[string]interface{}{"post": map[string]interface{}{
 			"tags": []string{"Conversation Interaction"}, "summary": "Submit a conversation task asynchronously", "description": "Returns 202 after acceptance; a client disconnect does not cancel the task. A per-user-isolated Idempotency-Key is required; the same key with the same request returns the original receipt, while a different request returns 409. Query the final result via statusUrl; cancel with /api/agent-loop/cancel.",

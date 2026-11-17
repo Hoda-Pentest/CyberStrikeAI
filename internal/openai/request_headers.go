@@ -22,9 +22,8 @@ const sessionHeaderPlaceholder = "%session_id%"
 
 type sessionIDContextKey struct{}
 
-// WithSessionID injects the current conversation ID into ctx. The handler injects it
-// once when a task starts, and every subsequent HTTP request made by the Eino
-// ChatModel and the built-in Client can read it from the request context.
+// WithSessionID 把当前对话 ID 注入 ctx。handler 在任务开始时注入一次，
+// 后续 Agent ChatModel 与内置 Client 发出的 HTTP 请求都能在请求上下文里读到。
 func WithSessionID(ctx context.Context, sessionID string) context.Context {
 	if ctx == nil {
 		return nil
@@ -107,7 +106,7 @@ func applyCustomHeaders(req *http.Request, cfg *config.OpenAIConfig) {
 	}
 }
 
-// headersRoundTripper injects the channel's custom request headers into requests that go through the Eino ChatModel.
+// headersRoundTripper 为经过 Agent ChatModel 的请求注入渠道自定义请求头。
 type headersRoundTripper struct {
 	base http.RoundTripper
 	cfg  *config.OpenAIConfig

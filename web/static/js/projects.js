@@ -3061,8 +3061,8 @@ function formatProjectConversationPreviewAge(value) {
 function getProjectConversationModeLabel(conversation) {
     const mode = String(conversation?.agentMode || conversation?.agent_mode || '').trim().toLowerCase();
     const labels = {
-        eino_single: ['chat.agentModeEinoSingle', 'Eino single (ADK)'],
-        deep: ['chat.agentModeDeep', 'Deep (DeepAgent)'],
+        single: ['chat.agentModePiSingle', 'Pi 单代理'],
+        deep: ['chat.agentModeDeep', 'Deep（DeepAgent）'],
         plan_execute: ['chat.agentModePlanExecuteLabel', 'Plan-Execute'],
         supervisor: ['chat.agentModeSupervisorLabel', 'Supervisor (Expert routing)'],
     };
@@ -3075,7 +3075,7 @@ function getProjectConversationModeLabel(conversation) {
 
 function getProjectConversationModeIconClass(conversation) {
     const mode = String(conversation?.agentMode || conversation?.agent_mode || '').trim().toLowerCase();
-    if (mode === 'eino_single') return 'eino';
+    if (mode === 'single') return 'pi';
     if (mode === 'deep') return 'deep';
     if (mode === 'plan_execute') return 'plan';
     if (mode === 'supervisor') return 'supervisor';

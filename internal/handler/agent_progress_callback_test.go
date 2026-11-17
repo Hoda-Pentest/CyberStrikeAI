@@ -52,8 +52,56 @@ func TestCreateProgressCallback_ConcurrentToolEvents(t *testing.T) {
 	wg.Wait()
 }
 
-// TestCreateProgressCallback_MirrorsWebStreamEvents verifies that after a page refresh, the task-events
-// subscription must keep receiving subsequent events from the original Web SSE task, rather than only waiting for the final database result.
+func TestCreateProgressCallback_RecordsSkillStats(t *testing.T) {
+	logger := zap.NewNop()
+	db, err := database.NewDB(filepath.Join(t.TempDir(), "test.sqlite"), logger)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = db.Close() })
+	h := &AgentHandler{logger: logger, config: &config.Config{}, db: db}
+	cb := h.createProgressCallback(context.Background(), nil, "conv-skill-stats", "", nil)
+
+	cb("tool_call", "", map[string]interface{}{
+		"toolName": "skill", "toolCallId": "pi-success",
+		"arguments": map[string]interface{}{"name": "demo-skill"},
+	})
+	piSuccess := map[string]interface{}{
+		"toolName": "skill", "toolCallId": "pi-success", "success": true, "isError": false,
+	}
+	cb("tool_result", "loaded", piSuccess)
+	cb("tool_result", "loaded", piSuccess)
+
+	cb("tool_call", "", map[string]interface{}{
+		"toolName": "skill", "toolCallId": "pi-failure",
+		"arguments": map[string]interface{}{"name": "demo-skill"},
+	})
+	cb("tool_result", "failed", map[string]interface{}{
+		"toolName": "skill", "toolCallId": "pi-failure", "success": false, "isError": true,
+	})
+
+	cb("tool_call", "", map[string]interface{}{
+		"toolName": "skill", "toolCallId": "legacy-success",
+		"argumentsObj": map[string]interface{}{"skill": "legacy-skill"},
+	})
+	cb("tool_result", "loaded", map[string]interface{}{
+		"toolName": "skill", "toolCallId": "legacy-success", "success": true,
+	})
+
+	stats, err := db.LoadSkillStats()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := stats["demo-skill"]; got == nil || got.TotalCalls != 2 || got.SuccessCalls != 1 || got.FailedCalls != 1 {
+		t.Errorf("Pi stats = %+v, want two calls with one success and one failure", got)
+	}
+	if got := stats["legacy-skill"]; got == nil || got.TotalCalls != 1 || got.SuccessCalls != 1 || got.FailedCalls != 0 {
+		t.Errorf("legacy stats = %+v, want one successful call", got)
+	}
+}
+
+// TestCreateProgressCallback_MirrorsWebStreamEvents 页面刷新后 task-events 订阅必须
+// 继续收到原 Web SSE 任务的后续事件，不能只等数据库最终结果。
 func TestCreateProgressCallback_MirrorsWebStreamEvents(t *testing.T) {
 	bus := NewTaskEventBus()
 	h := &AgentHandler{logger: zap.NewNop(), config: &config.Config{}, taskEventBus: bus}
@@ -79,7 +127,7 @@ func TestCreateProgressCallback_MirrorsWebStreamEvents(t *testing.T) {
 	}
 }
 
-func TestCreateProgressCallback_HidesInternalEinoDiagnostics(t *testing.T) {
+func TestCreateProgressCallback_HidesInternalAgentDiagnostics(t *testing.T) {
 	tmp := t.TempDir()
 	db, err := database.NewDB(filepath.Join(tmp, "test.sqlite"), zap.NewNop())
 	if err != nil {
@@ -106,12 +154,7 @@ func TestCreateProgressCallback_HidesInternalEinoDiagnostics(t *testing.T) {
 	cb("model_output_rejected", "The model's tool call was incomplete or had unsafe arguments; execution was blocked and a rewrite was requested.", map[string]interface{}{
 		"reason": "invalid_tool_arguments_json",
 	})
-	// NOTE: this literal must stay byte-for-byte identical to the Chinese
-	// progress message emitted by internal/multiagent (out of this package's
-	// translation scope) and matched by isInternalEinoDiagnosticProgress in
-	// agent.go; encoded as \u escapes so the match still works without
-	// literal Chinese characters in this file.
-	cb("progress", "Eino TurnLoop \u5e38\u9a7b\u591a\u8f6e runtime \u5df2\u63a5\u7ba1\u672c\u8f6e\u4f1a\u8bdd\u3002", map[string]interface{}{
+	cb("progress", "Agent TurnLoop 常驻多轮 runtime 已接管本轮会话。", map[string]interface{}{
 		"kind": "turn_loop_takeover",
 	})
 
@@ -152,8 +195,8 @@ func TestCreateProgressCallback_PersistsRunningResponseBeforeDone(t *testing.T) 
 	cb := h.createProgressCallback(context.Background(), nil, conv.ID, asst.ID, nil)
 	meta := map[string]interface{}{
 		"streamId":      "response-refresh-1",
-		"einoAgent":     "cyberstrike-eino-single",
-		"orchestration": "eino_single",
+		"agentName":     "cyberstrike-eino-single",
+		"orchestration": "single",
 	}
 	cb("response_start", "", meta)
 	cb("response_delta", "the first part generated before the refresh", openai.WithSSEAccumulated(meta, "the first part generated before the refresh"))

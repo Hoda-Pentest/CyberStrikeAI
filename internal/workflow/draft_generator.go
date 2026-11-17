@@ -122,7 +122,7 @@ func GenerateDraftFromNaturalLanguage(ctx context.Context, req DraftRequest) (*D
 			}, 0)
 		} else {
 			id = builder.add("agent", capability.Label, map[string]any{
-				"agent_mode":              "eino_single",
+				"agent_mode":              "single",
 				"input_binding":           map[string]any{"from": "previous", "field": "output"},
 				"instruction":             capability.Label + ". Execute the security-process steps according to the user requirement and output a structured result: " + prompt,
 				"output_key":              "agent_result",
@@ -176,8 +176,8 @@ func GenerateDraftFromNaturalLanguage(ctx context.Context, req DraftRequest) (*D
 			previous = approval
 			insertedHITL = true
 		}
-		action := builder.add("agent", "Execute controlled handling", map[string]any{
-			"agent_mode":                  "eino_single",
+		action := builder.add("agent", "执行受控处置", map[string]any{
+			"agent_mode":                  "single",
 			"input_binding":               map[string]any{"from": "previous", "field": "output"},
 			"instruction":                 "Generate a draft of handling steps only within the authorized scope; actual execution must be manually confirmed first. User requirement: " + prompt,
 			"output_key":                  "remediation_plan",
@@ -563,7 +563,7 @@ func normalizeLLMNodeConfig(prompt string, node *graphNode, enabledTools map[str
 
 func normalizeAgentDraftConfig(prompt string, node *graphNode, usedOutputKeys map[string]bool) {
 	if cfgString(node.Config, "agent_mode") == "" {
-		node.Config["agent_mode"] = "eino_single"
+		node.Config["agent_mode"] = "single"
 	}
 	if cfgString(node.Config, "instruction") == "" {
 		node.Config["instruction"] = node.Label + ". Execute the security-process steps according to the user requirement and output a structured result: " + prompt

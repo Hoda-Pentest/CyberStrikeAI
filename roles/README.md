@@ -41,7 +41,7 @@ enabled: true
 
 You may also add other built-in or external tools as needed, such as WebShell and batch tasks (subject to what is enabled in MCP management).
 
-**Skills**: In **multi-agent / Eino** sessions, the packages under `skills_dir` are loaded on demand by the built-in **`skill`** tool, and have no binding relationship with the role YAML.
+**Skills（技能包）**：在 **Pi 单代理或多代理** 会话中由内置 **`skill`** 工具按需加载 `skills_dir` 下的包，与角色 YAML 无绑定关系。
 
 **Note**: If you do not set the `tools` field, the system will by default use all tools enabled in MCP management. To control a role's available tools explicitly, it is recommended to set the `tools` field explicitly.
 

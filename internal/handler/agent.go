@@ -101,13 +101,13 @@ func normalizeProcessDetailText(s string) string {
 // discardPlanningIfEchoesToolResult drops buffered planning text when it only repeats the
 // upcoming tool_result body. Streaming models often echo tool stdout in chunk.Content; flushing
 // that into "planning" before persisting tool_result duplicates the output after page refresh.
-// sameResponseStreamMeta determines whether this is the same main-channel stream segment (Eino ADK may send response_start repeatedly for the same MessageStream).
+// sameResponseStreamMeta 判断是否为同一段主通道流（Pi 可能对同一 MessageStream 重复发 response_start）。
 func sameResponseStreamMeta(a, b map[string]interface{}) bool {
 	if a == nil || b == nil {
 		return false
 	}
-	agentA, _ := a["einoAgent"].(string)
-	agentB, _ := b["einoAgent"].(string)
+	agentA, _ := a["agentName"].(string)
+	agentB, _ := b["agentName"].(string)
 	agentA = strings.TrimSpace(agentA)
 	agentB = strings.TrimSpace(agentB)
 	if agentA == "" || !strings.EqualFold(agentA, agentB) {
@@ -213,7 +213,7 @@ func (h *AgentHandler) SetAudit(s *audit.Service) {
 	h.audit = s
 }
 
-// TaskManager returns the Agent task manager (used by the MCP monitoring page to stop Eino execute, etc.).
+// TaskManager 返回 Agent 任务管理器（供 MCP 监控页终止 Agent execute 等）。
 func (h *AgentHandler) TaskManager() *AgentTaskManager {
 	if h == nil {
 		return nil
@@ -229,7 +229,7 @@ func (h *AgentHandler) CancelRunningTaskForConversation(conversationID string) {
 	ok, err := h.tasks.CancelTask(conversationID, ErrTaskCancelled)
 	if !ok {
 		h.cancelRunningMCPToolsForConversation(conversationID)
-		h.tasks.AbortActiveEinoExecute(conversationID, "")
+		h.tasks.AbortActiveAgentExecute(conversationID, "")
 	}
 	if h.logger != nil {
 		if err != nil {
@@ -389,7 +389,7 @@ type ChatAttachment struct {
 	ServerPath string `json:"serverPath,omitempty"` // absolute path already saved under chat_uploads (returned by POST /api/chat-uploads)
 }
 
-// ChatReasoningRequest is the "model reasoning" intent for the conversation page (consumed by the Eino single/multi-agent path).
+// ChatReasoningRequest 对话页「模型推理」意图（Agent 单/多代理路径消费）。
 type ChatReasoningRequest struct {
 	// Mode: default (follow the system) | off | on | auto
 	Mode string `json:"mode,omitempty"`
@@ -415,7 +415,7 @@ type ChatRequest struct {
 	Hitl                 *HITLRequest            `json:"hitl,omitempty"`
 	Reasoning            *ChatReasoningRequest   `json:"reasoning,omitempty"`
 	Finalization         ChatFinalizationRequest `json:"finalization,omitempty"`
-	// Orchestration applies only to /api/multi-agent and /api/multi-agent/stream: deep | plan_execute | supervisor; empty is equivalent to deep. For bots/batch/etc. with no request body, the server defaults to deep. /api/eino-agent* does not use this field.
+	// Orchestration 仅对 /api/multi-agent、/api/multi-agent/stream：deep | plan_execute | supervisor；空则等同 deep。机器人/批量等无请求体时由服务端默认 deep。/api/agent* 不使用此字段。
 	Orchestration string `json:"orchestration,omitempty"`
 }
 
@@ -761,10 +761,10 @@ type ChatResponse struct {
 }
 
 func (h *AgentHandler) finalizeRobotAgentError(ctx context.Context, assistantMessageID, conversationID string, resultMA *multiagent.RunResult, errMA error) (string, string, error) {
-	if shouldPersistEinoAgentTraceAfterRunError(ctx) {
-		h.persistEinoAgentTraceForResume(conversationID, resultMA)
+	if shouldPersistAgentAgentTraceAfterRunError(ctx) {
+		h.persistAgentAgentTraceForResume(conversationID, resultMA)
 	}
-	errMsg := "execution failed: " + multiagent.EinoClientRunErrorMessage(errMA)
+	errMsg := "执行失败: " + multiagent.ClientRunErrorMessage(errMA)
 	if assistantMessageID != "" {
 		_, _ = h.db.Exec("UPDATE messages SET content = ?, updated_at = ? WHERE id = ?", errMsg, time.Now(), assistantMessageID)
 		_ = h.db.AddProcessDetail(assistantMessageID, conversationID, "error", errMsg, nil)
@@ -794,7 +794,7 @@ func (h *AgentHandler) finalizeRobotAgentSuccess(taskCtx context.Context, assist
 	return responseText, conversationID, nil
 }
 
-func (h *AgentHandler) runRobotEinoSingleWithRetry(
+func (h *AgentHandler) runRobotAgentSingleWithRetry(
 	taskCtx context.Context,
 	conversationID, finalMessage string,
 	history []agent.ChatMessage,
@@ -803,7 +803,7 @@ func (h *AgentHandler) runRobotEinoSingleWithRetry(
 	assistantMessageID string,
 	taskStatus *string,
 ) (string, string, error) {
-	resultMA, errMA := multiagent.RunEinoSingleChatModelAgent(
+	resultMA, errMA := multiagent.RunSingleAgent(
 		taskCtx, h.config, &h.config.MultiAgent, h.agent, h.db, h.logger,
 		conversationID, h.conversationProjectID(conversationID), finalMessage, history, roleTools, progressCallback, nil, h.agentSessionContextBlock(conversationID),
 	)
@@ -823,7 +823,7 @@ func (h *AgentHandler) runRobotMultiAgentWithRetry(
 	assistantMessageID string,
 	taskStatus *string,
 ) (string, string, error) {
-	resultMA, errMA := multiagent.RunDeepAgent(
+	resultMA, errMA := multiagent.RunMultiAgent(
 		taskCtx, h.config, &h.config.MultiAgent, h.agent, h.db, h.logger,
 		conversationID, h.conversationProjectID(conversationID), finalMessage, history, roleTools, progressCallback,
 		h.agentsMarkdownDir, orchestration, nil, h.agentSessionContextBlock(conversationID),
@@ -835,7 +835,7 @@ func (h *AgentHandler) runRobotMultiAgentWithRetry(
 	return h.finalizeRobotAgentSuccess(taskCtx, assistantMessageID, conversationID, resultMA)
 }
 
-// ProcessMessageForRobot is called by bots (WeCom/DingTalk/Feishu): runs the Eino single/multi-agent execution path (including progressCallback and process details), just without sending SSE, and finally returns the full reply
+// ProcessMessageForRobot 供机器人（企业微信/钉钉/飞书）调用：Agent 单/多代理执行路径（含 progressCallback、过程详情），仅不发送 SSE，最后返回完整回复
 func (h *AgentHandler) ProcessMessageForRobot(ctx context.Context, platform string, principal authctx.Principal, conversationID, message, role, agentMode string) (response string, convID string, err error) {
 	ownerUserID := strings.TrimSpace(principal.UserID)
 	if ownerUserID == "" {
@@ -896,8 +896,8 @@ func (h *AgentHandler) ProcessMessageForRobot(ctx context.Context, platform stri
 		return "", "", fmt.Errorf("failed to save user message: %w", err)
 	}
 
-	// consistent with Eino streaming conversations: first create an assistant message placeholder, then use progressCallback to write process details (without sending SSE)
-	assistantMsg, err := h.db.AddMessage(conversationID, "assistant", "Processing...", nil)
+	// 与 Agent 流式对话一致：先创建助手消息占位，用 progressCallback 写过程详情（不发送 SSE）
+	assistantMsg, err := h.db.AddMessage(conversationID, "assistant", "处理中...", nil)
 	if err != nil {
 		h.logger.Warn("robot: failed to create assistant message placeholder", zap.Error(err))
 	}
@@ -935,12 +935,12 @@ func (h *AgentHandler) ProcessMessageForRobot(ctx context.Context, platform stri
 		h.logger.Warn("robot: failed to update conversation mode", zap.String("conversationId", conversationID), zap.String("agentMode", robotMode), zap.Error(err))
 	}
 	switch robotMode {
-	case "eino_single":
-		return h.runRobotEinoSingleWithRetry(taskCtx, conversationID, finalMessage, agentHistoryMessages, roleTools, progressCallback, assistantMessageID, &taskStatus)
+	case "single":
+		return h.runRobotAgentSingleWithRetry(taskCtx, conversationID, finalMessage, agentHistoryMessages, roleTools, progressCallback, assistantMessageID, &taskStatus)
 	case "deep", "plan_execute", "supervisor":
 		if h.config == nil || !h.config.MultiAgent.Enabled {
 			taskStatus = "failed"
-			return "", conversationID, fmt.Errorf("robot conversation mode %s requires Eino multi-agent to be enabled", robotMode)
+			return "", conversationID, fmt.Errorf("机器人对话模式 %s 需要启用 Agent 多代理", robotMode)
 		}
 		return h.runRobotMultiAgentWithRetry(taskCtx, conversationID, finalMessage, robotMode, agentHistoryMessages, roleTools, progressCallback, assistantMessageID, &taskStatus)
 	}
@@ -973,19 +973,15 @@ func (h *AgentHandler) publishProgressToTaskEventBus(conversationID, eventType, 
 	h.taskEventBus.Publish(conversationID, sseLine)
 }
 
-func isInternalEinoDiagnosticProgress(eventType, message string, data interface{}) bool {
+func isInternalAgentDiagnosticProgress(eventType, message string, data interface{}) bool {
 	switch eventType {
 	case "model_output_rejected":
 		return true
 	case "progress":
 		msg := strings.TrimSpace(message)
-		// NOTE: these three literals must stay byte-for-byte identical to the
-		// Chinese progress messages emitted by internal/multiagent (out of this
-		// package's translation scope); encoded as \u escapes so the match still
-		// works without literal Chinese characters in this file.
-		if msg == "Eino TurnLoop \u5e38\u9a7b\u591a\u8f6e runtime \u5df2\u63a5\u7ba1\u672c\u8f6e\u4f1a\u8bdd\u3002" ||
-			msg == "Eino TurnLoop \u5df2\u5728\u5b89\u5168\u70b9\u5207\u6362\u5230\u7528\u6237\u8865\u5145\u540e\u7684\u4e0b\u4e00\u8f6e\u3002" ||
-			msg == "\u5df2\u5c06\u7528\u6237\u8865\u5145\u63a8\u5165 Eino TurnLoop\uff0c\u6b63\u5728\u7b49\u5f85\u5b89\u5168\u70b9\u5207\u6362\u2026" {
+		if msg == "Agent TurnLoop 常驻多轮 runtime 已接管本轮会话。" ||
+			msg == "Agent TurnLoop 已在安全点切换到用户补充后的下一轮。" ||
+			msg == "已将用户补充推入 Agent TurnLoop，正在等待安全点切换…" {
 			return true
 		}
 		m, ok := data.(map[string]interface{})
@@ -1041,7 +1037,7 @@ func (h *AgentHandler) createProgressCallback(runCtx context.Context, cancelRun 
 	skillCallCache := make(map[string]string)                // toolCallId -> skillName
 	skillToolName := "skill"
 	if h.config != nil {
-		if customName := strings.TrimSpace(h.config.MultiAgent.EinoSkills.SkillToolName); customName != "" {
+		if customName := strings.TrimSpace(h.config.MultiAgent.Skills.SkillToolName); customName != "" {
 			skillToolName = customName
 		}
 	}
@@ -1070,17 +1066,25 @@ func (h *AgentHandler) createProgressCallback(runCtx context.Context, cancelRun 
 		}
 		return ""
 	}
+	skillNameFromEvent := func(data map[string]interface{}) string {
+		for _, field := range []string{"argumentsObj", "arguments"} {
+			args, _ := data[field].(map[string]interface{})
+			if name := extractSkillName(args); name != "" {
+				return name
+			}
+		}
+		return ""
+	}
 
-	// thinking_stream_* (the assistant body stream for ReAct, etc.) and reasoning_chain_stream_* (Eino ReasoningContent):
-	// not persisted row-by-row; aggregated by streamId, and flushed into thinking / reasoning_chain respectively.
+	// thinking_stream_*（ReAct 等助手正文流）与 reasoning_chain_stream_*（Agent ReasoningContent）：
+	// 不逐条落库，按 streamId 聚合，flush 时分别落 thinking / reasoning_chain。
 	thinkingStreams := make(map[string]*thinkingBuf) // streamId -> buf
 	flushedThinking := make(map[string]bool)         // streamId -> flushed
 	seenToolCallSigs := make(map[string]string)      // toolCallId -> payload signature
 	seenToolResultSigs := make(map[string]string)    // toolCallId -> payload signature
 
-	// progressMu protects the maps and aggregation state in this closure. Eino's parallelRunToolCall
-	// calls progress concurrently from multiple goroutines (ToolInvokeNotifyHolder.Fire -> createProgressCallback);
-	// an unlocked map would trigger a fatal panic.
+	// progressMu 保护闭包内 map 与聚合状态。Agent parallelRunToolCall 会在多 goroutine 中并发回调
+	// progress（ToolInvokeNotifyHolder.Fire → createProgressCallback），未加锁的 map 会触发 fatal panic。
 	var progressMu sync.Mutex
 
 	// response_start + response_delta: shown in the frontend timeline as "Planning" (monitor.js); deltas
@@ -1170,7 +1174,7 @@ func (h *AgentHandler) createProgressCallback(runCtx context.Context, cancelRun 
 		progressMu.Lock()
 		defer progressMu.Unlock()
 
-		if isInternalEinoDiagnosticProgress(eventType, message, data) {
+		if isInternalAgentDiagnosticProgress(eventType, message, data) {
 			return
 		}
 
@@ -1229,10 +1233,8 @@ func (h *AgentHandler) createProgressCallback(runCtx context.Context, cancelRun 
 				if strings.EqualFold(strings.TrimSpace(toolName), skillToolName) {
 					toolCallID, _ := dataMap["toolCallId"].(string)
 					if toolCallID != "" {
-						if argumentsObj, ok := dataMap["argumentsObj"].(map[string]interface{}); ok {
-							if skillName := extractSkillName(argumentsObj); skillName != "" {
-								skillCallCache[toolCallID] = skillName
-							}
+						if skillName := skillNameFromEvent(dataMap); skillName != "" {
+							skillCallCache[toolCallID] = skillName
 						}
 					}
 				}
@@ -1388,9 +1390,7 @@ func (h *AgentHandler) createProgressCallback(runCtx context.Context, cancelRun 
 						delete(skillCallCache, toolCallID)
 					}
 					if skillName == "" {
-						if argumentsObj, ok := dataMap["argumentsObj"].(map[string]interface{}); ok {
-							skillName = strings.TrimSpace(extractSkillName(argumentsObj))
-						}
+						skillName = skillNameFromEvent(dataMap)
 					}
 					if skillName != "" {
 						success, ok := dataMap["success"].(bool)
@@ -1415,13 +1415,13 @@ func (h *AgentHandler) createProgressCallback(runCtx context.Context, cancelRun 
 			}
 		}
 
-		// sub-agent reply streaming deltas are not persisted; merged into a single eino_agent_reply when done
-		if assistantMessageID != "" && eventType == "eino_agent_reply_stream_end" {
+		// 子代理回复流式增量不落库；结束时合并为一条 agent_reply
+		if assistantMessageID != "" && eventType == "agent_reply_stream_end" {
 			flushResponsePlan()
 			// ensure the thinking stream is persisted before the sub-agent reply (readable after a refresh)
 			flushThinkingStreams()
-			if err := h.db.AddProcessDetail(assistantMessageID, conversationID, "eino_agent_reply", message, data); err != nil {
-				h.logger.Warn("failed to save process detail", zap.Error(err), zap.String("eventType", eventType))
+			if err := h.db.AddProcessDetail(assistantMessageID, conversationID, "agent_reply", message, data); err != nil {
+				h.logger.Warn("保存过程详情失败", zap.Error(err), zap.String("eventType", eventType))
 			}
 			return
 		}
@@ -1496,7 +1496,7 @@ func (h *AgentHandler) createProgressCallback(runCtx context.Context, cancelRun 
 			return
 		}
 
-		// streaming thinking/reasoning ended: aggregate and persist (same as eino_agent_reply_stream_end)
+		// 流式思考/推理结束：聚合落库（与 agent_reply_stream_end 同理）
 		if eventType == "thinking_stream_end" || eventType == "reasoning_chain_stream_end" {
 			flushResponsePlan()
 			flushThinkingStreams()
@@ -1518,7 +1518,7 @@ func (h *AgentHandler) createProgressCallback(runCtx context.Context, cancelRun 
 					} else {
 						tb.persistAs = persistAs
 					}
-					// record metadata (source/einoAgent/einoRole/iteration, etc.)
+					// 记录元信息（source/agentName/agentRole/iteration 等）
 					for k, v := range dataMap {
 						tb.meta[k] = v
 					}
@@ -1573,24 +1573,24 @@ func (h *AgentHandler) createProgressCallback(runCtx context.Context, cancelRun 
 			}
 		}
 
-		// save process details to the database (excluding response/done; the response body is already in the messages table)
-		// response_start/response_delta have already been aggregated into planning, not persisted row-by-row.
-		// [Eino] agent heartbeat progress is only used for the live progress title, not persisted, to avoid flooding the timeline.
-		skipEinoAgentHeartbeat := eventType == "progress" && strings.HasPrefix(strings.TrimSpace(message), "[Eino] ")
+		// 保存过程详情到数据库（排除 response/done；response 正文已在 messages 表）
+		// response_start/response_delta 已聚合为 planning，不落逐条。
+		// [Agent] agent 心跳 progress 仅用于实时进度标题，不落库以免时间线刷屏。
+		skipAgentAgentHeartbeat := eventType == "progress" && strings.HasPrefix(strings.TrimSpace(message), "[Agent] ")
 		if assistantMessageID != "" &&
-			!skipEinoAgentHeartbeat &&
+			!skipAgentAgentHeartbeat &&
 			eventType != "response" &&
 			eventType != "done" &&
 			eventType != "response_start" &&
 			eventType != "response_delta" &&
 			eventType != "tool_result_delta" &&
-			eventType != "eino_trace_run" &&
-			eventType != "eino_trace_start" &&
-			eventType != "eino_trace_end" &&
-			eventType != "eino_trace_error" &&
-			eventType != "eino_agent_reply_stream_start" &&
-			eventType != "eino_agent_reply_stream_delta" &&
-			eventType != "eino_agent_reply_stream_end" {
+			eventType != "agent_trace_run" &&
+			eventType != "agent_trace_start" &&
+			eventType != "agent_trace_end" &&
+			eventType != "agent_trace_error" &&
+			eventType != "agent_reply_stream_start" &&
+			eventType != "agent_reply_stream_delta" &&
+			eventType != "agent_reply_stream_end" {
 			if eventType == "tool_result" {
 				if detailID := discardPlanningIfEchoesToolResult(&respPlan, data); detailID != "" {
 					if err := h.db.DeleteProcessDetail(detailID); err != nil {
@@ -1648,7 +1648,7 @@ func (h *AgentHandler) cancelToolContinueAfter(conversationID, preferredExecID, 
 				"continueWithoutTool": false,
 			}
 		}
-		if h.tasks.AbortActiveEinoExecute(conversationID, note) {
+		if h.tasks.AbortActiveAgentExecute(conversationID, note) {
 			return true, gin.H{
 				"status":              "tool_abort_requested",
 				"conversationId":      conversationID,
@@ -1661,7 +1661,7 @@ func (h *AgentHandler) cancelToolContinueAfter(conversationID, preferredExecID, 
 		}
 		return false, nil
 	}
-	if h.tasks.AbortActiveEinoExecute(conversationID, note) {
+	if h.tasks.AbortActiveAgentExecute(conversationID, note) {
 		return true, gin.H{
 			"status":              "tool_abort_requested",
 			"conversationId":      conversationID,
@@ -1713,7 +1713,7 @@ func (h *AgentHandler) CancelAgentLoop(c *gin.Context) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "no in-progress tool execution found, or the call has already ended"})
 			return
 		}
-		// no MCP tool in progress (model is in a pure-reasoning/streaming-output phase): cancel the current context, and the Eino streaming handler will merge the user's follow-up and auto-resume.
+		// 无进行中的 MCP 工具（模型纯推理/流式输出阶段）：取消当前上下文并由 Agent 流式处理器合并用户补充后自动续跑。
 		h.tasks.SetInterruptContinueNote(req.ConversationID, note)
 		ok, err := h.tasks.CancelTask(req.ConversationID, multiagent.ErrInterruptContinue)
 		if err != nil {
@@ -1743,7 +1743,7 @@ func (h *AgentHandler) CancelAgentLoop(c *gin.Context) {
 	var cause error = ErrTaskCancelled
 	msg := "The cancel request has been submitted; the task will stop once the current step completes."
 	h.cancelRunningMCPToolsForConversation(req.ConversationID)
-	h.tasks.AbortActiveEinoExecute(req.ConversationID, "")
+	h.tasks.AbortActiveAgentExecute(req.ConversationID, "")
 	ok, err := h.tasks.CancelTask(req.ConversationID, cause)
 	if err != nil {
 		h.logger.Error("failed to cancel task", zap.Error(err))
@@ -1892,10 +1892,10 @@ func filterSlice[T any](items []T, keep func(T) bool) []T {
 // BatchTaskRequest is a batch task request
 type BatchTaskRequest struct {
 	HITLPolicy   string   `json:"hitlPolicy"`
-	Title        string   `json:"title"`                    // task title (optional)
-	Tasks        []string `json:"tasks" binding:"required"` // task list, one task per line
-	Role         string   `json:"role,omitempty"`           // role name (optional; an empty string means the default role)
-	AgentMode    string   `json:"agentMode,omitempty"`      // eino_single | deep | plan_execute | supervisor
+	Title        string   `json:"title"`                    // 任务标题（可选）
+	Tasks        []string `json:"tasks" binding:"required"` // 任务列表，每行一个任务
+	Role         string   `json:"role,omitempty"`           // 角色名称（可选，空字符串表示默认角色）
+	AgentMode    string   `json:"agentMode,omitempty"`      // single | deep | plan_execute | supervisor
 	ScheduleMode string   `json:"scheduleMode,omitempty"`   // manual | cron
 	CronExpr     string   `json:"cronExpr,omitempty"`       // required when scheduleMode=cron
 	ExecuteNow   bool     `json:"executeNow,omitempty"`     // whether to run immediately after creation (default false)
@@ -1903,8 +1903,8 @@ type BatchTaskRequest struct {
 	Concurrency  int      `json:"concurrency,omitempty"`    // number of sub-tasks to run concurrently, default 1, max 8
 }
 
-// batchQueueWantsEino reports whether the queue is configured to use Eino multi-agent.
-func batchQueueWantsEino(agentMode string) bool {
+// batchQueueWantsAgent 队列是否配置为走 Agent 多代理。
+func batchQueueWantsAgent(agentMode string) bool {
 	m := strings.TrimSpace(strings.ToLower(agentMode))
 	return m == "deep" || m == "plan_execute" || m == "supervisor"
 }
@@ -2463,9 +2463,9 @@ func (h *AgentHandler) startBatchQueueExecution(queueID string, scheduled bool) 
 		return true, fmt.Errorf("the queue status does not allow starting")
 	}
 
-	if queue != nil && batchQueueWantsEino(queue.AgentMode) && (h.config == nil || !h.config.MultiAgent.Enabled) {
+	if queue != nil && batchQueueWantsAgent(queue.AgentMode) && (h.config == nil || !h.config.MultiAgent.Enabled) {
 		h.batchTaskManager.UnmarkQueueExecutor(queueID)
-		err := fmt.Errorf("the current queue is configured for Eino multi-agent, but the system does not have multi-agent enabled")
+		err := fmt.Errorf("当前队列配置为 Agent 多代理，但系统未启用多代理")
 		if scheduled {
 			h.batchTaskManager.SetLastScheduleError(queueID, err.Error())
 		}
@@ -2516,8 +2516,8 @@ func (h *AgentHandler) batchQueueSchedulerLoop() {
 	}
 }
 
-// loadHistoryFromAgentTrace restores history from the agent message trace saved in the database (columns last_react_*; covers both single-agent and Eino).
-// The logic matches the attack chain: prefer the saved JSON message bundle + the last assistant summary, otherwise fall back to the messages table.
+// loadHistoryFromAgentTrace 从库中保存的代理消息轨迹恢复历史（列 last_react_*；含单代理与 Agent）。
+// 逻辑与攻击链一致：优先用已保存的 JSON 消息带 + 最后一轮助手摘要，否则回退消息表。
 func (h *AgentHandler) loadHistoryFromAgentTrace(conversationID string) ([]agent.ChatMessage, error) {
 	traceInputJSON, assistantOut, err := h.db.GetAgentTrace(conversationID)
 	if err != nil {

@@ -115,7 +115,7 @@ type ChatMessage struct {
 	Content    string     `json:"content,omitempty"`
 	ToolCalls  []ToolCall `json:"tool_calls,omitempty"`
 	ToolCallID string     `json:"tool_call_id,omitempty"`
-	// ToolName applies only to the tool role: restored from the name or tool_name of the Eino/trace JSON, used to construct the ToolMessage when resuming.
+	// ToolName 仅 tool 角色：从 Agent/轨迹 JSON 的 name 或 tool_name 恢复，供续跑构造 ToolMessage。
 	ToolName string `json:"tool_name,omitempty"`
 	// ReasoningContent corresponds to the reasoning_content of OpenAI/DeepSeek; in thinking mode + tool calls it must be sent back when resuming (see the DeepSeek docs).
 	ReasoningContent string `json:"reasoning_content,omitempty"`
@@ -285,8 +285,8 @@ func (fc *FunctionCall) UnmarshalJSON(data []byte) error {
 // ProgressCallback is the progress callback function type
 type ProgressCallback func(eventType, message string, data interface{})
 
-// EinoSingleAgentSystemInstruction is used by Eino adk.ChatModelAgent.Instruction (including system_prompt_path).
-func (a *Agent) EinoSingleAgentSystemInstruction() string {
+// SystemInstruction returns the native agent prompt, including system_prompt_path overrides.
+func (a *Agent) SystemInstruction() string {
 	systemPrompt := DefaultSingleAgentSystemPrompt()
 	if a.agentConfig != nil {
 		if p := strings.TrimSpace(a.agentConfig.SystemPromptPath); p != "" {
@@ -512,7 +512,7 @@ func (a *Agent) convertToOpenAIType(configType string) string {
 	}
 }
 
-// ToolExecutionResult is the MCP tool execution result (used by the Eino bridge and monitoring persistence).
+// ToolExecutionResult MCP 工具执行结果（供 Agent 桥与监控落库使用）。
 type ToolExecutionResult struct {
 	Result      string
 	ExecutionID string
@@ -754,7 +754,7 @@ func (a *Agent) repairOrphanToolMessages(messages *[]ChatMessage) bool {
 	return removed
 }
 
-// ToolsForRole returns tool definitions (OpenAI function format) consistent with the single-Agent loop, for orchestration layers such as the Eino DeepAgent to bind MCP tools.
+// ToolsForRole 返回与单 Agent 循环一致的工具定义（OpenAI function 格式），供 Agent DeepAgent 等编排层绑定 MCP 工具。
 func (a *Agent) ToolsForRole(roleTools []string) []Tool {
 	return a.getAvailableTools(roleTools)
 }
@@ -804,8 +804,8 @@ func (a *Agent) UnregisterLocalToolExecutionCancel(executionID string) {
 	a.mcpServer.UnregisterToolExecutionCancel(executionID)
 }
 
-// RecordLocalToolExecution writes a tool call completed on the non-CallTool path into the MCP monitoring store (consistent with CallTool persistence) and returns the executionId.
-// Used in scenarios such as Eino filesystem execute, so that the assistant bubble's "penetration testing details" can be clicked through to monitoring just like a regular MCP.
+// RecordLocalToolExecution 将非 CallTool 路径完成的工具调用写入 MCP 监控库（与 CallTool 落库一致），返回 executionId。
+// 用于 Agent filesystem execute 等场景，使助手气泡「渗透测试详情」与常规 MCP 一致可点进监控。
 func (a *Agent) RecordLocalToolExecution(ctx context.Context, toolName string, args map[string]interface{}, resultText string, invokeErr error) string {
 	return a.FinishLocalToolExecution(ctx, "", toolName, args, resultText, invokeErr)
 }

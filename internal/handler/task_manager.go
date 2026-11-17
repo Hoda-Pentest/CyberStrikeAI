@@ -22,10 +22,10 @@ var ErrTaskCancelled = errors.New("agent task cancelled by user")
 // ErrTaskAlreadyRunning the session already has a task running
 var ErrTaskAlreadyRunning = errors.New("agent task already running for conversation")
 
-// shouldPersistEinoAgentTraceAfterRunError: when an Eino-related Run returns a non-success, whether to still write last_react_* for the next round's loadHistoryFromAgentTrace.
-// current policy: whether it ends normally, abnormally, or the user actively stops it, keep the last usable trace as much as possible,
-// so that continuing in the same session can resume from the original context, instead of falling back to a message-text-only history.
-func shouldPersistEinoAgentTraceAfterRunError(baseCtx context.Context) bool {
+// shouldPersistAgentAgentTraceAfterRunError：Agent 相关 Run 非成功返回时，是否仍写入 last_react_* 供下轮 loadHistoryFromAgentTrace。
+// 当前策略：无论正常结束、异常结束或用户主动停止，都尽量保留最后可用轨迹，
+// 以便在同一会话继续时可基于原始上下文续跑，而不是回退到仅消息文本历史。
+func shouldPersistAgentAgentTraceAfterRunError(baseCtx context.Context) bool {
 	return true
 }
 
@@ -53,19 +53,19 @@ type AgentTask struct {
 	// InterruptContinueNote the supplementary note the user fills in the dialog for "interrupt and continue" when there is no MCP (written before Cancel, read and cleared on the resumed round)
 	InterruptContinueNote string `json:"-"`
 
-	// activeEinoExecuteCancel the cancel function of the current in-progress Eino filesystem execute (runs in parallel with MCP tools, for interrupt and continue)
-	activeEinoExecuteCancel context.CancelFunc
-	// activeEinoExecuteAbortNote the user note written by AbortActiveEinoExecute, merged into the tool result when execute finishes
-	activeEinoExecuteAbortNote string
+	// activeAgentExecuteCancel 当前进行中的 Agent filesystem execute 取消函数（与 MCP 工具并行，供中断并继续）
+	activeAgentExecuteCancel context.CancelFunc
+	// activeAgentExecuteAbortNote AbortActiveAgentExecute 写入的用户说明，由 execute 收尾时合并进工具结果
+	activeAgentExecuteAbortNote string
 
 	// hitlCognition the context read by the HITL/audit Agent during this run (the user's original words + reasoning, no conversation history)
 	hitlCognition *hitlCognitionState
 
-	// agentRuntimeCancel the current Eino ADK native AgentCancelFunc wrapper; when cancelling a task, trigger it first, then fall back to context.
+	// agentRuntimeCancel 当前 Pi 原生 AgentCancelFunc 包装；取消任务时先触发它，再走 context 兜底。
 	agentRuntimeCancel        func(error) bool
 	agentRuntimeCancelVersion uint64
 
-	// agentTurnLoopInterrupt the current Eino TurnLoop user-supplement push hook; on interrupt and continue, prefer enqueuing the supplement as a new turn item.
+	// agentTurnLoopInterrupt 当前 Agent TurnLoop 用户补充 push hook；中断并继续时优先将补充作为新 turn item 入队。
 	agentTurnLoopInterrupt        func(string) bool
 	agentTurnLoopInterruptVersion uint64
 
@@ -102,8 +102,8 @@ func (m *AgentTaskManager) UnregisterRunningTool(conversationID, executionID str
 	}
 }
 
-// RegisterActiveEinoExecute registers an in-progress Eino filesystem execute (only one per session at a time).
-func (m *AgentTaskManager) RegisterActiveEinoExecute(conversationID string, cancel context.CancelFunc) {
+// RegisterActiveAgentExecute 登记进行中的 Agent filesystem execute（每会话同时仅一条）。
+func (m *AgentTaskManager) RegisterActiveAgentExecute(conversationID string, cancel context.CancelFunc) {
 	conversationID = strings.TrimSpace(conversationID)
 	if conversationID == "" || cancel == nil {
 		return
@@ -111,13 +111,13 @@ func (m *AgentTaskManager) RegisterActiveEinoExecute(conversationID string, canc
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	if t, ok := m.tasks[conversationID]; ok && t != nil {
-		t.activeEinoExecuteCancel = cancel
-		t.activeEinoExecuteAbortNote = ""
+		t.activeAgentExecuteCancel = cancel
+		t.activeAgentExecuteAbortNote = ""
 	}
 }
 
-// UnregisterActiveEinoExecute clears the registration after execute ends normally or is cancelled.
-func (m *AgentTaskManager) UnregisterActiveEinoExecute(conversationID string) {
+// UnregisterActiveAgentExecute execute 正常结束或已取消后清除登记。
+func (m *AgentTaskManager) UnregisterActiveAgentExecute(conversationID string) {
 	conversationID = strings.TrimSpace(conversationID)
 	if conversationID == "" {
 		return
@@ -125,8 +125,8 @@ func (m *AgentTaskManager) UnregisterActiveEinoExecute(conversationID string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	if t, ok := m.tasks[conversationID]; ok && t != nil {
-		t.activeEinoExecuteCancel = nil
-		t.activeEinoExecuteAbortNote = ""
+		t.activeAgentExecuteCancel = nil
+		t.activeAgentExecuteAbortNote = ""
 	}
 }
 
@@ -146,14 +146,14 @@ func (m *AgentTaskManager) ConversationIDForActiveMCPExecution(executionID strin
 	return ""
 }
 
-// ConversationIDForActiveEinoExecute returns the session ID of the only session currently running an Eino execute; returns empty when multiple sessions run in parallel.
-func (m *AgentTaskManager) ConversationIDForActiveEinoExecute() (string, bool) {
+// ConversationIDForActiveAgentExecute 返回当前唯一进行 Agent execute 的会话 ID；多会话并行时返回空。
+func (m *AgentTaskManager) ConversationIDForActiveAgentExecute() (string, bool) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	var found string
 	count := 0
 	for convID, t := range m.tasks {
-		if t != nil && t.activeEinoExecuteCancel != nil {
+		if t != nil && t.activeAgentExecuteCancel != nil {
 			found = convID
 			count++
 		}
@@ -164,27 +164,27 @@ func (m *AgentTaskManager) ConversationIDForActiveEinoExecute() (string, bool) {
 	return "", false
 }
 
-// AbortActiveEinoExecute terminates the current Eino execute and stores the user's note (consistent with MCP tool termination).
-func (m *AgentTaskManager) AbortActiveEinoExecute(conversationID, note string) bool {
+// AbortActiveAgentExecute 终止当前 Agent execute 并暂存用户说明（与 MCP 工具终止一致）。
+func (m *AgentTaskManager) AbortActiveAgentExecute(conversationID, note string) bool {
 	conversationID = strings.TrimSpace(conversationID)
 	if conversationID == "" {
 		return false
 	}
 	m.mu.Lock()
 	t, ok := m.tasks[conversationID]
-	if !ok || t == nil || t.activeEinoExecuteCancel == nil {
+	if !ok || t == nil || t.activeAgentExecuteCancel == nil {
 		m.mu.Unlock()
 		return false
 	}
-	t.activeEinoExecuteAbortNote = strings.TrimSpace(note)
-	cancel := t.activeEinoExecuteCancel
+	t.activeAgentExecuteAbortNote = strings.TrimSpace(note)
+	cancel := t.activeAgentExecuteCancel
 	m.mu.Unlock()
 	cancel()
 	return true
 }
 
-// TakeEinoExecuteAbortNote reads and clears the execute termination note (called once when execute finishes).
-func (m *AgentTaskManager) TakeEinoExecuteAbortNote(conversationID string) string {
+// TakeAgentExecuteAbortNote 读取并清空 execute 终止说明（execute 收尾时调用一次）。
+func (m *AgentTaskManager) TakeAgentExecuteAbortNote(conversationID string) string {
 	conversationID = strings.TrimSpace(conversationID)
 	if conversationID == "" {
 		return ""
@@ -192,8 +192,8 @@ func (m *AgentTaskManager) TakeEinoExecuteAbortNote(conversationID string) strin
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	if t, ok := m.tasks[conversationID]; ok && t != nil {
-		n := t.activeEinoExecuteAbortNote
-		t.activeEinoExecuteAbortNote = ""
+		n := t.activeAgentExecuteAbortNote
+		t.activeAgentExecuteAbortNote = ""
 		return n
 	}
 	return ""
@@ -243,7 +243,7 @@ func (m *AgentTaskManager) BindTaskCancel(conversationID string, cancel context.
 	}
 }
 
-// BindAgentRuntimeCancel registers the current run segment's Eino native cancel hook.
+// BindAgentRuntimeCancel 登记当前运行段的 Agent 原生 cancel hook。
 func (m *AgentTaskManager) BindAgentRuntimeCancel(conversationID string, cancel func(error) bool) func() {
 	conversationID = strings.TrimSpace(conversationID)
 	if conversationID == "" || cancel == nil {
@@ -269,7 +269,7 @@ func (m *AgentTaskManager) BindAgentRuntimeCancel(conversationID string, cancel 
 	}
 }
 
-// BindAgentTurnLoopInterrupt registers the current running task's Eino TurnLoop user-supplement enqueue hook.
+// BindAgentTurnLoopInterrupt 登记当前运行任务的 Agent TurnLoop 用户补充入队 hook。
 func (m *AgentTaskManager) BindAgentTurnLoopInterrupt(conversationID string, push func(string) bool) func() {
 	conversationID = strings.TrimSpace(conversationID)
 	if conversationID == "" || push == nil {
@@ -508,7 +508,7 @@ func (m *AgentTaskManager) CancelTask(conversationID string, cause error) (bool,
 	interruptPush := task.agentTurnLoopInterrupt
 	interruptNote := task.InterruptContinueNote
 	runtimeCancel := task.agentRuntimeCancel
-	activeExecuteCancel := task.activeEinoExecuteCancel
+	activeExecuteCancel := task.activeAgentExecuteCancel
 	if !errors.Is(cause, multiagent.ErrInterruptContinue) {
 		task.processes.Seal()
 		task.workers.Seal()
@@ -651,7 +651,7 @@ func (m *AgentTaskManager) FinishTaskRun(conversationID, runID, finalStatus stri
 	task.processes.Seal()
 	task.workers.Seal()
 	toolCanceler := m.toolCanceler
-	activeCancel := task.activeEinoExecuteCancel
+	activeCancel := task.activeAgentExecuteCancel
 	cancel := task.cancel
 	bus := m.eventBus
 	m.mu.Unlock()

@@ -879,7 +879,7 @@ func (h *RobotHandler) cmdDoctor() string {
 			enabledExternal++
 		}
 	}
-	return fmt.Sprintf("[Config diagnostics]\nMain model: %s\nEino multi-agent: %s\nBuilt-in MCP tools: %d/%d enabled\nHTTP MCP service: %s\nExternal MCP: %d enabled\nKnowledge base: %s\nProject feature: %s\nNote: built-in tools do not depend on the HTTP MCP service; this command only checks the config, it does not actively probe external services.", configured(strings.TrimSpace(h.config.OpenAI.Model) != "" && strings.TrimSpace(h.config.OpenAI.BaseURL) != ""), enabled(h.config.MultiAgent.Enabled), enabledInternalTools, len(h.config.Security.Tools), enabled(h.config.MCP.Enabled), enabledExternal, enabled(h.config.Knowledge.Enabled), enabled(h.config.Project.Enabled))
+	return fmt.Sprintf("[Config diagnostics]\nMain model: %s\nAgent multi-agent: %s\nBuilt-in MCP tools: %d/%d enabled\nHTTP MCP service: %s\nExternal MCP: %d enabled\nKnowledge base: %s\nProjects: %s\nNote: built-in tools do not depend on the HTTP MCP service; this command only checks configuration and does not probe external services.", configured(strings.TrimSpace(h.config.OpenAI.Model) != "" && strings.TrimSpace(h.config.OpenAI.BaseURL) != ""), enabled(h.config.MultiAgent.Enabled), enabledInternalTools, len(h.config.Security.Tools), enabled(h.config.MCP.Enabled), enabledExternal, enabled(h.config.Knowledge.Enabled), enabled(h.config.Project.Enabled))
 }
 
 func (h *RobotHandler) recordRobotCommandAudit(access *database.RBACAccess, platform, action, resourceType, resourceID, message string) {
@@ -951,14 +951,14 @@ func robotAgentModeLabel(mode string) string {
 	case "supervisor":
 		return "Supervisor"
 	default:
-		return "Eino Single-Agent"
+		return "Agent single-agent"
 	}
 }
 
 func parseRobotAgentMode(input string) (string, bool) {
 	switch strings.ToLower(strings.TrimSpace(input)) {
-	case "eino_single", "eino-single", "single", "\u5355\u4ee3\u7406", "eino\u5355\u4ee3\u7406", "eino \u5355\u4ee3\u7406":
-		return "eino_single", true
+	case "single", "pi-single", "pi_single", "eino_single", "eino-single", "单代理", "eino单代理", "eino 单代理":
+		return "single", true
 	case "deep":
 		return "deep", true
 	case "plan_execute", "plan-execute", "planexecute", "pe":
@@ -974,9 +974,9 @@ func (h *RobotHandler) cmdModes(platform, userID string) string {
 	current := h.getAgentMode(platform, userID)
 	multiStatus := "available"
 	if h.config == nil || !h.config.MultiAgent.Enabled {
-		multiStatus = "unavailable (Eino multi-agent must be enabled in system settings)"
+		multiStatus = "unavailable (enable Agent multi-agent in system settings)"
 	}
-	return fmt.Sprintf("[Conversation modes]\n· Eino Single-Agent — available\n· Deep — %s\n· Plan-Execute — %s\n· Supervisor — %s\n\nCurrent mode: %s\nSwitch example: mode deep", multiStatus, multiStatus, multiStatus, robotAgentModeLabel(current))
+	return fmt.Sprintf("[Conversation modes]\n· Agent single-agent — available\n· Deep — %s\n· Plan-Execute — %s\n· Supervisor — %s\n\nCurrent mode: %s\nSwitch example: mode deep", multiStatus, multiStatus, multiStatus, robotAgentModeLabel(current))
 }
 
 func (h *RobotHandler) cmdSwitchMode(platform, userID, input string) string {
@@ -984,8 +984,8 @@ func (h *RobotHandler) cmdSwitchMode(platform, userID, input string) string {
 	if !ok {
 		return fmt.Sprintf("Unsupported conversation mode \"%s\". Send \"modes\" to view the available modes.", strings.TrimSpace(input))
 	}
-	if mode != "eino_single" && (h.config == nil || !h.config.MultiAgent.Enabled) {
-		return fmt.Sprintf("Cannot switch to %s: please enable Eino multi-agent in system settings first.", robotAgentModeLabel(mode))
+	if mode != "single" && (h.config == nil || !h.config.MultiAgent.Enabled) {
+		return fmt.Sprintf("Cannot switch to %s: enable Agent multi-agent in system settings first.", robotAgentModeLabel(mode))
 	}
 	h.setAgentMode(platform, userID, mode)
 	return fmt.Sprintf("Conversation mode switched to: %s\nSubsequent messages and new conversations will use this mode.", robotAgentModeLabel(mode))

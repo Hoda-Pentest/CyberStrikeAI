@@ -16,12 +16,12 @@ import (
 	"time"
 
 	"cyberstrike-ai/internal/agent"
+	"cyberstrike-ai/internal/agentruntime"
 	"cyberstrike-ai/internal/audit"
 	"cyberstrike-ai/internal/authctx"
 	"cyberstrike-ai/internal/c2"
 	"cyberstrike-ai/internal/config"
 	"cyberstrike-ai/internal/database"
-	"cyberstrike-ai/internal/einoobserve"
 	"cyberstrike-ai/internal/handler"
 	"cyberstrike-ai/internal/hitl"
 	"cyberstrike-ai/internal/knowledge"
@@ -29,7 +29,7 @@ import (
 	"cyberstrike-ai/internal/mcp"
 	"cyberstrike-ai/internal/mcp/builtin"
 	"cyberstrike-ai/internal/monitor"
-	"cyberstrike-ai/internal/multiagent"
+
 	"cyberstrike-ai/internal/robot"
 	"cyberstrike-ai/internal/security"
 	"cyberstrike-ai/internal/skillpackage"
@@ -46,6 +46,7 @@ import (
 type App struct {
 	shutdownOnce       sync.Once
 	config             *config.Config
+	configDir          string
 	logger             *logger.Logger
 	router             *gin.Engine
 	mcpServer          *mcp.Server
@@ -78,14 +79,20 @@ type App struct {
 	auditSvc           *audit.Service
 }
 
-// New creates a new application
-func New(cfg *config.Config, log *logger.Logger, configPath string) (*App, error) {
+// New 创建新应用
+func New(cfg *config.Config, log *logger.Logger, configPath, updateActivation string) (*App, error) {
+	if err := cfg.AgentRuntime.Validate(); err != nil {
+		return nil, err
+	}
+	prepareCtx, cancelPrepare := context.WithTimeout(context.Background(), 5*time.Minute)
+	prepareErr := agentruntime.EnsurePiRuntime(prepareCtx, cfg.AgentRuntime.NodePath, cfg.AgentRuntime.WorkerPath)
+	cancelPrepare()
+	if prepareErr != nil {
+		return nil, prepareErr
+	}
 	toolGuard, err := toolguard.NewManager(cfg.EffectiveToolGuard())
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize call interception rules: %w", err)
-	}
-	if err := multiagent.InitADK(); err != nil {
-		return nil, fmt.Errorf("failed to initialize Eino ADK: %w", err)
 	}
 
 	gin.SetMode(gin.ReleaseMode)
@@ -158,14 +165,14 @@ func New(cfg *config.Config, log *logger.Logger, configPath string) (*App, error
 	mcpServer.SetToolGuard(toolGuard)
 	mcpServer.ConfigureHTTPToolCallTimeoutFromAgentMinutes(cfg.Agent.ToolTimeoutMinutes)
 	mcpServer.ConfigureToolWaitTimeoutSeconds(cfg.Agent.ToolWaitTimeoutSeconds)
-	mcpServer.ConfigureToolResultMaxBytes(cfg.MultiAgent.EinoMiddleware.ReductionMaxLengthForTruncEffective())
-	mcpServer.ConfigureToolResultSpillRoot(cfg.MultiAgent.EinoMiddleware.ReductionRootDir)
+	mcpServer.ConfigureToolResultMaxBytes(cfg.MultiAgent.Runtime.ReductionMaxLengthForTruncEffective())
+	mcpServer.ConfigureToolResultSpillRoot(cfg.MultiAgent.Runtime.ReductionRootDir)
 
 	// Create the security tool executor
 	executor := security.NewExecutor(&cfg.Security, mcpServer, log.Logger)
 	executor.SetShellNoOutputTimeoutSeconds(cfg.Agent.ShellNoOutputTimeoutSeconds)
-	executor.SetToolOutputMaxBytes(cfg.MultiAgent.EinoMiddleware.ReductionMaxLengthForTruncEffective())
-	executor.SetToolOutputSpillRoot(cfg.MultiAgent.EinoMiddleware.ReductionRootDir)
+	executor.SetToolOutputMaxBytes(cfg.MultiAgent.Runtime.ReductionMaxLengthForTruncEffective())
+	executor.SetToolOutputSpillRoot(cfg.MultiAgent.Runtime.ReductionRootDir)
 
 	// Register tools
 	executor.RegisterTools(mcpServer)
@@ -181,8 +188,8 @@ func New(cfg *config.Config, log *logger.Logger, configPath string) (*App, error
 	externalMCPMgr.SetToolAuthorizer(externalMCPToolAuthorizer())
 	externalMCPMgr.SetToolGuard(toolGuard)
 	externalMCPMgr.ConfigureToolWaitTimeoutSeconds(cfg.Agent.ToolWaitTimeoutSeconds)
-	externalMCPMgr.ConfigureToolResultMaxBytes(cfg.MultiAgent.EinoMiddleware.ReductionMaxLengthForTruncEffective())
-	externalMCPMgr.ConfigureToolResultSpillRoot(cfg.MultiAgent.EinoMiddleware.ReductionRootDir)
+	externalMCPMgr.ConfigureToolResultMaxBytes(cfg.MultiAgent.Runtime.ReductionMaxLengthForTruncEffective())
+	externalMCPMgr.ConfigureToolResultSpillRoot(cfg.MultiAgent.Runtime.ReductionRootDir)
 	externalMCPMgr.ConfigureResilience(mcp.ExternalMCPResilienceConfig{
 		MaxConcurrentPerServer:  cfg.Agent.ExternalMCPMaxConcurrentPerServer,
 		MaxConcurrentTotal:      cfg.Agent.ExternalMCPMaxConcurrentTotal,
@@ -258,14 +265,14 @@ func New(cfg *config.Config, log *logger.Logger, configPath string) (*App, error
 			return nil, fmt.Errorf("failed to initialize knowledge base embedder: %w", err)
 		}
 
-		// Create the retriever (Eino MultiQuery + reranking pipeline)
+		// 创建检索器（Agent MultiQuery + 重排流水线）
 		retrievalConfig := knowledge.RetrievalConfigFromYAML(cfg.Knowledge.Retrieval)
 		knowledgeRetriever = knowledge.NewRetriever(knowledgeDB, embedder, retrievalConfig, log.Logger)
 		if err := knowledge.WireRetrieverPipeline(context.Background(), knowledgeRetriever, &cfg.OpenAI); err != nil {
 			return nil, fmt.Errorf("failed to initialize knowledge base retrieval pipeline: %w", err)
 		}
 
-		// Create the indexer (Eino Compose chain)
+		// 创建索引器（Agent Compose 链）
 		knowledgeIndexer, err = knowledge.NewIndexer(context.Background(), knowledgeDB, embedder, log.Logger, &cfg.Knowledge)
 		if err != nil {
 			return nil, fmt.Errorf("failed to initialize knowledge base indexer: %w", err)
@@ -358,18 +365,21 @@ func New(cfg *config.Config, log *logger.Logger, configPath string) (*App, error
 	}
 
 	skillsDir := skillpackage.SkillsRootFromConfig(cfg.SkillsDir, configPath)
-	log.Logger.Debug("Skills directory (Eino ADK skill middleware + web management API)", zap.String("skillsDir", skillsDir))
+	log.Logger.Debug("Skills 目录（Pi skill 中间件 + Web 管理 API）", zap.String("skillsDir", skillsDir))
 	configDir := filepath.Dir(configPath)
-	plantaskRel := strings.TrimSpace(cfg.MultiAgent.EinoMiddleware.PlantaskRelDir)
+	plantaskRel := strings.TrimSpace(cfg.MultiAgent.Runtime.PlantaskRelDir)
 	if plantaskRel == "" {
-		plantaskRel = ".eino/plantask"
+		plantaskRel = ".pi/plantask"
 	}
 	plantaskBase := filepath.Join(skillsDir, plantaskRel)
-	// Match eino_adk_run_loop: checkpoint_dir is used as configured (relative to process CWD when not absolute).
-	checkpointBase := strings.TrimSpace(cfg.MultiAgent.EinoMiddleware.CheckpointDir)
-	reductionRoot := strings.TrimSpace(cfg.MultiAgent.EinoMiddleware.ReductionRootDir)
+	// Keep the old checkpoint directory for cleanup of pre-migration task data.
+	checkpointBase := strings.TrimSpace(cfg.MultiAgent.Runtime.CheckpointDir)
+	reductionRoot := strings.TrimSpace(cfg.MultiAgent.Runtime.ReductionRootDir)
 	workspaceRoot := strings.TrimSpace(cfg.Agent.WorkspaceRootDir)
-	db.SetEinoConversationDirs(plantaskBase, checkpointBase, reductionRoot, workspaceRoot)
+	db.SetAgentConversationDirs(plantaskBase, checkpointBase, reductionRoot, workspaceRoot)
+	if err := db.SetAgentSessionDir(cfg.AgentSessionDir()); err != nil {
+		return nil, fmt.Errorf("register Pi session root: %w", err)
+	}
 
 	// Runtime storage garbage cleanup: the root directory always reuses the same set of values already resolved above,
 	// to avoid re-deriving them inside the storage package, which could make the "directory being cleaned" inconsistent with the "directory actually written to".
@@ -507,6 +517,7 @@ func New(cfg *config.Config, log *logger.Logger, configPath string) (*App, error
 	// Create the App instance (some fields are populated later)
 	app := &App{
 		config:             cfg,
+		configDir:          configDir,
 		logger:             log,
 		router:             router,
 		mcpServer:          mcpServer,
@@ -553,7 +564,7 @@ func New(cfg *config.Config, log *logger.Logger, configPath string) (*App, error
 	}
 	configHandler.SetWebshellToolRegistrar(webshellRegistrar)
 
-	// Skills are provided by the Eino ADK skill middleware (multi-agent); the MCP-form skill tool is not registered here
+	// Skills 由 Pi skill 中间件提供（多代理）；此处不注册 MCP 形态的技能工具
 	configHandler.SetSkillsToolRegistrar(func() error { return nil })
 
 	handler.RegisterBatchTaskMCPTools(mcpServer, agentHandler, log.Logger)
@@ -613,7 +624,7 @@ func New(cfg *config.Config, log *logger.Logger, configPath string) (*App, error
 	})
 
 	updateHandler := handler.NewUpdateHandler(configDir, log.Logger, auditSvc,
-		app.updateRestart(configDir), configHandler.UpdateSource, configHandler.SetUpdateSource)
+		app.updateRestart(configDir), updateActivation, configHandler.UpdateSource, configHandler.SetUpdateSource)
 
 	// Set up routes (uses the App instance so handlers can be retrieved dynamically)
 	setupRoutes(
@@ -721,7 +732,7 @@ func (a *App) RunWithContext(ctx context.Context) error {
 
 	// Start the main server (optional HTTPS + HTTP/2, see config server.tls_*)
 	addr := fmt.Sprintf("%s:%d", a.config.Server.Host, a.config.Server.Port)
-	tlsMode, tlsConf, certFile, keyFile, tlsErr := prepareMainServerTLS(&a.config.Server)
+	tlsMode, tlsConf, certFile, keyFile, tlsErr := prepareMainServerTLS(&a.config.Server, a.configDir)
 	if tlsErr != nil {
 		return tlsErr
 	}
@@ -740,8 +751,8 @@ func (a *App) RunWithContext(ctx context.Context) error {
 				zap.String("address", addr),
 				zap.String("cert", certFile),
 			)
-		case mainTLSInMemorySelfSigned:
-			a.logger.Debug("starting HTTPS main service (in-memory self-signed certificate, testing only; HTTP/2 negotiation enabled)",
+		case mainTLSAutoSelfSigned:
+			a.logger.Debug("启动 HTTPS 主服务（自动自签证书，仅测试；已启用 HTTP/2 协商）",
 				zap.String("address", addr),
 			)
 		}
@@ -791,7 +802,7 @@ func (a *App) RunWithContext(ctx context.Context) error {
 		err = srv.ListenAndServe()
 	case tlsMode == mainTLSFromFiles:
 		err = srv.ListenAndServeTLS(certFile, keyFile)
-	case tlsMode == mainTLSInMemorySelfSigned:
+	case tlsMode == mainTLSAutoSelfSigned:
 		var ln net.Listener
 		ln, err = tls.Listen("tcp", addr, srv.TLSConfig)
 		if err == nil {
@@ -815,9 +826,6 @@ func (a *App) shutdown() {
 	if a.agentHandler != nil {
 		a.agentHandler.ShutdownTasks()
 	}
-	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 5*time.Second)
-	_ = einoobserve.ShutdownOtel(shutdownCtx)
-	shutdownCancel()
 	if a.alertCancel != nil {
 		a.alertCancel()
 		a.alertCancel = nil
@@ -1034,13 +1042,18 @@ func setupRoutes(
 		protected.POST("/robot/wechat/qrcode/verify", wechatRobotHandler.HandleWechatVerifyCode)
 		protected.GET("/robot/wechat/status", wechatRobotHandler.HandleWechatStatus)
 
-		// Eino ADK single agent (ChatModelAgent + Runner; does not depend on multi_agent.enabled)
-		protected.POST("/eino-agent", agentHandler.EinoSingleAgentLoop)
-		protected.POST("/eino-agent/runs", agentHandler.SubmitSingleAgentRun)
+		// Pi 单代理（ChatModelAgent + Runner；不依赖 multi_agent.enabled）
+		protected.POST("/agent", agentHandler.SingleAgentLoop)
+		protected.POST("/agent/runs", agentHandler.SubmitSingleAgentRun)
 		protected.POST("/multi-agent/runs", agentHandler.SubmitMultiAgentRun)
-		protected.GET("/eino-agent/runs/:runId", agentHandler.GetAgentRun)
+		protected.GET("/agent/runs/:runId", agentHandler.GetAgentRun)
 		protected.GET("/multi-agent/runs/:runId", agentHandler.GetAgentRun)
-		protected.POST("/eino-agent/stream", agentHandler.EinoSingleAgentLoopStream)
+		protected.POST("/agent/stream", agentHandler.SingleAgentLoopStream)
+		// Transport aliases for installed older clients; all execute the same Pi handlers.
+		protected.POST("/eino-agent", agentHandler.SingleAgentLoop)
+		protected.POST("/eino-agent/runs", agentHandler.SubmitSingleAgentRun)
+		protected.GET("/eino-agent/runs/:runId", agentHandler.GetAgentRun)
+		protected.POST("/eino-agent/stream", agentHandler.SingleAgentLoopStream)
 		protected.GET("/hitl/pending", agentHandler.ListHITLPending)
 		protected.GET("/hitl/logs", agentHandler.ListHITLLogs)
 		protected.DELETE("/hitl/logs", agentHandler.DeleteHITLLogs)
@@ -1064,8 +1077,8 @@ func setupRoutes(
 		protected.GET("/agent-loop/task-events", agentHandler.SubscribeAgentTaskEvents)
 		protected.GET("/agent-loop/tasks/completed", agentHandler.ListCompletedTasks)
 
-		// Eino DeepAgent multi-agent (coexists with the single agent; requires config.multi_agent.enabled)
-		// Multi-agent routes are always registered; availability is determined at runtime by h.config.MultiAgent.Enabled (no restart needed after applying configuration)
+		// Agent DeepAgent 多代理（与单 Agent 并存，需 config.multi_agent.enabled）
+		// 多代理路由常注册；是否可用由运行时 h.config.MultiAgent.Enabled 决定（应用配置后无需重启）
 		protected.POST("/multi-agent", agentHandler.MultiAgentLoop)
 		protected.POST("/multi-agent/stream", agentHandler.MultiAgentLoopStream)
 		protected.GET("/multi-agent/markdown-agents", markdownAgentsHandler.ListMarkdownAgents)
@@ -1145,6 +1158,7 @@ func setupRoutes(
 		protected.PUT("/config", configHandler.UpdateConfig)
 		protected.POST("/config/apply", configHandler.ApplyConfig)
 		protected.POST("/config/test-openai", configHandler.TestOpenAI)
+		protected.POST("/config/detect-context", configHandler.DetectContext)
 		protected.POST("/config/test-typesafe", configHandler.TestTypeSafe)
 		protected.POST("/config/test-vision", configHandler.TestVision)
 		protected.POST("/config/list-models", configHandler.ListModels)
@@ -1340,9 +1354,12 @@ func setupRoutes(
 		protected.DELETE("/vulnerabilities/batch", vulnerabilityHandler.BatchDeleteVulnerabilities)
 		protected.GET("/vulnerabilities/filter-options", vulnerabilityHandler.GetVulnerabilityFilterOptions)
 		protected.GET("/vulnerabilities/stats", vulnerabilityHandler.GetVulnerabilityStats)
+		protected.POST("/vulnerabilities/cases", vulnerabilityHandler.MergeVulnerabilities)
+		protected.POST("/vulnerabilities/cases/:caseID/split", vulnerabilityHandler.DissolveVulnerabilityCase)
 		protected.GET("/vulnerability-alerts/subscription", vulnerabilityHandler.GetMyAlertSubscription)
 		protected.PUT("/vulnerability-alerts/subscription", vulnerabilityHandler.UpdateMyAlertSubscription)
 		protected.GET("/vulnerabilities/:id", vulnerabilityHandler.GetVulnerability)
+		protected.GET("/vulnerabilities/:id/context", vulnerabilityHandler.VulnerabilityContext)
 		protected.GET("/vulnerabilities/:id/download", vulnerabilityHandler.DownloadVulnerability)
 		protected.POST("/vulnerabilities", vulnerabilityHandler.CreateVulnerability)
 		protected.POST("/vulnerabilities/:id/retest", vulnerabilityHandler.CreateRetest)
@@ -2160,14 +2177,14 @@ func initializeKnowledge(
 		return nil, fmt.Errorf("failed to initialize knowledge base embedder: %w", err)
 	}
 
-	// Create the retriever (Eino MultiQuery + reranking pipeline)
+	// 创建检索器（Agent MultiQuery + 重排流水线）
 	retrievalConfig := knowledge.RetrievalConfigFromYAML(cfg.Knowledge.Retrieval)
 	knowledgeRetriever := knowledge.NewRetriever(knowledgeDB, embedder, retrievalConfig, logger)
 	if err := knowledge.WireRetrieverPipeline(context.Background(), knowledgeRetriever, &cfg.OpenAI); err != nil {
 		return nil, fmt.Errorf("failed to initialize knowledge base retrieval pipeline: %w", err)
 	}
 
-	// Create the indexer (Eino Compose chain)
+	// 创建索引器（Agent Compose 链）
 	knowledgeIndexer, err := knowledge.NewIndexer(context.Background(), knowledgeDB, embedder, logger, &cfg.Knowledge)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize knowledge base indexer: %w", err)

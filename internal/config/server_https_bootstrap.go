@@ -29,8 +29,8 @@ func ServerHTTPRedirectEnabled(s *ServerConfig) bool {
 	return *s.TLSHTTPRedirect
 }
 
-// ApplyDevHTTPSBootstrap is used by --https / the one-click script: it forcibly enables TLS on the main site.
-// If tls_cert_path and tls_key_path are configured, only PEM is used and self-signing is not enabled; otherwise tls_auto_self_sign is enabled (in-memory certificate, for local testing only).
+// ApplyDevHTTPSBootstrap 供 --https / 一键脚本使用：强制开启主站 TLS。
+// 若已配置 tls_cert_path 与 tls_key_path 则使用 PEM，否则启用 tls_auto_self_sign（仅本地测试）。
 func ApplyDevHTTPSBootstrap(cfg *Config) {
 	if cfg == nil {
 		return

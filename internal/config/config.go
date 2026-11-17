@@ -21,37 +21,38 @@ import (
 )
 
 type Config struct {
-	Version     string                `yaml:"version,omitempty" json:"version,omitempty"` // Version number shown in the front-end, e.g. v1.3.3
-	Server      ServerConfig          `yaml:"server"`
-	Log         LogConfig             `yaml:"log"`
-	MCP         MCPConfig             `yaml:"mcp"`
-	AI          AIConfig              `yaml:"ai,omitempty" json:"ai,omitempty"`
-	OpenAI      OpenAIConfig          `yaml:"openai,omitempty" json:"openai,omitempty"`
-	FOFA        FofaConfig            `yaml:"fofa,omitempty" json:"fofa,omitempty"`
-	ZoomEye     SpaceSearchConfig     `yaml:"zoomeye,omitempty" json:"zoomeye,omitempty"`
-	Quake       SpaceSearchConfig     `yaml:"quake,omitempty" json:"quake,omitempty"`
-	Shodan      SpaceSearchConfig     `yaml:"shodan,omitempty" json:"shodan,omitempty"`
-	Agent       AgentConfig           `yaml:"agent"`
-	Hitl        HitlConfig            `yaml:"hitl,omitempty" json:"hitl,omitempty"`
-	ToolGuard   *toolguard.Config     `yaml:"tool_guard,omitempty" json:"tool_guard,omitempty"`
-	Security    SecurityConfig        `yaml:"security"`
-	Database    DatabaseConfig        `yaml:"database"`
-	Auth        AuthConfig            `yaml:"auth"`
-	Audit       AuditConfig           `yaml:"audit,omitempty" json:"audit,omitempty"`
-	Monitor     MonitorConfig         `yaml:"monitor,omitempty" json:"monitor,omitempty"`
-	Storage     StorageConfig         `yaml:"storage,omitempty" json:"storage,omitempty"`
-	ExternalMCP ExternalMCPConfig     `yaml:"external_mcp,omitempty"`
-	Knowledge   KnowledgeConfig       `yaml:"knowledge,omitempty"`
-	C2          C2Config              `yaml:"c2,omitempty" json:"c2,omitempty"`                 // Master switch for the built-in C2; enabled by default when not configured
-	Robots      RobotsConfig          `yaml:"robots,omitempty" json:"robots,omitempty"`         // Robot configuration for WeCom/DingTalk/Lark, etc.
-	RolesDir    string                `yaml:"roles_dir,omitempty" json:"roles_dir,omitempty"`   // Role configuration directory (new approach)
-	Roles       map[string]RoleConfig `yaml:"roles,omitempty" json:"roles,omitempty"`           // Backward compatible: supports defining roles in the main config file
-	SkillsDir   string                `yaml:"skills_dir,omitempty" json:"skills_dir,omitempty"` // Skills configuration directory
-	AgentsDir   string                `yaml:"agents_dir,omitempty" json:"agents_dir,omitempty"` // Directory of multi-agent sub-Agent Markdown definitions (*.md, with YAML front matter)
-	MultiAgent  MultiAgentConfig      `yaml:"multi_agent,omitempty" json:"multi_agent,omitempty"`
-	Project     ProjectConfig         `yaml:"project,omitempty" json:"project,omitempty"`
-	Vision      VisionConfig          `yaml:"vision,omitempty" json:"vision,omitempty"`
-	Update      UpdateConfig          `yaml:"update,omitempty" json:"update,omitempty"`
+	Version      string                `yaml:"version,omitempty" json:"version,omitempty"` // 前端显示的版本号，如 v1.3.3
+	Server       ServerConfig          `yaml:"server"`
+	Log          LogConfig             `yaml:"log"`
+	MCP          MCPConfig             `yaml:"mcp"`
+	AI           AIConfig              `yaml:"ai,omitempty" json:"ai,omitempty"`
+	OpenAI       OpenAIConfig          `yaml:"openai,omitempty" json:"openai,omitempty"`
+	FOFA         FofaConfig            `yaml:"fofa,omitempty" json:"fofa,omitempty"`
+	ZoomEye      SpaceSearchConfig     `yaml:"zoomeye,omitempty" json:"zoomeye,omitempty"`
+	Quake        SpaceSearchConfig     `yaml:"quake,omitempty" json:"quake,omitempty"`
+	Shodan       SpaceSearchConfig     `yaml:"shodan,omitempty" json:"shodan,omitempty"`
+	Agent        AgentConfig           `yaml:"agent"`
+	AgentRuntime AgentRuntimeConfig    `yaml:"agent_runtime,omitempty" json:"agent_runtime,omitempty"`
+	Hitl         HitlConfig            `yaml:"hitl,omitempty" json:"hitl,omitempty"`
+	ToolGuard    *toolguard.Config     `yaml:"tool_guard,omitempty" json:"tool_guard,omitempty"`
+	Security     SecurityConfig        `yaml:"security"`
+	Database     DatabaseConfig        `yaml:"database"`
+	Auth         AuthConfig            `yaml:"auth"`
+	Audit        AuditConfig           `yaml:"audit,omitempty" json:"audit,omitempty"`
+	Monitor      MonitorConfig         `yaml:"monitor,omitempty" json:"monitor,omitempty"`
+	Storage      StorageConfig         `yaml:"storage,omitempty" json:"storage,omitempty"`
+	ExternalMCP  ExternalMCPConfig     `yaml:"external_mcp,omitempty"`
+	Knowledge    KnowledgeConfig       `yaml:"knowledge,omitempty"`
+	C2           C2Config              `yaml:"c2,omitempty" json:"c2,omitempty"`                 // 内置 C2 总开关；未配置时默认启用
+	Robots       RobotsConfig          `yaml:"robots,omitempty" json:"robots,omitempty"`         // 企业微信/钉钉/飞书等机器人配置
+	RolesDir     string                `yaml:"roles_dir,omitempty" json:"roles_dir,omitempty"`   // 角色配置文件目录（新方式）
+	Roles        map[string]RoleConfig `yaml:"roles,omitempty" json:"roles,omitempty"`           // 向后兼容：支持在主配置文件中定义角色
+	SkillsDir    string                `yaml:"skills_dir,omitempty" json:"skills_dir,omitempty"` // Skills配置文件目录
+	AgentsDir    string                `yaml:"agents_dir,omitempty" json:"agents_dir,omitempty"` // 多代理子 Agent Markdown 定义目录（*.md，YAML front matter）
+	MultiAgent   MultiAgentConfig      `yaml:"multi_agent,omitempty" json:"multi_agent,omitempty"`
+	Project      ProjectConfig         `yaml:"project,omitempty" json:"project,omitempty"`
+	Vision       VisionConfig          `yaml:"vision,omitempty" json:"vision,omitempty"`
+	Update       UpdateConfig          `yaml:"update,omitempty" json:"update,omitempty"`
 }
 
 // UpdateConfig is the update source for one-click updates (optional): a repository address; updates follow that repository's default branch.
@@ -116,16 +117,16 @@ func (c ProjectConfig) FactSummaryMaxRunesEffective() int {
 	return c.FactSummaryMaxRunes
 }
 
-// MultiAgentConfig is the multi-agent orchestration based on CloudWeGo Eino adk/prebuilt (deep | plan_execute | supervisor).
+// MultiAgentConfig 基于 Pi adk/prebuilt 的多代理编排（deep | plan_execute | supervisor）。
 type MultiAgentConfig struct {
 	Enabled               bool   `yaml:"enabled" json:"enabled"`
-	RobotDefaultAgentMode string `yaml:"robot_default_agent_mode,omitempty" json:"robot_default_agent_mode,omitempty"` // eino_single | deep | plan_execute | supervisor
-	BatchUseMultiAgent    bool   `yaml:"batch_use_multi_agent" json:"batch_use_multi_agent"`                           // When true, each subtask in the batch-task queue goes through Eino multi-agent
-	// Orchestration is deprecated: kept only for compatibility with old config.yaml; orchestration is decided by the orchestration field in the chat/WebShell request body, defaulting to deep when not passed.
+	RobotDefaultAgentMode string `yaml:"robot_default_agent_mode,omitempty" json:"robot_default_agent_mode,omitempty"` // single | deep | plan_execute | supervisor
+	BatchUseMultiAgent    bool   `yaml:"batch_use_multi_agent" json:"batch_use_multi_agent"`                           // 为 true 时批量任务队列中每子任务走 Agent 多代理
+	// Orchestration 已弃用：保留仅兼容旧版 config.yaml；编排由聊天/WebShell 请求体 orchestration 决定，未传时按 deep。
 	Orchestration string `yaml:"orchestration,omitempty" json:"orchestration,omitempty"`
 	// MaxIteration is deprecated: agent.max_iterations is used uniformly (the field is kept in YAML only for compatibility with old configs and is not read at runtime).
 	MaxIteration int `yaml:"max_iteration,omitempty" json:"max_iteration,omitempty"`
-	// PlanExecuteLoopMaxIterations is the upper bound of the execute<->replan outer loop in plan_execute mode; 0 means use the Eino default of 10.
+	// PlanExecuteLoopMaxIterations plan_execute 模式下 execute↔replan 外层循环上限；0 表示用 Agent 默认 10。
 	PlanExecuteLoopMaxIterations int `yaml:"plan_execute_loop_max_iterations,omitempty" json:"plan_execute_loop_max_iterations,omitempty"`
 	// SubAgentMaxIterations is deprecated: both sub-agents and the main agent use agent.max_iterations (Markdown max_iterations>0 can override it).
 	SubAgentMaxIterations   int    `yaml:"sub_agent_max_iterations,omitempty" json:"sub_agent_max_iterations,omitempty"`
@@ -140,12 +141,10 @@ type MultiAgentConfig struct {
 	// SubAgentUserContextMaxRunes caps user-context supplement for sub-agent task descriptions.
 	// 0 (default) preserves all user turns verbatim; >0 caps total runes; negative disables injection.
 	SubAgentUserContextMaxRunes int `yaml:"sub_agent_user_context_max_runes,omitempty" json:"sub_agent_user_context_max_runes,omitempty"`
-	// EinoSkills configures CloudWeGo Eino ADK skill middleware + optional local filesystem/execute on DeepAgent.
-	EinoSkills MultiAgentEinoSkillsConfig `yaml:"eino_skills,omitempty" json:"eino_skills,omitempty"`
-	// EinoMiddleware wires optional ADK middleware (patchtoolcalls, toolsearch, plantask, reduction) and Deep extras.
-	EinoMiddleware MultiAgentEinoMiddlewareConfig `yaml:"eino_middleware,omitempty" json:"eino_middleware,omitempty"`
-	// EinoCallbacks attaches CloudWeGo eino callbacks.InitCallbacks on ADK Runner context (structured logs + optional SSE trace).
-	EinoCallbacks MultiAgentEinoCallbacksConfig `yaml:"eino_callbacks,omitempty" json:"eino_callbacks,omitempty"`
+	// Skills configures native skill loading + optional local filesystem/execute on DeepAgent.
+	Skills AgentSkillsConfig `yaml:"skills,omitempty" json:"skills,omitempty"`
+	// Runtime wires native tool discovery, task boards, output budgeting and model resilience.
+	Runtime AgentTuningConfig `yaml:"runtime,omitempty" json:"runtime,omitempty"`
 }
 
 // SubAgentUserContextMaxRunesEffective returns max runes for sub-agent task supplement; 0 = unlimited; negative = disabled.
@@ -153,126 +152,8 @@ func (c MultiAgentConfig) SubAgentUserContextMaxRunesEffective() int {
 	return c.SubAgentUserContextMaxRunes
 }
 
-// MultiAgentEinoCallbacksConfig enables Eino unified callbacks on each ADK agent run (deep / plan_execute / supervisor / eino_single).
-// Modes: log_only (zap + optional OTel; no SSE to browser), sse (adds client SSE eino_trace_* when sse_trace_to_client), full (sse rules + stream callback copies closed).
-type MultiAgentEinoCallbacksConfig struct {
-	Enabled bool   `yaml:"enabled" json:"enabled"`
-	Mode    string `yaml:"mode,omitempty" json:"mode,omitempty"` // log_only | sse | full; empty with enabled=true defaults to log_only
-	// SseTraceToClient when true emits eino_trace_* SSE for UI (use only for admin/debug; nil/false recommended in production).
-	SseTraceToClient *bool `yaml:"sse_trace_to_client,omitempty" json:"sse_trace_to_client,omitempty"`
-	// Otel configures OpenTelemetry trace export (independent of mode; exporter none disables export even if enabled).
-	Otel MultiAgentEinoCallbacksOtelConfig `yaml:"otel,omitempty" json:"otel,omitempty"`
-	// MaxInputSummaryRunes / MaxOutputSummaryRunes cap text placed in SSE payloads and debug logs (not full payloads).
-	MaxInputSummaryRunes  int `yaml:"max_input_summary_runes,omitempty" json:"max_input_summary_runes,omitempty"`
-	MaxOutputSummaryRunes int `yaml:"max_output_summary_runes,omitempty" json:"max_output_summary_runes,omitempty"`
-	// ZapVerbose when true logs input/output summaries at zap.Debug on start/end; false uses Info with short fields only.
-	ZapVerbose bool `yaml:"zap_verbose,omitempty" json:"zap_verbose,omitempty"`
-}
-
-// MultiAgentEinoCallbacksOtelConfig OpenTelemetry for Eino callback spans (W3C trace in collector / stdout).
-type MultiAgentEinoCallbacksOtelConfig struct {
-	Enabled      bool    `yaml:"enabled" json:"enabled"`
-	ServiceName  string  `yaml:"service_name,omitempty" json:"service_name,omitempty"`
-	Exporter     string  `yaml:"exporter,omitempty" json:"exporter,omitempty"`           // none | stdout | otlphttp
-	OTLPEndpoint string  `yaml:"otlp_endpoint,omitempty" json:"otlp_endpoint,omitempty"` // host:port, e.g. localhost:4318 (path /v1/traces)
-	SampleRatio  float64 `yaml:"sample_ratio,omitempty" json:"sample_ratio,omitempty"`   // 0–1, default 1.0
-}
-
-// EinoCallbacksModeEffective returns off | log_only | sse | full.
-func (c MultiAgentEinoCallbacksConfig) EinoCallbacksModeEffective() string {
-	if !c.Enabled {
-		return "off"
-	}
-	m := strings.TrimSpace(strings.ToLower(c.Mode))
-	switch m {
-	case "log_only":
-		return "log_only"
-	case "sse":
-		return "sse"
-	case "full":
-		return "full"
-	case "":
-		return "log_only"
-	default:
-		return "log_only"
-	}
-}
-
-// SseTraceToClientEffective is false unless explicitly set true (best practice: do not expose framework traces to end users by default).
-func (c MultiAgentEinoCallbacksConfig) SseTraceToClientEffective() bool {
-	if c.SseTraceToClient == nil {
-		return false
-	}
-	return *c.SseTraceToClient
-}
-
-// ShouldEmitEinoTraceSSE is true when client-visible trace events should be sent over progress/SSE.
-func (c MultiAgentEinoCallbacksConfig) ShouldEmitEinoTraceSSE(mode string) bool {
-	if !c.SseTraceToClientEffective() {
-		return false
-	}
-	return mode == "sse" || mode == "full"
-}
-
-// OtelExporterEffective returns none | stdout | otlphttp.
-func (c MultiAgentEinoCallbacksOtelConfig) OtelExporterEffective() string {
-	e := strings.TrimSpace(strings.ToLower(c.Exporter))
-	switch e {
-	case "none", "stdout", "otlphttp":
-		return e
-	case "":
-		if c.Enabled {
-			return "stdout"
-		}
-		return "none"
-	default:
-		return "none"
-	}
-}
-
-// OtelTracingActive is true when spans should be started (enabled + non-none exporter).
-func (c MultiAgentEinoCallbacksConfig) OtelTracingActive() bool {
-	if !c.Otel.Enabled {
-		return false
-	}
-	return c.Otel.OtelExporterEffective() != "none"
-}
-
-func (c MultiAgentEinoCallbacksOtelConfig) ServiceNameEffective() string {
-	s := strings.TrimSpace(c.ServiceName)
-	if s != "" {
-		return s
-	}
-	return "cyberstrike-ai"
-}
-
-func (c MultiAgentEinoCallbacksOtelConfig) SampleRatioEffective() float64 {
-	r := c.SampleRatio
-	if r <= 0 {
-		return 1.0
-	}
-	if r > 1 {
-		return 1.0
-	}
-	return r
-}
-
-func (c MultiAgentEinoCallbacksConfig) EinoCallbacksMaxInputSummaryRunes() int {
-	if c.MaxInputSummaryRunes > 0 {
-		return c.MaxInputSummaryRunes
-	}
-	return 400
-}
-
-func (c MultiAgentEinoCallbacksConfig) EinoCallbacksMaxOutputSummaryRunes() int {
-	if c.MaxOutputSummaryRunes > 0 {
-		return c.MaxOutputSummaryRunes
-	}
-	return 400
-}
-
-// MultiAgentEinoMiddlewareConfig optional Eino ADK middleware and Deep / supervisor tuning.
-type MultiAgentEinoMiddlewareConfig struct {
+// AgentTuningConfig optional Pi middleware and Deep / supervisor tuning.
+type AgentTuningConfig struct {
 	// PatchToolCalls inserts placeholder tool results for dangling assistant tool_calls (nil = enabled).
 	PatchToolCalls *bool `yaml:"patch_tool_calls,omitempty" json:"patch_tool_calls,omitempty"`
 	// ToolSearch enables dynamictool/toolsearch: hide tail tools until model calls tool_search (reduces prompt tools).
@@ -281,11 +162,13 @@ type MultiAgentEinoMiddlewareConfig struct {
 	ToolSearchAlwaysVisible int  `yaml:"tool_search_always_visible,omitempty" json:"tool_search_always_visible,omitempty"` // default 12; first N tools stay always visible
 	// ToolSearchAlwaysVisibleTools keeps specified tool names always visible (never hidden by tool_search).
 	ToolSearchAlwaysVisibleTools []string `yaml:"tool_search_always_visible_tools,omitempty" json:"tool_search_always_visible_tools,omitempty"`
-	// Plantask adds TaskCreate/Get/Update/List (file-backed under skills dir); requires eino_skills + local backend.
+	// ToolSearchIncludeBuiltins keeps backend builtin tools always visible (nil = true).
+	ToolSearchIncludeBuiltins *bool `yaml:"tool_search_include_builtins,omitempty" json:"tool_search_include_builtins,omitempty"`
+	// Plantask adds TaskCreate/Get/Update/List (file-backed under skills dir); requires skills and its configured directory.
 	PlantaskEnable bool `yaml:"plantask_enable,omitempty" json:"plantask_enable,omitempty"`
-	// PlantaskRelDir relative to skills_dir for per-conversation task boards (default .eino/plantask).
+	// PlantaskRelDir relative to skills_dir for per-conversation task boards (default .pi/plantask).
 	PlantaskRelDir string `yaml:"plantask_rel_dir,omitempty" json:"plantask_rel_dir,omitempty"`
-	// Reduction truncates/offloads large tool outputs (requires eino local backend for Write).
+	// Reduction truncates/offloads large tool outputs (uses the host output store).
 	ReductionEnable            bool     `yaml:"reduction_enable,omitempty" json:"reduction_enable,omitempty"`
 	ReductionRootDir           string   `yaml:"reduction_root_dir,omitempty" json:"reduction_root_dir,omitempty"`                         // Non-empty: the root directory for on-disk storage (default tmp/reduction); isolated beneath it by projects/{id} or conversations/{id}
 	ReductionMaxLengthForTrunc int      `yaml:"reduction_max_length_for_trunc,omitempty" json:"reduction_max_length_for_trunc,omitempty"` // default 12000
@@ -308,7 +191,7 @@ type MultiAgentEinoMiddlewareConfig struct {
 	LatestUserMessageHeadRunes int `yaml:"latest_user_message_head_runes,omitempty" json:"latest_user_message_head_runes,omitempty"`
 	// LatestUserMessageTailRunes keeps the tail preview for an oversized current user turn.
 	LatestUserMessageTailRunes int `yaml:"latest_user_message_tail_runes,omitempty" json:"latest_user_message_tail_runes,omitempty"`
-	// SummarizationRetryMaxAttempts is deprecated: summarization shares model_retry_max_retries and isEinoTransientRunError with Eino's native ModelRetry.
+	// SummarizationRetryMaxAttempts 已废弃：summarization 与 Agent 原生 ModelRetry 共用 model_retry_max_retries 及 isAgentTransientRunError。
 	SummarizationRetryMaxAttempts int `yaml:"summarization_retry_max_attempts,omitempty" json:"summarization_retry_max_attempts,omitempty"`
 	// PlanExecuteUserInputBudgetRatio caps planner/replanner/executor userInput prompt budget ratio (default 0.35).
 	PlanExecuteUserInputBudgetRatio float64 `yaml:"plan_execute_user_input_budget_ratio,omitempty" json:"plan_execute_user_input_budget_ratio,omitempty"`
@@ -325,7 +208,7 @@ type MultiAgentEinoMiddlewareConfig struct {
 	DeepOutputKey string `yaml:"deep_output_key,omitempty" json:"deep_output_key,omitempty"`
 	// DeepModelRetryMaxRetries is deprecated: use model_retry_max_retries; the field is kept only for compatibility with old configs.
 	DeepModelRetryMaxRetries int `yaml:"deep_model_retry_max_retries,omitempty" json:"deep_model_retry_max_retries,omitempty"`
-	// ModelRetryMaxRetries configures Eino ADK native ChatModel retry attempts; 0=default 4.
+	// ModelRetryMaxRetries configures Pi native ChatModel retry attempts; 0=default 4.
 	ModelRetryMaxRetries int `yaml:"model_retry_max_retries,omitempty" json:"model_retry_max_retries,omitempty"`
 	// ModelRetryMaxBackoffSec caps native model retry backoff seconds; 0=default 30.
 	ModelRetryMaxBackoffSec int `yaml:"model_retry_max_backoff_sec,omitempty" json:"model_retry_max_backoff_sec,omitempty"`
@@ -333,7 +216,7 @@ type MultiAgentEinoMiddlewareConfig struct {
 	ModelFailoverChannels []string `yaml:"model_failover_channels,omitempty" json:"model_failover_channels,omitempty"`
 	// ModelFailoverMaxRetries caps distinct failover channel attempts; 0=all configured failover channels.
 	ModelFailoverMaxRetries int `yaml:"model_failover_max_retries,omitempty" json:"model_failover_max_retries,omitempty"`
-	// RunRetryMaxAttempts is deprecated: transient model errors are handled by Eino's native ModelRetry; kept only as a fallback for the non-model run loop and for the old summarization field.
+	// RunRetryMaxAttempts 已废弃：模型临时错误由 Agent 原生 ModelRetry 处理；仅保留给非模型层 run loop 兜底与 summarization 旧字段。
 	RunRetryMaxAttempts int `yaml:"run_retry_max_attempts,omitempty" json:"run_retry_max_attempts,omitempty"`
 	// RunRetryMaxBackoffSec is deprecated: use model_retry_max_backoff_sec; kept only as a fallback for the non-model run loop and for the old summarization field.
 	RunRetryMaxBackoffSec int `yaml:"run_retry_max_backoff_sec,omitempty" json:"run_retry_max_backoff_sec,omitempty"`
@@ -343,7 +226,7 @@ type MultiAgentEinoMiddlewareConfig struct {
 	TaskToolDescriptionPrefix string `yaml:"task_tool_description_prefix,omitempty" json:"task_tool_description_prefix,omitempty"`
 }
 
-func (c MultiAgentEinoMiddlewareConfig) SummarizationTriggerRatioEffective() float64 {
+func (c AgentTuningConfig) SummarizationTriggerRatioEffective() float64 {
 	v := c.SummarizationTriggerRatio
 	if v <= 0 {
 		return 0.8
@@ -357,56 +240,56 @@ func (c MultiAgentEinoMiddlewareConfig) SummarizationTriggerRatioEffective() flo
 	return v
 }
 
-func (c MultiAgentEinoMiddlewareConfig) SummarizationOutputReserveTokensEffective() int {
+func (c AgentTuningConfig) SummarizationOutputReserveTokensEffective() int {
 	if c.SummarizationOutputReserveTokens > 0 {
 		return c.SummarizationOutputReserveTokens
 	}
 	return DefaultSummarizationOutputReserveTokens
 }
 
-func (c MultiAgentEinoMiddlewareConfig) SummarizationEmitInternalEventsEffective() bool {
+func (c AgentTuningConfig) SummarizationEmitInternalEventsEffective() bool {
 	if c.SummarizationEmitInternalEvents != nil {
 		return *c.SummarizationEmitInternalEvents
 	}
 	return true
 }
 
-func (c MultiAgentEinoMiddlewareConfig) SummarizationUserIntentLedgerMaxRunesEffective() int {
+func (c AgentTuningConfig) SummarizationUserIntentLedgerMaxRunesEffective() int {
 	if c.SummarizationUserIntentLedgerMaxRunes > 0 {
 		return c.SummarizationUserIntentLedgerMaxRunes
 	}
 	return DefaultSummarizationUserIntentLedgerMaxRunes
 }
 
-func (c MultiAgentEinoMiddlewareConfig) SummarizationUserIntentLedgerEntryMaxRunesEffective() int {
+func (c AgentTuningConfig) SummarizationUserIntentLedgerEntryMaxRunesEffective() int {
 	if c.SummarizationUserIntentLedgerEntryMaxRunes > 0 {
 		return c.SummarizationUserIntentLedgerEntryMaxRunes
 	}
 	return DefaultSummarizationUserIntentLedgerEntryMaxRunes
 }
 
-func (c MultiAgentEinoMiddlewareConfig) LatestUserMessageMaxRunesEffective() int {
+func (c AgentTuningConfig) LatestUserMessageMaxRunesEffective() int {
 	if c.LatestUserMessageMaxRunes > 0 {
 		return c.LatestUserMessageMaxRunes
 	}
 	return DefaultLatestUserMessageMaxRunes
 }
 
-func (c MultiAgentEinoMiddlewareConfig) LatestUserMessageHeadRunesEffective() int {
+func (c AgentTuningConfig) LatestUserMessageHeadRunesEffective() int {
 	if c.LatestUserMessageHeadRunes > 0 {
 		return c.LatestUserMessageHeadRunes
 	}
 	return DefaultLatestUserMessageHeadRunes
 }
 
-func (c MultiAgentEinoMiddlewareConfig) LatestUserMessageTailRunesEffective() int {
+func (c AgentTuningConfig) LatestUserMessageTailRunesEffective() int {
 	if c.LatestUserMessageTailRunes > 0 {
 		return c.LatestUserMessageTailRunes
 	}
 	return DefaultLatestUserMessageTailRunes
 }
 
-func (c MultiAgentEinoMiddlewareConfig) PlanExecuteUserInputBudgetRatioEffective() float64 {
+func (c AgentTuningConfig) PlanExecuteUserInputBudgetRatioEffective() float64 {
 	v := c.PlanExecuteUserInputBudgetRatio
 	if v <= 0 {
 		return 0.35
@@ -420,7 +303,7 @@ func (c MultiAgentEinoMiddlewareConfig) PlanExecuteUserInputBudgetRatioEffective
 	return v
 }
 
-func (c MultiAgentEinoMiddlewareConfig) PlanExecuteExecutedStepsBudgetRatioEffective() float64 {
+func (c AgentTuningConfig) PlanExecuteExecutedStepsBudgetRatioEffective() float64 {
 	v := c.PlanExecuteExecutedStepsBudgetRatio
 	if v <= 0 {
 		return 0.2
@@ -434,46 +317,46 @@ func (c MultiAgentEinoMiddlewareConfig) PlanExecuteExecutedStepsBudgetRatioEffec
 	return v
 }
 
-func (c MultiAgentEinoMiddlewareConfig) PlanExecuteMaxStepResultRunesEffective() int {
+func (c AgentTuningConfig) PlanExecuteMaxStepResultRunesEffective() int {
 	if c.PlanExecuteMaxStepResultRunes > 0 {
 		return c.PlanExecuteMaxStepResultRunes
 	}
 	return 4000
 }
 
-func (c MultiAgentEinoMiddlewareConfig) PlanExecuteKeepLastStepsEffective() int {
+func (c AgentTuningConfig) PlanExecuteKeepLastStepsEffective() int {
 	if c.PlanExecuteKeepLastSteps > 0 {
 		return c.PlanExecuteKeepLastSteps
 	}
 	return 8
 }
 
-func (c MultiAgentEinoMiddlewareConfig) ReductionMaxLengthForTruncEffective() int {
+func (c AgentTuningConfig) ReductionMaxLengthForTruncEffective() int {
 	if c.ReductionMaxLengthForTrunc > 0 {
 		return c.ReductionMaxLengthForTrunc
 	}
 	return 12000
 }
 
-func (c MultiAgentEinoMiddlewareConfig) ReductionMaxTokensForClearEffective() int {
+func (c AgentTuningConfig) ReductionMaxTokensForClearEffective() int {
 	if c.ReductionMaxTokensForClear > 0 {
 		return c.ReductionMaxTokensForClear
 	}
 	return 50000
 }
 
-// MultiAgentEinoSkillsConfig toggles Eino official skill progressive disclosure and host filesystem tools.
-type MultiAgentEinoSkillsConfig struct {
+// AgentSkillsConfig toggles Agent official skill progressive disclosure and host filesystem tools.
+type AgentSkillsConfig struct {
 	// Disable skips skill middleware (and does not attach local FS tools for Deep).
 	Disable bool `yaml:"disable" json:"disable"`
-	// FilesystemTools registers read_file/glob/grep/write/edit/execute (eino-ext local backend). Nil/omitted = true.
+	// FilesystemTools registers read_file/glob/grep/write/edit/execute (native Go tools). Nil/omitted = true.
 	FilesystemTools *bool `yaml:"filesystem_tools,omitempty" json:"filesystem_tools,omitempty"`
-	// SkillToolName overrides the default Eino tool name "skill".
+	// SkillToolName overrides the default Agent tool name "skill".
 	SkillToolName string `yaml:"skill_tool_name,omitempty" json:"skill_tool_name,omitempty"`
 }
 
-// EinoSkillFilesystemToolsEffective returns whether Deep/sub-agents should attach local filesystem + streaming shell.
-func (c MultiAgentEinoSkillsConfig) EinoSkillFilesystemToolsEffective() bool {
+// FilesystemToolsEffective returns whether Deep/sub-agents should attach local filesystem + streaming shell.
+func (c AgentSkillsConfig) FilesystemToolsEffective() bool {
 	if c.FilesystemTools != nil {
 		return *c.FilesystemTools
 	}
@@ -481,14 +364,19 @@ func (c MultiAgentEinoSkillsConfig) EinoSkillFilesystemToolsEffective() bool {
 }
 
 // PatchToolCallsEffective returns whether patchtoolcalls middleware should run (default true).
-func (c MultiAgentEinoMiddlewareConfig) PatchToolCallsEffective() bool {
+func (c AgentTuningConfig) PatchToolCallsEffective() bool {
 	if c.PatchToolCalls != nil {
 		return *c.PatchToolCalls
 	}
 	return true
 }
 
-// MultiAgentSubConfig is a sub-agent (Eino ChatModelAgent): scheduled by task under deep; delegated by transfer under supervisor; plan_execute does not use the sub-agent list.
+// ToolSearchIncludeBuiltinsEffective controls whether backend builtin tools bypass tool_search.
+func (c AgentTuningConfig) ToolSearchIncludeBuiltinsEffective() bool {
+	return c.ToolSearchIncludeBuiltins == nil || *c.ToolSearchIncludeBuiltins
+}
+
+// MultiAgentSubConfig 子代理（Pi）：deep 下由 task 调度；supervisor 下由 transfer 委派；plan_execute 不使用子代理列表。
 type MultiAgentSubConfig struct {
 	ID            string   `yaml:"id" json:"id"`
 	Name          string   `yaml:"name" json:"name"`
@@ -502,31 +390,26 @@ type MultiAgentSubConfig struct {
 
 // MultiAgentPublic is the trimmed information returned to the front-end (excluding the full sub-agent instructions).
 type MultiAgentPublic struct {
-	Enabled                                    bool     `json:"enabled"`
-	RobotDefaultAgentMode                      string   `json:"robot_default_agent_mode,omitempty"`
-	BatchUseMultiAgent                         bool     `json:"batch_use_multi_agent"`
-	SubAgentCount                              int      `json:"sub_agent_count"`
-	Orchestration                              string   `json:"orchestration,omitempty"`
-	PlanExecuteLoopMaxIterations               int      `json:"plan_execute_loop_max_iterations"`
-	SummarizationUserIntentLedgerMaxRunes      int      `json:"summarization_user_intent_ledger_max_runes"`
-	SummarizationUserIntentLedgerEntryMaxRunes int      `json:"summarization_user_intent_ledger_entry_max_runes"`
-	LatestUserMessageMaxRunes                  int      `json:"latest_user_message_max_runes"`
-	LatestUserMessageHeadRunes                 int      `json:"latest_user_message_head_runes"`
-	LatestUserMessageTailRunes                 int      `json:"latest_user_message_tail_runes"`
-	ModelRetryMaxRetries                       int      `json:"model_retry_max_retries"`
-	ModelRetryMaxBackoffSec                    int      `json:"model_retry_max_backoff_sec"`
-	ModelFailoverChannels                      []string `json:"model_failover_channels,omitempty"`
-	ModelFailoverMaxRetries                    int      `json:"model_failover_max_retries"`
-	ToolSearchAlwaysVisibleTools               []string `json:"tool_search_always_visible_tools,omitempty"`
-	ToolSearchAlwaysVisibleEffectiveTools      []string `json:"tool_search_always_visible_effective_tools,omitempty"`
+	Enabled                               bool     `json:"enabled"`
+	RobotDefaultAgentMode                 string   `json:"robot_default_agent_mode,omitempty"`
+	BatchUseMultiAgent                    bool     `json:"batch_use_multi_agent"`
+	SubAgentCount                         int      `json:"sub_agent_count"`
+	Orchestration                         string   `json:"orchestration,omitempty"`
+	PlanExecuteLoopMaxIterations          int      `json:"plan_execute_loop_max_iterations"`
+	ModelRetryMaxRetries                  int      `json:"model_retry_max_retries"`
+	ModelRetryMaxBackoffSec               int      `json:"model_retry_max_backoff_sec"`
+	ModelFailoverChannels                 []string `json:"model_failover_channels,omitempty"`
+	ModelFailoverMaxRetries               int      `json:"model_failover_max_retries"`
+	ToolSearchAlwaysVisibleTools          []string `json:"tool_search_always_visible_tools,omitempty"`
+	ToolSearchAlwaysVisibleEffectiveTools []string `json:"tool_search_always_visible_effective_tools,omitempty"`
 }
 
-// NormalizeAgentMode parses the agent mode (eino_single | deep | plan_execute | supervisor); an empty value defaults to eino_single.
+// NormalizeAgentMode 解析代理模式（single | deep | plan_execute | supervisor）；空值默认 single。
 func NormalizeAgentMode(mode string) string {
-	s := strings.TrimSpace(strings.ToLower(mode))
+	s := strings.TrimPrefix(strings.TrimSpace(strings.ToLower(mode)), "eino_")
 	switch s {
-	case "", "eino_single":
-		return "eino_single"
+	case "", "single", "eino_single":
+		return "single"
 	case "deep":
 		return "deep"
 	case "plan_execute", "plan-execute", "planexecute", "pe":
@@ -534,7 +417,7 @@ func NormalizeAgentMode(mode string) string {
 	case "supervisor", "super", "sv":
 		return "supervisor"
 	default:
-		return "eino_single"
+		return "single"
 	}
 }
 
@@ -558,20 +441,15 @@ func NormalizeMultiAgentOrchestration(s string) string {
 
 // MultiAgentAPIUpdate updates only the multi-agent scalar fields from the settings page/API; when writing YAML it does not overwrite blocks such as sub_agents.
 type MultiAgentAPIUpdate struct {
-	Enabled                                    bool      `json:"enabled"`
-	RobotDefaultAgentMode                      string    `json:"robot_default_agent_mode,omitempty"`
-	BatchUseMultiAgent                         bool      `json:"batch_use_multi_agent"`
-	PlanExecuteLoopMaxIterations               *int      `json:"plan_execute_loop_max_iterations,omitempty"`
-	SummarizationUserIntentLedgerMaxRunes      *int      `json:"summarization_user_intent_ledger_max_runes,omitempty"`
-	SummarizationUserIntentLedgerEntryMaxRunes *int      `json:"summarization_user_intent_ledger_entry_max_runes,omitempty"`
-	LatestUserMessageMaxRunes                  *int      `json:"latest_user_message_max_runes,omitempty"`
-	LatestUserMessageHeadRunes                 *int      `json:"latest_user_message_head_runes,omitempty"`
-	LatestUserMessageTailRunes                 *int      `json:"latest_user_message_tail_runes,omitempty"`
-	ModelRetryMaxRetries                       *int      `json:"model_retry_max_retries,omitempty"`
-	ModelRetryMaxBackoffSec                    *int      `json:"model_retry_max_backoff_sec,omitempty"`
-	ModelFailoverChannels                      *[]string `json:"model_failover_channels,omitempty"`
-	ModelFailoverMaxRetries                    *int      `json:"model_failover_max_retries,omitempty"`
-	// The pointer distinguishes "the JSON did not send this field" from "an empty array was sent to clear it"; when omitted it should not overwrite the resident tool allowlist in the YAML.
+	Enabled                      bool      `json:"enabled"`
+	RobotDefaultAgentMode        string    `json:"robot_default_agent_mode,omitempty"`
+	BatchUseMultiAgent           bool      `json:"batch_use_multi_agent"`
+	PlanExecuteLoopMaxIterations *int      `json:"plan_execute_loop_max_iterations,omitempty"`
+	ModelRetryMaxRetries         *int      `json:"model_retry_max_retries,omitempty"`
+	ModelRetryMaxBackoffSec      *int      `json:"model_retry_max_backoff_sec,omitempty"`
+	ModelFailoverChannels        *[]string `json:"model_failover_channels,omitempty"`
+	ModelFailoverMaxRetries      *int      `json:"model_failover_max_retries,omitempty"`
+	// 指针区分「JSON 未传该字段」与「传空数组要清空」；省略时不应覆盖 YAML 中的常驻工具白名单。
 	ToolSearchAlwaysVisibleTools *[]string `json:"tool_search_always_visible_tools,omitempty"`
 }
 
@@ -817,7 +695,7 @@ type ServerConfig struct {
 	// When TLSCertPath / TLSKeyPath are non-empty, the certificate is loaded from PEM files (recommended for production).
 	TLSCertPath string `yaml:"tls_cert_path,omitempty" json:"tls_cert_path,omitempty"`
 	TLSKeyPath  string `yaml:"tls_key_path,omitempty" json:"tls_key_path,omitempty"`
-	// When TLSAutoSelfSign is true and no valid certificate path is configured, an in-memory self-signed certificate is generated at startup (local/testing only; the browser will warn it is untrusted).
+	// TLSAutoSelfSign 为 true 且未配置证书路径时，生成并复用安装目录中的自签证书（仅本地/测试）。
 	TLSAutoSelfSign bool `yaml:"tls_auto_self_sign,omitempty" json:"tls_auto_self_sign,omitempty"`
 	// When TLSHTTPRedirect is false, HTTP->HTTPS redirection is disabled; when omitted or true and HTTPS is enabled, plaintext HTTP access is 308-redirected to HTTPS (routed by sniffing on the same port).
 	TLSHTTPRedirect *bool `yaml:"tls_http_redirect,omitempty" json:"tls_http_redirect,omitempty"`
@@ -841,7 +719,7 @@ type MCPConfig struct {
 }
 
 type OpenAIConfig struct {
-	Provider            string `yaml:"provider,omitempty" json:"provider,omitempty"` // API provider: "openai" (default) or "claude"; claude uses the Eino native Anthropic Messages API
+	Provider            string `yaml:"provider,omitempty" json:"provider,omitempty"` // API 提供商: "openai"(默认) 或 "claude"，claude 使用 Agent 原生 Anthropic Messages API
 	APIKey              string `yaml:"api_key" json:"api_key"`
 	BaseURL             string `yaml:"base_url" json:"base_url"`
 	Model               string `yaml:"model" json:"model"`
@@ -850,7 +728,12 @@ type OpenAIConfig struct {
 	// Headers append or override HTTP request headers sent to the model gateway; values support ${ENV_VAR} expansion.
 	// Used for compatibility with third-party OpenAI-compatible providers that require private auth, version, or organization headers.
 	Headers map[string]string `yaml:"headers,omitempty" json:"headers,omitempty"`
-	// Reasoning controls the Eino ChatModel's thinking / reasoning_effort / output_config, etc. (effective on the Eino single/multi-agent path).
+	// ContextWindow 是模型原生上下文窗口（token）；0 表示未知。用于校验/压缩 max_total_tokens。
+	ContextWindow int `yaml:"context_window,omitempty" json:"context_window,omitempty"`
+	// ContextProfile selects auto, economy, custom or local; local_auto records
+	// a local backend identified through the model metadata probe.
+	ContextProfile string `yaml:"context_profile,omitempty" json:"context_profile,omitempty"`
+	// Reasoning 控制 Agent ChatModel 的 thinking / reasoning_effort / output_config 等（Agent 单/多代理路径生效）。
 	Reasoning OpenAIReasoningConfig `yaml:"reasoning,omitempty" json:"reasoning,omitempty"`
 }
 
@@ -870,6 +753,8 @@ type AIChannelConfig struct {
 	MaxTotalTokens      int                   `yaml:"max_total_tokens,omitempty" json:"max_total_tokens,omitempty"`
 	MaxCompletionTokens int                   `yaml:"max_completion_tokens,omitempty" json:"max_completion_tokens,omitempty"`
 	Headers             map[string]string     `yaml:"headers,omitempty" json:"headers,omitempty"`
+	ContextWindow       int                   `yaml:"context_window,omitempty" json:"context_window,omitempty"`
+	ContextProfile      string                `yaml:"context_profile,omitempty" json:"context_profile,omitempty"`
 	Reasoning           OpenAIReasoningConfig `yaml:"reasoning,omitempty" json:"reasoning,omitempty"`
 }
 
@@ -886,6 +771,8 @@ func (c AIChannelConfig) ToOpenAIConfig() OpenAIConfig {
 		MaxTotalTokens:      c.MaxTotalTokens,
 		MaxCompletionTokens: c.MaxCompletionTokens,
 		Headers:             ExpandHeaderMap(c.Headers),
+		ContextWindow:       c.ContextWindow,
+		ContextProfile:      NormalizeContextProfile(c.ContextProfile),
 		Reasoning:           c.Reasoning,
 	}
 }
@@ -903,6 +790,8 @@ func AIChannelFromOpenAI(id, name string, oa OpenAIConfig) AIChannelConfig {
 		MaxTotalTokens:      oa.MaxTotalTokens,
 		MaxCompletionTokens: oa.MaxCompletionTokens,
 		Headers:             ExpandHeaderMap(oa.Headers),
+		ContextWindow:       oa.ContextWindow,
+		ContextProfile:      oa.ContextProfile,
 		Reasoning:           oa.Reasoning,
 	}
 }
@@ -984,10 +873,14 @@ func (c *Config) ApplyDefaultAIChannel() {
 }
 
 func (c OpenAIConfig) MaxCompletionTokensEffective() int {
-	if c.MaxCompletionTokens > 0 {
-		return c.MaxCompletionTokens
+	out := c.MaxCompletionTokens
+	if out <= 0 {
+		out = DefaultMaxCompletionTokens
 	}
-	return DefaultMaxCompletionTokens
+	if window := c.EffectiveContextWindow(); window > 0 && out > window/2 {
+		out = window / 2
+	}
+	return out
 }
 
 // IsDeepSeekEndpointOrModel reports whether the channel targets DeepSeek's
@@ -1683,7 +1576,12 @@ func Load(path string) (*Config, error) {
 	if err := validateOpenAIOutputLimits(cfg.OpenAI); err != nil {
 		return nil, err
 	}
-	// If a tools directory is configured, load tool configurations from it
+	for id, ch := range cfg.AI.Channels {
+		if err := ValidateContextSettings("ai.channels."+id, ch.ContextWindow, ch.ContextProfile); err != nil {
+			return nil, err
+		}
+	}
+	// 如果配置了工具目录，从目录加载工具配置
 	if cfg.Security.ToolsDir != "" {
 		inlineTools := append([]ToolConfig(nil), cfg.Security.Tools...)
 		toolsDir := ResolveToolsDir(cfg.Security.ToolsDir, path)
@@ -1748,6 +1646,22 @@ func Load(path string) (*Config, error) {
 func validateOpenAIOutputLimits(openAI OpenAIConfig) error {
 	if openAI.MaxCompletionTokens < 0 {
 		return fmt.Errorf("openai.max_completion_tokens must be a positive number")
+	}
+	return ValidateContextSettings("openai", openAI.ContextWindow, openAI.ContextProfile)
+}
+
+// ValidateContextSettings 校验主通道与 ai.channels 共用的上下文配置。
+func ValidateContextSettings(prefix string, window int, profile string) error {
+	prefix = strings.TrimSpace(prefix)
+	if prefix == "" {
+		prefix = "openai"
+	}
+	if window < 0 {
+		return fmt.Errorf("%s.context_window 不能为负数", prefix)
+	}
+	if raw := strings.TrimSpace(profile); raw != "" &&
+		!strings.EqualFold(raw, "auto") && NormalizeContextProfile(raw) == "" {
+		return fmt.Errorf("%s.context_profile 只支持 auto、economy、custom、local 或 local_auto", prefix)
 	}
 	return nil
 }
@@ -2512,7 +2426,7 @@ type KnowledgeConfig struct {
 
 // IndexingConfig is the index-building configuration (controls the behavior while building the knowledge-base index)
 type IndexingConfig struct {
-	// ChunkStrategy: "markdown_then_recursive" (default; Eino splits by Markdown headings first, then recursively) or "recursive" (recursive splitting only)
+	// ChunkStrategy: "markdown_then_recursive"（默认，Agent Markdown 标题切分后再递归切）或 "recursive"（仅递归切分）
 	ChunkStrategy string `yaml:"chunk_strategy,omitempty" json:"chunk_strategy,omitempty"`
 	// RequestTimeoutSeconds is the embedding HTTP client timeout (seconds); 0 means use the default 120
 	RequestTimeoutSeconds int `yaml:"request_timeout_seconds,omitempty" json:"request_timeout_seconds,omitempty"`
@@ -2521,7 +2435,7 @@ type IndexingConfig struct {
 	ChunkOverlap     int `yaml:"chunk_overlap,omitempty" json:"chunk_overlap,omitempty"`             // Number of overlapping tokens between chunks, default 50
 	MaxChunksPerItem int `yaml:"max_chunks_per_item,omitempty" json:"max_chunks_per_item,omitempty"` // Maximum number of chunks per knowledge item; 0 means unlimited
 
-	// When PreferSourceFile is true, prefer using the Eino FileLoader to read the original text from file_path before indexing (if it differs from the content in the store, the disk wins)
+	// PreferSourceFile 为 true 时优先用 Agent FileLoader 从 file_path 读原文再索引（与库内 content 不一致时以磁盘为准）
 	PreferSourceFile bool `yaml:"prefer_source_file,omitempty" json:"prefer_source_file,omitempty"`
 
 	// Rate-limit configuration (to avoid API rate limits)
@@ -2534,7 +2448,7 @@ type IndexingConfig struct {
 
 	// BatchSize is the embedding batch size (for SQLite index writes); 0 means default 64
 	BatchSize int `yaml:"batch_size,omitempty" json:"batch_size,omitempty"`
-	// SubIndexes is passed to Eino indexer.WithSubIndexes (logical-partition markers carried with Document metadata)
+	// SubIndexes 传入 Agent indexer.WithSubIndexes（逻辑分区标记，随 Document 元数据传递）
 	SubIndexes []string `yaml:"sub_indexes,omitempty" json:"sub_indexes,omitempty"`
 }
 
@@ -2556,9 +2470,9 @@ type PostRetrieveConfig struct {
 	MaxContextTokens int `yaml:"max_context_tokens,omitempty" json:"max_context_tokens,omitempty"`
 }
 
-// MultiQueryConfig is Eino MultiQuery query rewriting (always enabled, with no off switch).
+// MultiQueryConfig 配置知识库查询改写。
 type MultiQueryConfig struct {
-	// MaxQueries is the upper bound of retrieval variants generated by the LLM (including semantic coverage of the original question); 0 means default 4.
+	// MaxQueries 包含原查询的检索次数上限。1 跳过改写，0 使用默认值 4。
 	MaxQueries int `yaml:"max_queries,omitempty" json:"max_queries,omitempty"`
 }
 

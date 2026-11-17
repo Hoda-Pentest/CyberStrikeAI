@@ -37,7 +37,7 @@ type FrontMatter struct {
 // OrchestratorMarkdown is the main-agent (Deep coordinator) definition parsed from the agents directory.
 type OrchestratorMarkdown struct {
 	Filename    string
-	EinoName    string // Written to deep.Config.Name / used for streaming-event filtering
+	AgentName   string // 写入 deep.Config.Name / 流式事件过滤
 	DisplayName string
 	Description string
 	Instruction string
@@ -198,8 +198,8 @@ func SlugID(name string) string {
 	return s
 }
 
-// sanitizeEinoAgentID normalizes the Deep main agent's Name in Eino: lowercase ASCII, digits, hyphens, consistent with the default cyberstrike-deep.
-func sanitizeEinoAgentID(s string) string {
+// sanitizeAgentAgentID 规范化 Deep 主代理在 Agent 中的 Name：小写 ASCII、数字、连字符，与默认 cyberstrike-deep 一致。
+func sanitizeAgentAgentID(s string) string {
 	s = strings.TrimSpace(strings.ToLower(s))
 	var b strings.Builder
 	for _, r := range s {
@@ -241,10 +241,10 @@ func orchestratorFromParsed(filename string, fm FrontMatter, body string) (*Orch
 	if rawID == "" {
 		rawID = SlugID(display)
 	}
-	eino := sanitizeEinoAgentID(rawID)
+	agentID := sanitizeAgentAgentID(rawID)
 	return &OrchestratorMarkdown{
 		Filename:    filepath.Base(strings.TrimSpace(filename)),
-		EinoName:    eino,
+		AgentName:   agentID,
 		DisplayName: display,
 		Description: strings.TrimSpace(fm.Description),
 		Instruction: strings.TrimSpace(body),
@@ -256,7 +256,7 @@ func orchestratorConfigFromOrchestrator(o *OrchestratorMarkdown) config.MultiAge
 		return config.MultiAgentSubConfig{}
 	}
 	return config.MultiAgentSubConfig{
-		ID:          o.EinoName,
+		ID:          o.AgentName,
 		Name:        o.DisplayName,
 		Description: o.Description,
 		Instruction: o.Instruction,
